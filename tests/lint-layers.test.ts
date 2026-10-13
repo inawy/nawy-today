@@ -28,6 +28,14 @@ describe('layer rules', () => {
     ['src/ui/x.tsx', "import Dexie from 'dexie';"],
     ['src/ui/x.tsx', "import { App } from '@/app/App';"],
     ['src/lib/x.ts', "import { db } from '@/data/db';"],
+    // temporal-polyfill is private to core/time (D-006)
+    ['src/ui/x.tsx', "import { Temporal } from 'temporal-polyfill';"],
+    ['src/app/x.tsx', "import { Temporal } from 'temporal-polyfill';"],
+    ['src/data/x.ts', "import { Temporal } from 'temporal-polyfill';"],
+    ['src/core/recurrence/x.ts', "import { Temporal } from 'temporal-polyfill';"],
+    // core/time keeps the same layer restrictions as the rest of core
+    ['src/core/time/x.ts', "import { db } from '@/data/db';"],
+    ['src/core/time/x.ts', "import { useState } from 'react';"],
   ])('rejects: %s  %s', async (file, code) => {
     expect(await ruleIds(code, file)).toContain(IMPORT);
   });
@@ -38,6 +46,11 @@ describe('layer rules', () => {
     ['src/ui/x.tsx', "import { useEvents } from '@/features/events';\nexport const v = useEvents;"],
     ['src/ui/x.tsx', "import { useState } from 'react';\nexport const v = useState;"],
     ['src/app/x.tsx', "import { View } from '@/ui/View';\nexport const v = View;"],
+    [
+      'src/core/time/x.ts',
+      "import { Temporal } from 'temporal-polyfill';\nexport const t = Temporal;",
+    ],
+    ['src/ui/x.tsx', "import { todayIn } from '@/core/time';\nexport const v = todayIn;"],
   ])('allows: %s  %s', async (file, code) => {
     expect(await ruleIds(code, file)).not.toContain(IMPORT);
   });

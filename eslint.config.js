@@ -5,6 +5,8 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 const DAS = 'dangerouslySetInnerHTML';
+// Only src/core/time may import the date library, so it can be swapped (D-006).
+const TEMPORAL = 'temporal-polyfill';
 
 const noInnerHtml = {
   selector: `JSXAttribute[name.name='${DAS}']`,
@@ -22,8 +24,9 @@ const noRawDate = [
 ];
 
 /** Forbid importing the given layers (and packages) from files inside src/<name>. */
-const layer = (name, forbiddenLayers, forbiddenPackages = []) => ({
+const layer = (name, forbiddenLayers, forbiddenPackages = [], ignores = []) => ({
   files: [`src/${name}/**/*.{ts,tsx}`],
+  ignores,
   rules: {
     'no-restricted-imports': [
       'error',
@@ -32,7 +35,7 @@ const layer = (name, forbiddenLayers, forbiddenPackages = []) => ({
           // Packages, including their sub-paths (e.g. "react-dom/client").
           ...forbiddenPackages.map((p) => ({
             group: [p, `${p}/**`],
-            message: `src/${name} must not import "${p}" (D-004).`,
+            message: `src/${name} must not import "${p}" (D-004, D-006).`,
           })),
           ...forbiddenLayers.map((l) => ({
             group: [`@/${l}`, `@/${l}/**`, `**/${l}`, `**/${l}/**`],
@@ -67,9 +70,16 @@ export default tseslint.config(
     rules: { 'no-restricted-syntax': ['error', noInnerHtml] },
   },
   // Layering. Direction: core <- data <- features <- ui <- app.
-  layer('core', ['data', 'features', 'ui', 'app', 'lib'], ['react', 'react-dom', 'dexie']),
-  layer('data', ['features', 'ui', 'app', 'lib'], ['react', 'react-dom']),
-  layer('features', ['ui', 'app'], ['dexie']),
-  layer('ui', ['data', 'app'], ['dexie']),
-  layer('lib', ['data', 'features', 'ui', 'app']),
+  layer(
+    'core',
+    ['data', 'features', 'ui', 'app', 'lib'],
+    ['react', 'react-dom', 'dexie', TEMPORAL],
+    ['src/core/time/**'],
+  ),
+  layer('core/time', ['data', 'features', 'ui', 'app', 'lib'], ['react', 'react-dom', 'dexie']),
+  layer('data', ['features', 'ui', 'app', 'lib'], ['react', 'react-dom', TEMPORAL]),
+  layer('features', ['ui', 'app'], ['dexie', TEMPORAL]),
+  layer('ui', ['data', 'app'], ['dexie', TEMPORAL]),
+  layer('lib', ['data', 'features', 'ui', 'app'], [TEMPORAL]),
+  layer('app', [], [TEMPORAL]),
 );

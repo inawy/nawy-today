@@ -18,13 +18,15 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Lockfile in sync
+        run: bash tools/check-lockfile.sh
       - name: Install
         run: bash tools/ci-run.sh install npm ci
 
       - name: Lint
         run: bash tools/ci-run.sh lint npm run lint
       - name: Format check
-        run: bash tools/ci-run.sh format npm run format:check
+        run: bash tools/check-format.sh
       - name: Test
         run: bash tools/ci-run.sh test npm test
       - name: Build
