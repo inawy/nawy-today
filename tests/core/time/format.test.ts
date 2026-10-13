@@ -14,7 +14,7 @@ import {
 const ARABIC_LETTERS = /[؀-ۿ]/;
 const ARABIC_INDIC_DIGITS = /[٠-٩]/;
 const LATIN_DIGITS = /[0-9]/;
-const flat = (s: string) => s.replace(/[\s  ]/g, ' ');
+const flat = (s: string) => s.replace(/[\s\u202f\u00a0]/g, ' ');
 
 const AR = { locale: 'ar' };
 const EN = { locale: 'en' };
