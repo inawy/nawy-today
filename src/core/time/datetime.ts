@@ -62,8 +62,7 @@ export function minuteOfDay(value: PlainDateTime): number {
 
 /** The instant (epoch milliseconds) at which this wall-clock time occurs in `timeZone`. */
 export function toInstantMs(value: PlainDateTime, timeZone: TimeZoneId): number {
-  return parse(value).toZonedDateTime(timeZone, { disambiguation: 'compatible' })
-    .epochMilliseconds;
+  return parse(value).toZonedDateTime(timeZone, { disambiguation: 'compatible' }).epochMilliseconds;
 }
 
 /** The wall-clock time in `timeZone` at the given instant. */
