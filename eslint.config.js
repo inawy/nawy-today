@@ -28,14 +28,17 @@ const layer = (name, forbiddenLayers, forbiddenPackages = []) => ({
     'no-restricted-imports': [
       'error',
       {
-        paths: forbiddenPackages.map((p) => ({
-          name: p,
-          message: `src/${name} must not import "${p}" (D-004).`,
-        })),
-        patterns: forbiddenLayers.map((l) => ({
-          group: [`@/${l}`, `@/${l}/**`, `**/${l}`, `**/${l}/**`],
-          message: `src/${name} must not import from the "${l}" layer (D-004).`,
-        })),
+        patterns: [
+          // Packages, including their sub-paths (e.g. "react-dom/client").
+          ...forbiddenPackages.map((p) => ({
+            group: [p, `${p}/**`],
+            message: `src/${name} must not import "${p}" (D-004).`,
+          })),
+          ...forbiddenLayers.map((l) => ({
+            group: [`@/${l}`, `@/${l}/**`, `**/${l}`, `**/${l}/**`],
+            message: `src/${name} must not import from the "${l}" layer (D-004).`,
+          })),
+        ],
       },
     ],
   },
