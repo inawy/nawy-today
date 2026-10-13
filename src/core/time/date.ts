@@ -45,7 +45,8 @@ export function diffDays(from: PlainDate, to: PlainDate): number {
 }
 
 export function compareDates(a: PlainDate, b: PlainDate): -1 | 0 | 1 {
-  return Temporal.PlainDate.compare(parse(a), parse(b));
+  const c = Temporal.PlainDate.compare(parse(a), parse(b));
+  return c < 0 ? -1 : c > 0 ? 1 : 0;
 }
 
 export function weekdayOf(date: PlainDate): IsoWeekday {
