@@ -6,7 +6,7 @@
 جزء من عائلة ناوي: [Nawy Notes](https://github.com/inawy/nawy-notes) · Nawy Today.
 
 ## الحالة
-🚧 **قيد البناء.** المرحلة 0 (الأساس والبوابات) أُنجزت؛ التالية: المرحلة 1 (`core/time`). التفاصيل في [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md).
+🚧 **قيد البناء.** المرحلتان 0 (الأساس) و1 (`core/time`) أُنجزتا؛ التالية: المرحلة 2 (النموذج والتخزين). التفاصيل في [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md).
 
 | الوثيقة | المحتوى |
 |---|---|
