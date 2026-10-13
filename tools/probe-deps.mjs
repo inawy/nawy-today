@@ -11,6 +11,7 @@ const pkgs = [
   'rrule', 'ical.js', 'fast-check', '@fontsource/ibm-plex-sans-arabic',
 ];
 
+const lines = [];
 for (const name of pkgs) {
   try {
     const out = execFileSync('npm', ['view', name, '--json',
@@ -19,8 +20,10 @@ for (const name of pkgs) {
     const j = JSON.parse(out);
     const msg = `${name}@${j.version} modified=${String(j['time.modified']).slice(0, 10)} ` +
       `size=${j['dist.unpackedSize']} license=${j.license} deprecated=${j.deprecated ?? 'no'}`;
-    console.log(`::notice title=dep::${msg}`);
+    lines.push(msg);
   } catch (e) {
-    console.log(`::warning title=dep-fail::${name} ${String(e.message).split('\n')[0]}`);
+    lines.push(`FAIL ${name} ${String(e.message).split('\n')[0]}`);
   }
 }
+
+console.log(`::notice title=deps::${lines.join('%0A')}`);
