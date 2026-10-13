@@ -22,11 +22,13 @@
 - اختصارات الكيبورد بـ `event.code`.
 - كل تغيير سلوك = اختبار. كل خطأ يُصلَح = اختبار يفشل قبل الإصلاح.
 
-## الأوامر (تُفعَّل في المرحلة 0)
-`npm ci` · `npm run dev` · `npm run build` · `npm run preview` · `npm test` · `npm run lint` · `npx playwright test`
+## الأوامر
+`npm ci` · `npm run dev` · `npm run build` · `npm run preview` · `npm test` · `npm run lint` · `npm run format:check`
+(`npx playwright test` يُضاف في Phase 10.)
 
 ## بوابات CI
-lint (0 تحذيرات) ← test ← build (يتضمن `tsc`) ← e2e.
+install (`npm ci`) ← lint (0 تحذيرات) ← format ← test ← build (يتضمن `tsc`) ← e2e (لاحقًا).
+لا دمج في `main` قبل أن يخضر CI على الفرع.
 
 ## عند الشك
 اسأل صاحب المشروع. وبلّغ مبكرًا إن ظهر أن تقنية ما كانت الأنسب وليست معتمدة — لا تنتظر النهاية.
