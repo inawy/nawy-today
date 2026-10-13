@@ -1,0 +1,72 @@
+// Flat config. The layering rules enforce D-004 (core <- data <- features <- ui <- app).
+// They are themselves tested in tests/lint-layers.test.ts — keep both in sync.
+import js from '@eslint/js';
+import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from 'typescript-eslint';
+
+const DAS = 'dangerouslySetInnerHTML';
+
+const noInnerHtml = {
+  selector: `JSXAttribute[name.name='${DAS}']`,
+  message: `${DAS} is forbidden (D-010).`,
+};
+const noRawDate = [
+  {
+    selector: "NewExpression[callee.name='Date']",
+    message: 'Use core/time instead of new Date() (D-005).',
+  },
+  {
+    selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+    message: 'Use core/time instead of Date.now() (D-005).',
+  },
+];
+
+/** Forbid importing the given layers (and packages) from files inside src/<name>. */
+const layer = (name, forbiddenLayers, forbiddenPackages = []) => ({
+  files: [`src/${name}/**/*.{ts,tsx}`],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: forbiddenPackages.map((p) => ({
+          name: p,
+          message: `src/${name} must not import "${p}" (D-004).`,
+        })),
+        patterns: forbiddenLayers.map((l) => ({
+          group: [`@/${l}`, `@/${l}/**`, `**/${l}`, `**/${l}/**`],
+          message: `src/${name} must not import from the "${l}" layer (D-004).`,
+        })),
+      },
+    ],
+  },
+});
+
+export default tseslint.config(
+  { ignores: ['dist', 'coverage', 'node_modules', 'playwright-report', 'test-results', 'tools'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ['**/*.{ts,tsx}'],
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
+    },
+  },
+  // Global source rules.
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/core/time/**'],
+    rules: { 'no-restricted-syntax': ['error', noInnerHtml, ...noRawDate] },
+  },
+  {
+    files: ['src/core/time/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-syntax': ['error', noInnerHtml] },
+  },
+  // Layering. Direction: core <- data <- features <- ui <- app.
+  layer('core', ['data', 'features', 'ui', 'app', 'lib'], ['react', 'react-dom', 'dexie']),
+  layer('data', ['features', 'ui', 'app', 'lib'], ['react', 'react-dom']),
+  layer('features', ['ui', 'app'], ['dexie']),
+  layer('ui', ['data', 'app'], ['dexie']),
+  layer('lib', ['data', 'features', 'ui', 'app']),
+);
