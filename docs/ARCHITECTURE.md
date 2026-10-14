@@ -6,8 +6,9 @@ src/
     time/        غلاف التاريخ والمناطق والتنسيق
     recurrence/  توسعة RRULE + الاستثناءات
     layout/      توزيع التراكب، شرائط الشهر، خط الآن
+    model/       أنواع Calendar/CalEvent، التحقق (البوابة الوحيدة)، tombstones، دمج، envelope
     search/      تطبيع عربي + مطابقة
-  data/        Dexie، المخطط، CRUD، envelope، اللقطات، الترحيل
+  data/        Dexie: schema · store (CRUD) · backup (تصدير/استيراد) · snapshots · purge · storage
   features/    منطق كل ميزة (hooks + حالة): events, calendars, view, settings, backup
   ui/          مكوّنات العرض: shell, views (today/day/week/month), editor, dialogs
   app/         التركيب: الجذر، المسارات، حدّ الأخطاء، تسجيل SW
