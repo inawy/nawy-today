@@ -92,6 +92,14 @@ export function addMinutes(
 }
 
 /**
+ * The system clock, in epoch milliseconds. The only place outside tests that reads the real
+ * clock: everything else takes a clock as a parameter (D-005).
+ */
+export function nowMs(): number {
+  return Date.now();
+}
+
+/**
  * The current wall-clock time in `timeZone`. `nowMs` is injectable so callers and tests never
  * depend on the real clock.
  */

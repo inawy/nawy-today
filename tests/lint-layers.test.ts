@@ -36,6 +36,11 @@ describe('layer rules', () => {
     // core/time keeps the same layer restrictions as the rest of core
     ['src/core/time/x.ts', "import { db } from '@/data/db';"],
     ['src/core/time/x.ts', "import { useState } from 'react';"],
+    // core/model is pure: no data layer, UI, database or date library of its own
+    ['src/core/model/x.ts', "import { db } from '@/data/db';"],
+    ['src/core/model/x.ts', "import Dexie from 'dexie';"],
+    ['src/core/model/x.ts', "import { Temporal } from 'temporal-polyfill';"],
+    ['src/data/x.ts', "import { View } from '@/app/App';"],
   ])('rejects: %s  %s', async (file, code) => {
     expect(await ruleIds(code, file)).toContain(IMPORT);
   });
@@ -51,6 +56,12 @@ describe('layer rules', () => {
       "import { Temporal } from 'temporal-polyfill';\nexport const t = Temporal;",
     ],
     ['src/ui/x.tsx', "import { todayIn } from '@/core/time';\nexport const v = todayIn;"],
+    [
+      'src/core/model/x.ts',
+      "import { isValidDate } from '@/core/time';\nexport const v = isValidDate;",
+    ],
+    ['src/data/x.ts', "import Dexie from 'dexie';\nexport const v = Dexie;"],
+    ['src/data/x.ts', "import { parseEvent } from '@/core/model';\nexport const v = parseEvent;"],
   ])('allows: %s  %s', async (file, code) => {
     expect(await ruleIds(code, file)).not.toContain(IMPORT);
   });
@@ -72,5 +83,41 @@ describe('syntax rules', () => {
     const code = 'export const A = () => <div dangerouslySetInnerHTML={{ __html: "x" }} />;';
     expect(await ruleIds(code, 'src/ui/A.tsx')).toContain(SYNTAX);
     expect(await ruleIds(code, 'src/core/time/A.tsx')).toContain(SYNTAX);
+  });
+});
+
+describe('hard-delete rule (D-008): records are removed only by purge.ts and snapshots.ts', () => {
+  const calls = [
+    ['delete', "declare const db: any;\ndb.events.delete('x');"],
+    ['bulkDelete', "declare const db: any;\ndb.events.bulkDelete(['x']);"],
+    ['clear', 'declare const db: any;\ndb.events.clear();'],
+    [
+      'a delete reached through a query',
+      "declare const db: any;\ndb.events.where('a').equals(1).delete();",
+    ],
+  ] as const;
+
+  it.each(calls)('rejects %s anywhere else in src/data', async (_label, code) => {
+    for (const file of ['src/data/store.ts', 'src/data/backup.ts', 'src/data/new-file.ts']) {
+      expect(await ruleIds(code, file)).toContain(SYNTAX);
+    }
+  });
+
+  it.each(calls)('allows %s in purge.ts and snapshots.ts', async (_label, code) => {
+    for (const file of ['src/data/purge.ts', 'src/data/snapshots.ts']) {
+      expect(await ruleIds(code, file)).not.toContain(SYNTAX);
+    }
+  });
+
+  it('does not restrict other layers (e.g. Map.delete in core)', async () => {
+    const code = 'export const f = (m: Map<string, number>) => m.delete("x");';
+    expect(await ruleIds(code, 'src/core/x.ts')).not.toContain(SYNTAX);
+  });
+
+  it('keeps the other syntax rules active in src/data', async () => {
+    expect(await ruleIds('export const d = Date.now();', 'src/data/store.ts')).toContain(SYNTAX);
+    expect(await ruleIds('export const d = new Date();', 'src/data/store.ts')).toContain(SYNTAX);
+    const jsx = 'export const A = () => <div dangerouslySetInnerHTML={{ __html: "x" }} />;';
+    expect(await ruleIds(jsx, 'src/data/A.tsx')).toContain(SYNTAX);
   });
 });

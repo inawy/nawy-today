@@ -12,6 +12,12 @@ const noInnerHtml = {
   selector: `JSXAttribute[name.name='${DAS}']`,
   message: `${DAS} is forbidden (D-010).`,
 };
+// Records are never removed directly; deleting writes a tombstone (D-008). Only these files may
+// call a Dexie delete, and only to purge expired tombstones or prune old snapshots.
+const noHardDelete = {
+  selector: 'CallExpression[callee.property.name=/^(delete|bulkDelete|clear)$/]',
+  message: 'Hard deletes are only allowed in src/data/purge.ts and src/data/snapshots.ts (D-008).',
+};
 const noRawDate = [
   {
     selector: "NewExpression[callee.name='Date']",
@@ -68,6 +74,11 @@ export default tseslint.config(
   {
     files: ['src/core/time/**/*.{ts,tsx}'],
     rules: { 'no-restricted-syntax': ['error', noInnerHtml] },
+  },
+  {
+    files: ['src/data/**/*.{ts,tsx}'],
+    ignores: ['src/data/purge.ts', 'src/data/snapshots.ts'],
+    rules: { 'no-restricted-syntax': ['error', noInnerHtml, ...noRawDate, noHardDelete] },
   },
   // Layering. Direction: core <- data <- features <- ui <- app.
   layer(
