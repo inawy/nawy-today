@@ -1,4 +1,3 @@
-import type { EntityTable } from 'dexie';
 import {
   buildEnvelope,
   planMerge,
@@ -33,8 +32,13 @@ export function exportEnvelope(db: NawyDb, exportedAt: number = nowMs()): Promis
   });
 }
 
+/** The one thing loadLocal needs from a table, so it works for any table keyed by string id. */
+interface BulkReadable<T> {
+  bulkGet(keys: string[]): PromiseLike<(T | undefined)[]>;
+}
+
 async function loadLocal<T extends { id: string }>(
-  table: EntityTable<T, 'id'>,
+  table: BulkReadable<T>,
   ids: readonly string[],
 ): Promise<Map<string, T>> {
   const rows = await table.bulkGet([...ids]);
