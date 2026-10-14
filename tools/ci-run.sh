@@ -11,4 +11,8 @@ if [ "$rc" -ne 0 ]; then
   msg="$(tail -c 3500 "$out" | python3 -c 'import sys; s=sys.stdin.read(); print(s.replace("%","%25").replace("\r","%0D").replace("\n","%0A"), end="")')"
   echo "::error title=${label} failed (exit ${rc})::${msg}"
 fi
+if [ "$rc" -eq 0 ] && [ "$label" = "test" ]; then
+  summary="$(sed 's/\x1b\[[0-9;]*m//g' "$out" | grep -E '^ *(Test Files|Tests) ' | tr -s ' ' | tr '\n' ';')"
+  echo "::notice title=test summary::${summary}"
+fi
 exit "$rc"
