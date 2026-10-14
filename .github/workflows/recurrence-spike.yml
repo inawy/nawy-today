@@ -1,0 +1,37 @@
+name: recurrence-spike
+
+# One-off comparison of recurrence libraries (D-021). Libraries are installed in a throw-away
+# directory and never touch package.json.
+on:
+  push:
+    branches: [phase-3/recurrence-spike]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fixtures are reproducible from dateutil
+        run: |
+          pip install -r tools/recurrence/requirements.txt
+          python tools/recurrence/gen_fixtures.py --check
+      - name: Install candidate libraries (throw-away dir)
+        run: |
+          mkdir -p "$RUNNER_TEMP/libs" && cd "$RUNNER_TEMP/libs"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund rrule@2.8.1 ical.js@2.2.1
+      - name: Compare
+        run: |
+          export SPIKE_LIBS_DIR="$RUNNER_TEMP/libs"
+          node tools/recurrence/run-compare.mjs | tee report.txt
+          python3 tools/annotate.py "recurrence spike" head 60000 < report.txt | sed 's/^::error/::notice/'
