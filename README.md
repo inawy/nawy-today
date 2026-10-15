@@ -6,7 +6,7 @@
 جزء من عائلة ناوي: [Nawy Notes](https://github.com/inawy/nawy-notes) · Nawy Today.
 
 ## الحالة
-🚧 **قيد البناء.** المراحل 0 (الأساس) و1 (`core/time`) و2 (النموذج والتخزين) أُنجزت؛ التالية: المرحلة 3 (التكرار، تبدأ بـ spike). التفاصيل في [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md).
+🚧 **قيد البناء.** المراحل 0 (الأساس) و1 (`core/time`) و2 (النموذج والتخزين) و3 (التكرار) أُنجزت؛ التالية: المرحلة 4 (`core/layout`). التفاصيل في [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md).
 
 | الوثيقة | المحتوى |
 |---|---|
