@@ -57,14 +57,21 @@ describe('layoutWeekRow', () => {
     expect(r.hidden[0]).toBe(2);
   });
 
-  it('a bar that crosses an overflowing day loses its place for the "+N" there', () => {
-    // Monday has 3 items with room for 2 lanes: one is hidden on Monday. The wide bar in lane 1
-    // covers Mon–Wed; it must yield lane 1 to the "+N" and is hidden (counted on Mon, Tue, Wed).
+  it('only the items on the overflowing day give way to its "+N"', () => {
+    // Longest first: wide takes lane 0, m1 lane 1, m2 lane 2. With 2 lanes, Monday overflows (m2),
+    // so lane 1 on Monday is the "+N": m1 is hidden too. wide covers Mon–Wed but sits in lane 0
+    // and stays visible; Tuesday and Wednesday have nothing hidden.
     const r = layoutWeekRow([span('m1', 0, 0), span('wide', 0, 2), span('m2', 0, 0)], W, 2);
-    const visible = r.segments.map((s) => s.id);
-    expect(visible).toHaveLength(1);
-    expect(r.hidden[0]).toBe(2);
-    expect(r.hidden[1]).toBe(visible.includes('wide') ? 0 : 1);
+    expect(r.segments.map((s) => [s.id, s.lane])).toEqual([['wide', 0]]);
+    expect(r.hidden).toEqual([2, 0, 0, 0, 0, 0, 0]);
+  });
+
+  it('a hidden multi-day bar is counted on every day it covers', () => {
+    // lanes: a(0) b(1) c(2, Mon–Wed). maxLanes 2 → c hidden on Mon, Tue, Wed; Tuesday then needs a
+    // "+N", so b (lane 1, Mon–Tue) yields as well.
+    const r = layoutWeekRow([span('a', 0, 2), span('b', 0, 1), span('c', 0, 2)], W, 2);
+    expect(r.segments.map((s) => s.id)).toEqual(['a']);
+    expect(r.hidden.slice(0, 4)).toEqual([2, 2, 1, 0]);
   });
 
   it('maxLanes 1 draws only "+N" labels on busy days', () => {
