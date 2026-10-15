@@ -66,3 +66,29 @@ export function isoDateOfEpochDay(epochDay: number): PlainDate {
   const { year, month, day } = fromEpochDay(epochDay);
   return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
+
+const ISO_DATE_TIME = /^(\d{4}-\d{2}-\d{2})(?:T(\d{2}):(\d{2}))?$/;
+
+/**
+ * Minutes since 1970-01-01T00:00 of a wall-clock value (`YYYY-MM-DD` counts as 00:00), or
+ * `undefined` if malformed. Purely civil: no zone, no DST — use it for wall-clock offsets only.
+ */
+export function toEpochMinute(value: string): number | undefined {
+  const m = ISO_DATE_TIME.exec(value);
+  if (!m) return undefined;
+  const day = epochDayOf(m[1] ?? '');
+  if (day === undefined) return undefined;
+  const hour = m[2] === undefined ? 0 : Number(m[2]);
+  const minute = m[3] === undefined ? 0 : Number(m[3]);
+  if (hour > 23 || minute > 59) return undefined;
+  return day * 1440 + hour * 60 + minute;
+}
+
+/** Inverse of `toEpochMinute`: a `YYYY-MM-DD` string when `dateOnly`, else `YYYY-MM-DDTHH:mm`. */
+export function isoOfEpochMinute(epochMinute: number, dateOnly: boolean): string {
+  const day = Math.floor(epochMinute / 1440);
+  const date = isoDateOfEpochDay(day);
+  if (dateOnly) return date;
+  const rest = epochMinute - day * 1440;
+  return `${date}T${String(Math.floor(rest / 60)).padStart(2, '0')}:${String(rest % 60).padStart(2, '0')}`;
+}
