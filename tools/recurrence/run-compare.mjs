@@ -75,5 +75,5 @@ for (const lib of libs) {
   for (const h of hangs.slice(0, 5)) out(`  ${h}`);
   out();
 }
-out('Window jumping: neither library skips ahead; both iterate from DTSTART (checked in source/docs, see D-021 result).');
+out('Window jumping was NOT measured in this run.');
 console.log(lines.join('\n'));
