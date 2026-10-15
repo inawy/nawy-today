@@ -42,7 +42,9 @@ export interface UpdateOptions {
 }
 
 export type UpdateResult<T> =
-  { status: 'ok'; value: T } | { status: 'not-found' } | { status: 'conflict'; current: T };
+  | { status: 'ok'; value: T }
+  | { status: 'not-found' }
+  | { status: 'conflict'; current: T };
 
 function valid<T>(result: Result<T>): T {
   if (!result.ok) throw new ValidationError(result.error);
