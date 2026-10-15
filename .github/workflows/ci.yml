@@ -31,3 +31,5 @@ jobs:
         run: bash tools/ci-run.sh test npm test
       - name: Build
         run: bash tools/ci-run.sh build npm run build
+      - name: Dist checks (CSP, no inline script, brand token)
+        run: bash tools/ci-run.sh dist node tools/check-dist.mjs
