@@ -86,7 +86,6 @@ describe('calendar edge cases', () => {
     expect(expand('FREQ=MONTHLY;BYDAY=5SU', '2026-11-29', '2026-11-01', '2027-04-01')).toEqual([
       '2026-11-29',
       '2027-01-31',
-      '2027-03-28',
     ]);
   });
 

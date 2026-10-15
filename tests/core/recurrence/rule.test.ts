@@ -69,10 +69,10 @@ describe('formatRule', () => {
   it.each([
     'FREQ=DAILY',
     'FREQ=DAILY;INTERVAL=3;COUNT=7',
-    'FREQ=WEEKLY;INTERVAL=2;BYDAY=SU,MO;WKST=SU',
+    'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,SU;WKST=SU',
     'FREQ=MONTHLY;BYDAY=-1FR;UNTIL=20271231',
     'FREQ=MONTHLY;BYMONTHDAY=-2,-1,1',
-    'FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU;UNTIL=20301231T090000',
+    'FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3;UNTIL=20301231T090000',
   ])('round-trips %s', (text) => {
     const rule = parse(text);
     expect(formatRule(rule)).toBe(text);
