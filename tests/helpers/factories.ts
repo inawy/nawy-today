@@ -1,4 +1,5 @@
 import type { CalEvent, Calendar } from '@/core/model';
+import type { NewEvent } from '@/data';
 
 /** 2026-10-13 09:00 UTC. */
 export const T0 = Date.UTC(2026, 9, 13, 9, 0);
@@ -61,4 +62,19 @@ export function fakeClock(start: number = T0) {
 export function counterIds(prefix = 'id'): () => string {
   let n = 0;
   return () => `${prefix}-${++n}`;
+}
+
+const GENERATED = ['id', 'createdAt', 'updatedAt', 'deletedAt'];
+
+/** An event as the store's `createEvent` expects it (no generated fields). */
+export function makeNewEvent(over: Partial<CalEvent> = {}): NewEvent {
+  return Object.fromEntries(
+    Object.entries(makeEvent(over)).filter(([key]) => !GENERATED.includes(key)),
+  ) as NewEvent;
+}
+
+export function makeNewAllDayEvent(over: Partial<CalEvent> = {}): NewEvent {
+  return Object.fromEntries(
+    Object.entries(makeAllDayEvent(over)).filter(([key]) => !GENERATED.includes(key)),
+  ) as NewEvent;
 }

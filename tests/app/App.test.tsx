@@ -5,7 +5,7 @@ import { App } from '@/app/App';
 import { createDb, createStore } from '@/data';
 import type { NawyDb } from '@/data';
 import { SETTINGS_KEY } from '@/features/settings';
-import { makeAllDayEvent, makeEvent } from '../helpers/factories';
+import { makeNewAllDayEvent, makeNewEvent } from '../helpers/factories';
 
 const NOW = () => Date.UTC(2026, 9, 13, 12, 0); // Tue 13 Oct 2026
 
@@ -28,16 +28,15 @@ async function seed(): Promise<{ calendarId: string; db: NawyDb }> {
   const db = createDb(dbName);
   const store = createStore(db);
   const calendar = await store.createCalendar({ name: 'Personal', color: 'blue' });
-  const { calendarId: _c, id: _i, createdAt: _a, updatedAt: _u, ...sync } = makeEvent();
-  await store.createEvent({ ...sync, calendarId: calendar.id, title: 'Team sync' });
-  const { calendarId: _c2, id: _i2, createdAt: _a2, updatedAt: _u2, ...trip } = makeAllDayEvent();
-  await store.createEvent({
-    ...trip,
-    calendarId: calendar.id,
-    title: 'Trip',
-    start: '2026-10-20',
-    end: '2026-10-23',
-  });
+  await store.createEvent(makeNewEvent({ calendarId: calendar.id, title: 'Team sync' }));
+  await store.createEvent(
+    makeNewAllDayEvent({
+      calendarId: calendar.id,
+      title: 'Trip',
+      start: '2026-10-20',
+      end: '2026-10-23',
+    }),
+  );
   db.close();
   return { calendarId: calendar.id, db };
 }
