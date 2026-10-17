@@ -2,10 +2,7 @@ import { useEffect } from 'react';
 import type { ViewKind } from './nav';
 
 export type ShortcutAction =
-  | { kind: 'today' }
-  | { kind: 'previous' }
-  | { kind: 'next' }
-  | { kind: 'view'; view: ViewKind };
+  { kind: 'today' } | { kind: 'previous' } | { kind: 'next' } | { kind: 'view'; view: ViewKind };
 
 const BY_CODE: Record<string, ShortcutAction> = {
   KeyT: { kind: 'today' },
