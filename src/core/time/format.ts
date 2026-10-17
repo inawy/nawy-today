@@ -100,3 +100,17 @@ export function formatTime(value: PlainDateTime, o: TimeFormatOptions): string {
   });
   return f.format(at);
 }
+
+/**
+ * A range of dates the way people write it, e.g. "12 – 18 Oct 2026" / "١٢ – ١٨ أكتوبر ٢٠٢٦"
+ * (the shared month and year are not repeated). `end` is inclusive.
+ */
+export function formatDateRange(start: PlainDate, end: PlainDate, o: FormatOptions): string {
+  const f = formatter(o.locale, {
+    ...gregorian(o),
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  return f.formatRange(utcMidnight(start), utcMidnight(end));
+}

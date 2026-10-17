@@ -5,6 +5,7 @@ import 'virtual:theme.css';
 import '@/ui/styles/base.css';
 import '@/ui/styles/shell.css';
 import '@/ui/styles/month.css';
+import '@/ui/styles/timegrid.css';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('#root element not found');

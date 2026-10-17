@@ -1,5 +1,5 @@
 // Layout of multi-day bars in ONE week row of the month grid, with a "+N more" overflow.
-// Days are epoch days (core/time civil math); the row has 7 columns 0…6.
+// Days are epoch days (core/time civil math); the row has `columns` columns (7 by default).
 
 export interface SpanItem {
   readonly id: string;
@@ -27,7 +27,8 @@ export interface WeekRowLayout {
 }
 
 /**
- * `weekStartDay` is the epoch day of the row's first column. `maxLanes` (≥ 1) is how many rows
+ * `weekStartDay` is the epoch day of the row's first column; `columns` (default 7) is how many
+ * consecutive days the row shows — 7 for a month week, 1…7 for the all-day row of day/week views. `maxLanes` (≥ 1) is how many rows
  * fit; when anything is hidden, the last row is given to the "+N" labels of the days concerned,
  * so a day shows either all its items or (maxLanes − 1) of them plus "+N".
  */
@@ -35,17 +36,20 @@ export function layoutWeekRow(
   items: readonly SpanItem[],
   weekStartDay: number,
   maxLanes: number,
+  columns = 7,
 ): WeekRowLayout {
   if (!Number.isInteger(maxLanes) || maxLanes < 1) throw new RangeError('maxLanes must be ≥ 1');
+  if (!Number.isInteger(columns) || columns < 1) throw new RangeError('columns must be ≥ 1');
+  const lastCol = columns - 1;
 
   const clipped = items
-    .filter((i) => i.endDay >= weekStartDay && i.startDay <= weekStartDay + 6)
+    .filter((i) => i.endDay >= weekStartDay && i.startDay <= weekStartDay + lastCol)
     .map((i) => ({
       id: i.id,
       startCol: Math.max(i.startDay, weekStartDay) - weekStartDay,
-      endCol: Math.min(i.endDay, weekStartDay + 6) - weekStartDay,
+      endCol: Math.min(i.endDay, weekStartDay + lastCol) - weekStartDay,
       continuesBefore: i.startDay < weekStartDay,
-      continuesAfter: i.endDay > weekStartDay + 6,
+      continuesAfter: i.endDay > weekStartDay + lastCol,
     }))
     .sort(
       (a, b) =>
@@ -72,7 +76,7 @@ export function layoutWeekRow(
   // hide more items (and make more days need a "+N"), so repeat until stable. Only grows ⇒ ends.
   const hiddenIds = new Set<string>(placed.filter((p) => p.lane >= maxLanes).map((p) => p.id));
   const hiddenOn = (): number[] => {
-    const counts = [0, 0, 0, 0, 0, 0, 0];
+    const counts = new Array<number>(columns).fill(0);
     for (const p of placed) {
       if (!hiddenIds.has(p.id)) continue;
       for (let c = p.startCol; c <= p.endCol; c += 1) counts[c] = (counts[c] ?? 0) + 1;

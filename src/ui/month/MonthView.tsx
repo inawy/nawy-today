@@ -12,11 +12,13 @@ export interface MonthViewProps {
   readonly today: PlainDate;
   /** Lanes under each day number (matches the `maxLanes` the model was built with). */
   readonly lanes: number;
+  /** Opens the day view for a date (day number or its "+N"). */
+  readonly onOpenDay: (date: PlainDate) => void;
 }
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
-export function MonthView({ model, today, lanes }: MonthViewProps) {
+export function MonthView({ model, today, lanes, onOpenDay }: MonthViewProps) {
   const t = useT();
   const { settings } = useSettings();
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
@@ -39,6 +41,7 @@ export function MonthView({ model, today, lanes }: MonthViewProps) {
           lanes={lanes}
           fmt={fmt}
           timeFmt={timeFmt}
+          onOpenDay={onOpenDay}
           moreLabel={(count) => t('moreEvents', { count: formatCount(count, fmt) })}
         />
       ))}
@@ -57,10 +60,11 @@ interface WeekRowProps {
   readonly lanes: number;
   readonly fmt: FormatOptions;
   readonly timeFmt: TimeFormatOptions;
+  readonly onOpenDay: (date: PlainDate) => void;
   readonly moreLabel: (count: number) => string;
 }
 
-function WeekRow({ week, month, today, lanes, fmt, timeFmt, moreLabel }: WeekRowProps) {
+function WeekRow({ week, month, today, lanes, fmt, timeFmt, onOpenDay, moreLabel }: WeekRowProps) {
   return (
     <div className="week">
       {week.days.map((day, col) => {
@@ -73,27 +77,33 @@ function WeekRow({ week, month, today, lanes, fmt, timeFmt, moreLabel }: WeekRow
             data-today={day === today ? 'true' : undefined}
             style={{ gridColumn: col + 1 } as Vars}
           >
-            <time
-              className="day-number"
-              dateTime={day}
+            <button
+              type="button"
+              className="day-btn"
               aria-label={formatDate(day, fmt, 'full')}
               aria-current={day === today ? 'date' : undefined}
+              onClick={() => onOpenDay(day)}
             >
-              {formatDayOfMonth(day, fmt)}
-            </time>
+              <time className="day-number" dateTime={day}>
+                {formatDayOfMonth(day, fmt)}
+              </time>
+            </button>
           </div>
         );
       })}
       {week.days.map((day, col) => {
         const hidden = week.hidden[col] ?? 0;
         return hidden > 0 ? (
-          <span
+          <button
             key={`more-${day}`}
+            type="button"
             className="more"
             style={{ gridColumn: col + 1, gridRow: lanes + 1 } as Vars}
+            aria-label={`${moreLabel(hidden)}, ${formatDate(day, fmt, 'full')}`}
+            onClick={() => onOpenDay(day)}
           >
             {moreLabel(hidden)}
-          </span>
+          </button>
         ) : null;
       })}
       {week.bars.map((bar) => (

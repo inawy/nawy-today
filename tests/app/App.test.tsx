@@ -49,7 +49,11 @@ describe('app: first screen', () => {
     open();
     expect(await screen.findByRole('heading', { level: 1, name: 'October 2026' })).toBeTruthy();
     expect(screen.getByText('No calendars yet.')).toBeTruthy();
-    expect(screen.getByText('13').getAttribute('aria-current')).toBe('date');
+    expect(
+      screen
+        .getByRole('button', { name: 'Tuesday, October 13, 2026' })
+        .getAttribute('aria-current'),
+    ).toBe('date');
   });
 
   it('shows stored events as bars on their days', async () => {
@@ -73,6 +77,106 @@ describe('app: navigation', () => {
     expect(title()).toBe('September 2026');
     fireEvent.click(screen.getByRole('button', { name: 'Today' }));
     expect(title()).toBe('October 2026');
+  });
+});
+
+const titleOf = () =>
+  (screen.getByRole('heading', { level: 1 }).textContent ?? '').replace(/[\s\u2009\u202f]/g, ' ');
+const pressed = (name: string) =>
+  screen.getByRole('button', { name }).getAttribute('aria-pressed') === 'true';
+
+describe('app: views', () => {
+  it('switches between day, week and month and keeps the date', async () => {
+    open();
+    await screen.findByRole('heading', { level: 1, name: 'October 2026' });
+    expect(pressed('Month')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Week' }));
+    expect(titleOf()).toMatch(/^Oct 12 ?[–-] ?18, 2026$/);
+    expect(pressed('Week')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Day' }));
+    expect(titleOf()).toBe('Tuesday, October 13, 2026');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Month' }));
+    expect(titleOf()).toBe('October 2026');
+  });
+
+  it('previous / next move by the unit of the current view', async () => {
+    open();
+    await screen.findByRole('heading', { level: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Day' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next day' }));
+    expect(titleOf()).toBe('Wednesday, October 14, 2026');
+    fireEvent.click(screen.getByRole('button', { name: 'Week' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Previous week' }));
+    expect(titleOf()).toMatch(/^Oct 5 ?[–-] ?11, 2026$/);
+    fireEvent.click(screen.getByRole('button', { name: 'Today' }));
+    expect(titleOf()).toMatch(/^Oct 12 ?[–-] ?18, 2026$/);
+  });
+
+  it('opens the day view from a day number in the month, and from a week header', async () => {
+    open();
+    await screen.findByRole('heading', { level: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Thursday, October 15, 2026' }));
+    expect(titleOf()).toBe('Thursday, October 15, 2026');
+    expect(pressed('Day')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Week' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Saturday, October 17, 2026' }));
+    expect(titleOf()).toBe('Saturday, October 17, 2026');
+  });
+
+  it('shows stored events as blocks in the week view, and the all-day one in its row', async () => {
+    await seed();
+    open();
+    await screen.findByText('Team sync');
+    fireEvent.click(screen.getByRole('button', { name: 'Week' }));
+    expect(screen.getByText('Team sync')).toBeTruthy();
+    expect(screen.getByText('09:00 – 10:00', { exact: false })).toBeTruthy();
+    expect(screen.queryByText('Trip')).toBeNull(); // 20–22 Oct is next week
+    fireEvent.click(screen.getByRole('button', { name: 'Next week' }));
+    expect(screen.getByText('Trip')).toBeTruthy();
+    expect(screen.getByText('All day')).toBeTruthy();
+  });
+
+  it('draws the now line in the week that contains today', async () => {
+    open();
+    await screen.findByRole('heading', { level: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Week' }));
+    expect(screen.getAllByTestId('now-line')).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Next week' }));
+    expect(screen.queryByTestId('now-line')).toBeNull();
+  });
+});
+
+describe('app: keyboard shortcuts', () => {
+  it('work by physical key, and stay quiet while typing or while the drawer is open', async () => {
+    open();
+    await screen.findByRole('heading', { level: 1 });
+
+    fireEvent.keyDown(window, { code: 'KeyW' });
+    expect(pressed('Week')).toBe(true);
+    fireEvent.keyDown(window, { code: 'KeyN' });
+    expect(titleOf()).toMatch(/^Oct 19 ?[–-] ?25, 2026$/);
+    fireEvent.keyDown(window, { code: 'KeyT' });
+    expect(titleOf()).toMatch(/^Oct 12 ?[–-] ?18, 2026$/);
+    fireEvent.keyDown(window, { code: 'KeyD' });
+    expect(pressed('Day')).toBe(true);
+
+    // In a form control a letter is just a letter.
+    fireEvent.keyDown(screen.getByLabelText('Language'), { code: 'KeyM' });
+    expect(pressed('Day')).toBe(true);
+    // With a modifier it belongs to the browser.
+    fireEvent.keyDown(window, { code: 'KeyM', ctrlKey: true });
+    expect(pressed('Day')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    fireEvent.keyDown(window, { code: 'KeyM' });
+    expect(pressed('Day')).toBe(true);
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Close menu' }), { code: 'Escape' });
+    fireEvent.keyDown(window, { code: 'KeyM' });
+    expect(pressed('Month')).toBe(true);
   });
 });
 

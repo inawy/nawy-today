@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import type { Calendar } from '@/core/model';
 import { useT } from '@/features/i18n';
+import type { ViewKind } from '@/features/view';
 import { trapTab } from '@/lib/focusTrap';
 import { CloseIcon } from './Icons';
 import { Sidebar } from './Sidebar';
@@ -9,6 +10,11 @@ import { TopBar } from './TopBar';
 
 export interface ShellProps {
   readonly title: string;
+  readonly view: ViewKind;
+  readonly onView: (view: ViewKind) => void;
+  /** The drawer (narrow screens) is controlled so shortcuts can pause while it is open. */
+  readonly drawerOpen: boolean;
+  readonly onDrawerOpenChange: (open: boolean) => void;
   readonly calendars: readonly Calendar[];
   readonly onToggleCalendar: (id: string, visible: boolean) => void;
   readonly onToday: () => void;
@@ -24,6 +30,10 @@ export interface ShellProps {
  */
 export function Shell({
   title,
+  view,
+  onView,
+  drawerOpen: open,
+  onDrawerOpenChange: setOpen,
   calendars,
   onToggleCalendar,
   onToday,
@@ -32,7 +42,6 @@ export function Shell({
   children,
 }: ShellProps) {
   const t = useT();
-  const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
@@ -40,7 +49,7 @@ export function Shell({
   const close = useCallback(() => {
     setOpen(false);
     menuRef.current?.focus();
-  }, []);
+  }, [setOpen]);
 
   useEffect(() => {
     if (open) closeRef.current?.focus();
@@ -63,9 +72,11 @@ export function Shell({
       </a>
       <TopBar
         title={title}
+        view={view}
+        onView={onView}
         menuRef={menuRef}
         drawerOpen={open}
-        onMenu={() => setOpen((v) => !v)}
+        onMenu={() => setOpen(!open)}
         onToday={onToday}
         onPrevious={onPrevious}
         onNext={onNext}

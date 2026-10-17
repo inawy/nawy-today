@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildMonthModel } from '@/features/month';
 import type { MonthModel } from '@/features/month';
@@ -6,7 +6,10 @@ import { SettingsProvider, defaultSettings } from '@/features/settings';
 import { MonthView } from '@/ui/month/MonthView';
 import { makeCalendar, makeEvent } from '../helpers/factories';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  opened.length = 0;
+});
 
 const storage = (locale: 'ar' | 'en', extra: object = {}) => ({
   getItem: () => JSON.stringify({ ...defaultSettings(locale), ...extra }),
@@ -24,10 +27,11 @@ function model(events: unknown[], maxLanes = 3): MonthModel {
   });
 }
 
+const opened: string[] = [];
 const view = (m: MonthModel, locale: 'ar' | 'en' = 'en', extra: object = {}) =>
   render(
     <SettingsProvider storage={storage(locale, extra)} languages={[locale]}>
-      <MonthView model={m} today="2026-10-13" lanes={3} />
+      <MonthView model={m} today="2026-10-13" lanes={3} onOpenDay={(d) => opened.push(d)} />
     </SettingsProvider>,
   );
 
@@ -86,5 +90,23 @@ describe('MonthView', () => {
     expect(screen.getByText('Fine')).toBeTruthy();
     expect(screen.getByText("Couldn't show this event")).toBeTruthy();
     spy.mockRestore();
+  });
+
+  it('opens a day from its number, and marks today for assistive technology', () => {
+    view(model([]));
+    fireEvent.click(screen.getByRole('button', { name: 'Wednesday, October 14, 2026' }));
+    expect(opened).toEqual(['2026-10-14']);
+    expect(
+      screen
+        .getByRole('button', { name: 'Tuesday, October 13, 2026' })
+        .getAttribute('aria-current'),
+    ).toBe('date');
+  });
+
+  it('opens that day from its "+N" too', () => {
+    const events = ['a', 'b', 'c', 'd', 'e'].map((id) => makeEvent({ id, title: id }));
+    view(model(events));
+    fireEvent.click(screen.getByRole('button', { name: /^\+3 more, Tuesday, October 13, 2026$/ }));
+    expect(opened).toEqual(['2026-10-13']);
   });
 });

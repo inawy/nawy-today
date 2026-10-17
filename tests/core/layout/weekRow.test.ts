@@ -137,3 +137,28 @@ describe('layoutWeekRow invariants (seeded random weeks)', () => {
     }
   });
 });
+
+describe('layoutWeekRow with a custom number of columns', () => {
+  it('lays out a single day (day view)', () => {
+    const items = ['a', 'b', 'c', 'd'].map((id) => span(id, 0, 0));
+    const r = layoutWeekRow(items, W, 3, 1);
+    expect(r.hidden).toEqual([2]);
+    expect(r.segments).toHaveLength(2);
+  });
+
+  it('clips to the shown days and marks the open edges', () => {
+    const r = layoutWeekRow([{ id: 'x', startDay: W - 2, endDay: W + 5 }], W, 3, 3);
+    expect(r.segments).toEqual([
+      { id: 'x', lane: 0, startCol: 0, endCol: 2, continuesBefore: true, continuesAfter: true },
+    ]);
+    expect(r.hidden).toEqual([0, 0, 0]);
+  });
+
+  it('ignores items beyond the shown days', () => {
+    expect(layoutWeekRow([span('far', 4, 5)], W, 3, 3).segments).toEqual([]);
+  });
+
+  it('rejects a non-positive column count', () => {
+    expect(() => layoutWeekRow([], W, 3, 0)).toThrow(RangeError);
+  });
+});

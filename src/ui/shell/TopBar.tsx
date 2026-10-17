@@ -1,9 +1,13 @@
 import type { Ref } from 'react';
 import { useT } from '@/features/i18n';
+import type { MessageKey } from '@/features/i18n';
+import type { ViewKind } from '@/features/view';
 import { ChevronIcon, MenuIcon } from './Icons';
 
 export interface TopBarProps {
   readonly title: string;
+  readonly view: ViewKind;
+  readonly onView: (view: ViewKind) => void;
   readonly onMenu: () => void;
   readonly menuRef: Ref<HTMLButtonElement>;
   readonly drawerOpen: boolean;
@@ -12,8 +16,27 @@ export interface TopBarProps {
   readonly onNext: () => void;
 }
 
+const VIEWS: readonly [ViewKind, MessageKey][] = [
+  ['day', 'viewDay'],
+  ['week', 'viewWeek'],
+  ['month', 'viewMonth'],
+];
+
+const PREVIOUS: Record<ViewKind, MessageKey> = {
+  day: 'previousDay',
+  week: 'previousWeek',
+  month: 'previousMonth',
+};
+const NEXT: Record<ViewKind, MessageKey> = {
+  day: 'nextDay',
+  week: 'nextWeek',
+  month: 'nextMonth',
+};
+
 export function TopBar({
   title,
+  view,
+  onView,
   onMenu,
   menuRef,
   drawerOpen,
@@ -38,11 +61,11 @@ export function TopBar({
       <button type="button" className="btn" onClick={onToday}>
         {t('today')}
       </button>
-      {/* Previous points toward the start of the line: the chevron is mirrored by direction. */}
+      {/* Each chevron is drawn pointing to the inline end and mirrored where needed. */}
       <button
         type="button"
         className="icon-btn flip-ltr"
-        aria-label={t('previousMonth')}
+        aria-label={t(PREVIOUS[view])}
         onClick={onPrevious}
       >
         <ChevronIcon />
@@ -50,7 +73,7 @@ export function TopBar({
       <button
         type="button"
         className="icon-btn flip-rtl"
-        aria-label={t('nextMonth')}
+        aria-label={t(NEXT[view])}
         onClick={onNext}
       >
         <ChevronIcon />
@@ -58,6 +81,19 @@ export function TopBar({
       <h1 className="topbar-title" aria-live="polite">
         {title}
       </h1>
+      <div role="group" aria-label={t('views')} className="view-switch">
+        {VIEWS.map(([kind, key]) => (
+          <button
+            key={kind}
+            type="button"
+            className="btn view-btn"
+            aria-pressed={view === kind}
+            onClick={() => onView(kind)}
+          >
+            {t(key)}
+          </button>
+        ))}
+      </div>
     </header>
   );
 }

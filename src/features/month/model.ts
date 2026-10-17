@@ -1,5 +1,4 @@
-import type { CalEvent, Calendar } from '@/core/model';
-import { parseCalendar, parseEvent } from '@/core/model';
+import { colorOf, prepareData } from '@/features/common/prepare';
 import { layoutWeekRow } from '@/core/layout';
 import type { BarSegment } from '@/core/layout';
 import { expandEvents } from '@/core/recurrence';
@@ -56,29 +55,7 @@ export function daySpan(o: Occurrence): { startDay: number; endDay: number } | u
 }
 
 export function buildMonthModel(input: MonthInput): MonthModel {
-  let skipped = 0;
-
-  const calendars = new Map<string, Calendar>();
-  for (const raw of input.calendars) {
-    const parsed = parseCalendar(raw);
-    if (parsed.ok) calendars.set(parsed.value.id, parsed.value);
-    else skipped += 1;
-  }
-
-  const events: CalEvent[] = [];
-  for (const raw of input.events) {
-    const parsed = parseEvent(raw);
-    if (!parsed.ok) {
-      skipped += 1;
-      continue;
-    }
-    const calendar = calendars.get(parsed.value.calendarId);
-    if (!calendar) {
-      skipped += 1;
-      continue;
-    }
-    if (calendar.visible) events.push(parsed.value);
-  }
+  const { calendars, events, skipped } = prepareData(input.calendars, input.events);
 
   const grid = monthGrid(input.year, input.month, input.weekStart);
   const first = grid[0]?.[0] as PlainDate;
@@ -103,8 +80,7 @@ export function buildMonthModel(input: MonthInput): MonthModel {
         {
           ...segment,
           occurrence,
-          calendarColor:
-            occurrence.event.color ?? calendars.get(occurrence.event.calendarId)?.color ?? 'gray',
+          calendarColor: colorOf(occurrence.event, calendars),
           showTime: !occurrence.event.allDay && singleDay,
         },
       ];

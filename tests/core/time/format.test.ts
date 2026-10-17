@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatDate,
+  formatDateRange,
   formatDayOfMonth,
   formatHijriDate,
   formatMonthTitle,
@@ -113,5 +114,39 @@ describe('time of day', () => {
     const a = formatTime('2026-10-13T09:05', { ...EN, hour12: false });
     const b = formatTime('2026-10-13T09:05', { ...EN, hour12: false });
     expect(a).toBe(b);
+  });
+});
+
+describe('formatDateRange', () => {
+  it('does not repeat the month and year inside one month', () => {
+    const text = flat(formatDateRange('2026-10-12', '2026-10-18', EN));
+    expect(text).toMatch(/^Oct 12 ?[–-] ?18, 2026$/);
+  });
+
+  it('names both months across a month boundary, the year once', () => {
+    const text = flat(formatDateRange('2026-10-28', '2026-11-03', EN));
+    expect(text).toContain('Oct');
+    expect(text).toContain('Nov');
+    expect(text.match(/2026/g)).toHaveLength(1);
+  });
+
+  it('shows both years across a year boundary', () => {
+    const text = flat(formatDateRange('2026-12-28', '2027-01-03', EN));
+    expect(text).toContain('2026');
+    expect(text).toContain('2027');
+  });
+
+  it('works in Arabic with the chosen digits, always Gregorian', () => {
+    const latin = formatDateRange('2026-10-12', '2026-10-18', AR);
+    expect(latin).toMatch(ARABIC_LETTERS);
+    expect(latin).toMatch(LATIN_DIGITS);
+    expect(latin).toContain('2026');
+    const indic = formatDateRange('2026-10-12', '2026-10-18', { ...AR, numerals: 'arab' });
+    expect(indic).toMatch(ARABIC_INDIC_DIGITS);
+    expect(indic).not.toMatch(LATIN_DIGITS);
+  });
+
+  it('a single day is just that day', () => {
+    expect(flat(formatDateRange('2026-10-12', '2026-10-12', EN))).toBe('Oct 12, 2026');
   });
 });

@@ -1,21 +1,26 @@
 import { useCallback, useMemo, useState } from 'react';
-import { formatMonthTitle, firstOfMonth, nowMs } from '@/core/time';
-import type { FormatOptions } from '@/core/time';
+import { datePart, nowMs } from '@/core/time';
+import type { FormatOptions, PlainDate } from '@/core/time';
 import type { NawyDb } from '@/data';
-import { useToday } from '@/features/clock/useToday';
+import { useNowLocal } from '@/features/clock/useNowLocal';
 import { DataProvider, useCalendarData, useData } from '@/features/data';
 import { useT } from '@/features/i18n';
-import { buildMonthModel, monthOf, shiftMonth } from '@/features/month';
-import type { MonthRef } from '@/features/month';
+import { buildMonthModel, monthOf } from '@/features/month';
 import { SettingsProvider, useSettings } from '@/features/settings';
 import type { ReadableStorage, WritableStorage } from '@/features/settings';
+import { buildTimeGridModel } from '@/features/timegrid';
+import { shiftAnchor, useShortcuts, viewTitle, visibleDays } from '@/features/view';
+import type { ShortcutAction, ViewKind } from '@/features/view';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { MonthView } from '@/ui/month/MonthView';
 import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
 import { Shell } from '@/ui/shell/Shell';
+import { TimeGrid } from '@/ui/timegrid/TimeGrid';
 
 /** How many event rows fit under a day number before "+N" (responsive tuning comes with Phase 6). */
 const MAX_LANES = 3;
+/** All-day rows above the day/week grid before "+N". */
+const MAX_ALL_DAY_LANES = 3;
 
 export interface AppProps {
   /** Injectable for tests; defaults to the real database. */
@@ -57,21 +62,36 @@ function Calendar({ now }: { readonly now: () => number }) {
   const { settings } = useSettings();
   const data = useData();
   const calendarData = useCalendarData();
-  const today = useToday(now);
-  const [shown, setShown] = useState<MonthRef>(() => monthOf(today));
+  const nowLocal = useNowLocal(now);
+  const today = datePart(nowLocal);
+  const [view, setView] = useState<ViewKind>('month');
+  const [anchor, setAnchor] = useState<PlainDate>(today);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  const model = useMemo(
+  const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
+
+  const monthModel = useMemo(() => {
+    const { year, month } = monthOf(anchor);
+    return buildMonthModel({
+      calendars: calendarData.calendars,
+      events: calendarData.events,
+      year,
+      month,
+      weekStart: settings.weekStart,
+      maxLanes: MAX_LANES,
+    });
+  }, [calendarData.calendars, calendarData.events, anchor, settings.weekStart]);
+
+  const gridModel = useMemo(
     () =>
-      buildMonthModel({
+      buildTimeGridModel({
         calendars: calendarData.calendars,
         events: calendarData.events,
-        year: shown.year,
-        month: shown.month,
-        weekStart: settings.weekStart,
-        maxLanes: MAX_LANES,
+        days: view === 'month' ? [] : visibleDays(view, anchor, settings.weekStart),
+        maxAllDayLanes: MAX_ALL_DAY_LANES,
       }),
-    [calendarData.calendars, calendarData.events, shown, settings.weekStart],
+    [calendarData.calendars, calendarData.events, view, anchor, settings.weekStart],
   );
 
   const toggle = useCallback(
@@ -81,41 +101,76 @@ function Calendar({ now }: { readonly now: () => number }) {
     [calendarData],
   );
 
+  const goToday = useCallback(() => setAnchor(today), [today]);
+  const previous = useCallback(() => setAnchor((a) => shiftAnchor(view, a, -1)), [view]);
+  const next = useCallback(() => setAnchor((a) => shiftAnchor(view, a, 1)), [view]);
+  const openDay = useCallback((date: PlainDate) => {
+    setAnchor(date);
+    setView('day');
+  }, []);
+
+  const onShortcut = useCallback(
+    (action: ShortcutAction) => {
+      if (action.kind === 'today') goToday();
+      else if (action.kind === 'previous') previous();
+      else if (action.kind === 'next') next();
+      else setView(action.view);
+    },
+    [goToday, previous, next],
+  );
+  useShortcuts(!drawerOpen, onShortcut);
+
   if (data.status === 'error') return <RecoveryScreen onRetry={data.retry} />;
   if (calendarData.status === 'error') {
     return <RecoveryScreen onRetry={() => window.location.reload()} retryLabel="reload" />;
   }
   if (calendarData.status === 'loading') return <LoadingScreen />;
 
-  const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
   const count = (n: number) =>
     new Intl.NumberFormat(settings.locale, { numberingSystem: settings.numerals }).format(n);
+  const skipped = view === 'month' ? monthModel.skipped : gridModel.skipped;
+  const problems = view === 'month' ? monthModel.problems : gridModel.problems;
 
   return (
     <Shell
-      title={formatMonthTitle(firstOfMonth(shown.year, shown.month), fmt)}
+      title={viewTitle(view, anchor, settings.weekStart, fmt)}
+      view={view}
+      onView={setView}
+      drawerOpen={drawerOpen}
+      onDrawerOpenChange={setDrawerOpen}
       calendars={calendarData.calendars}
       onToggleCalendar={toggle}
-      onToday={() => setShown(monthOf(today))}
-      onPrevious={() => setShown((m) => shiftMonth(m, -1))}
-      onNext={() => setShown((m) => shiftMonth(m, 1))}
+      onToday={goToday}
+      onPrevious={previous}
+      onNext={next}
     >
       {failed && (
         <p role="status" className="banner">
           {t('actionFailed')}
         </p>
       )}
-      {model.skipped > 0 && (
+      {skipped > 0 && (
         <p role="status" className="banner">
-          {t('skippedRecords', { count: count(model.skipped) })}
+          {t('skippedRecords', { count: count(skipped) })}
         </p>
       )}
-      {model.problems.length > 0 && (
+      {problems.length > 0 && (
         <p role="status" className="banner">
-          {t('problemSeries', { count: count(model.problems.length) })}
+          {t('problemSeries', { count: count(problems.length) })}
         </p>
       )}
-      <MonthView model={model} today={today} lanes={MAX_LANES} />
+      {view === 'month' ? (
+        <MonthView model={monthModel} today={today} lanes={MAX_LANES} onOpenDay={openDay} />
+      ) : (
+        <TimeGrid
+          key={view}
+          model={gridModel}
+          today={today}
+          nowLocal={nowLocal}
+          lanes={MAX_ALL_DAY_LANES}
+          onOpenDay={view === 'week' ? openDay : undefined}
+        />
+      )}
     </Shell>
   );
 }

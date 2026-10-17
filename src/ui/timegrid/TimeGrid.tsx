@@ -1,0 +1,240 @@
+import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { nowPosition } from '@/core/layout';
+import { formatDate, formatDayOfMonth, formatTime, formatWeekday } from '@/core/time';
+import type { FormatOptions, PlainDate, PlainDateTime, TimeFormatOptions } from '@/core/time';
+import { useT } from '@/features/i18n';
+import { useSettings } from '@/features/settings';
+import type { AllDayBar, TimeGridModel, TimedBlock } from '@/features/timegrid';
+import { ErrorBoundary } from '@/lib/ErrorBoundary';
+import { calendarColorVars } from '@/ui/theme/calendarColor';
+
+/** Height of one hour in the grid, in CSS pixels. */
+export const HOUR_PX = 48;
+
+export interface TimeGridProps {
+  readonly model: TimeGridModel;
+  readonly today: PlainDate;
+  readonly nowLocal: PlainDateTime;
+  /** All-day rows drawn before "+N" (matches the model's `maxAllDayLanes`). */
+  readonly lanes: number;
+  /** In the week view a day header opens that day; the day view passes nothing. */
+  readonly onOpenDay?: ((date: PlainDate) => void) | undefined;
+}
+
+type Vars = CSSProperties & Record<`--${string}`, string | number>;
+
+const pad = (n: number): string => String(n).padStart(2, '0');
+
+export function TimeGrid({ model, today, nowLocal, lanes, onOpenDay }: TimeGridProps) {
+  const t = useT();
+  const { settings } = useSettings();
+  const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
+  const timeFmt: TimeFormatOptions = { ...fmt, hour12: settings.hour12 };
+  const count = model.days.length;
+
+  // Open near the working day: an hour before "now" when today is shown, otherwise 07:00.
+  const [firstHour] = useState(() =>
+    model.days.some((d) => d.date === today) ? Math.max(0, Number(nowLocal.slice(11, 13)) - 1) : 7,
+  );
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = firstHour * HOUR_PX;
+  }, [firstHour]);
+
+  return (
+    <div
+      className="tg"
+      style={{ '--cols': count, '--hour-h': `${HOUR_PX}px`, '--lanes': lanes } as Vars}
+    >
+      <div className="tg-row tg-head">
+        <div className="tg-gutter" />
+        <div className="tg-cells">
+          {model.days.map((d) => {
+            const label = formatDate(d.date, fmt, 'full');
+            const content = (
+              <>
+                <span className="tg-weekday">{formatWeekday(d.date, fmt, 'short')}</span>
+                <span className="tg-daynum">{formatDayOfMonth(d.date, fmt)}</span>
+              </>
+            );
+            return onOpenDay ? (
+              <button
+                key={d.date}
+                type="button"
+                className="tg-headcell"
+                data-today={d.date === today ? 'true' : undefined}
+                aria-label={label}
+                aria-current={d.date === today ? 'date' : undefined}
+                onClick={() => onOpenDay(d.date)}
+              >
+                {content}
+              </button>
+            ) : (
+              <div
+                key={d.date}
+                className="tg-headcell"
+                data-today={d.date === today ? 'true' : undefined}
+                aria-current={d.date === today ? 'date' : undefined}
+              >
+                {content}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="tg-row tg-allday">
+        <div className="tg-gutter tg-allday-label">{t('allDay')}</div>
+        <div className="tg-allday-grid">
+          {model.days.map((d, i) => (
+            <div key={d.date} className="tg-allday-cell" style={{ gridColumn: i + 1 } as Vars} />
+          ))}
+          {model.allDay.hidden.map((n, i) =>
+            n > 0 ? (
+              <span
+                key={`more-${model.days[i]?.date ?? i}`}
+                className="more"
+                style={{ gridColumn: i + 1, gridRow: lanes } as Vars}
+              >
+                {t('moreEvents', {
+                  count: new Intl.NumberFormat(fmt.locale, {
+                    numberingSystem: fmt.numerals ?? 'latn',
+                  }).format(n),
+                })}
+              </span>
+            ) : null,
+          )}
+          {model.allDay.bars.map((bar) => (
+            <ErrorBoundary key={bar.occurrence.key} fallback={() => <FailedAllDay bar={bar} />}>
+              <AllDayItem bar={bar} />
+            </ErrorBoundary>
+          ))}
+        </div>
+      </div>
+
+      <div className="tg-scroll" ref={scrollRef}>
+        <div className="tg-body">
+          <div className="tg-gutter tg-hours" aria-hidden="true">
+            {Array.from({ length: 23 }, (_, i) => i + 1).map((h) => (
+              <span key={h} className="tg-hour" style={{ insetBlockStart: `${(h / 24) * 100}%` }}>
+                {formatTime(`2000-01-01T${pad(h)}:00`, timeFmt)}
+              </span>
+            ))}
+          </div>
+          <div className="tg-cells tg-cols">
+            {model.days.map((d) => {
+              const now = nowPosition(nowLocal, d.date);
+              return (
+                <div
+                  key={d.date}
+                  className="tg-col"
+                  data-today={d.date === today ? 'true' : undefined}
+                >
+                  {d.blocks.map((block) => (
+                    <ErrorBoundary key={block.key} fallback={() => <FailedBlock block={block} />}>
+                      <Block block={block} timeFmt={timeFmt} />
+                    </ErrorBoundary>
+                  ))}
+                  {now !== null && (
+                    <div
+                      className="now-line"
+                      data-testid="now-line"
+                      aria-hidden="true"
+                      style={{ insetBlockStart: `${now * 100}%` }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function blockStyle(block: TimedBlock): Vars {
+  const color = calendarColorVars(block.calendarColor);
+  return {
+    insetBlockStart: `${block.top * 100}%`,
+    blockSize: `${block.height * 100}%`,
+    insetInlineStart: `${(block.column / block.columnCount) * 100}%`,
+    inlineSize: `${(block.span / block.columnCount) * 100}%`,
+    '--bar': color.bar,
+    '--bar-bg': color.bg,
+  };
+}
+
+function Block({
+  block,
+  timeFmt,
+}: {
+  readonly block: TimedBlock;
+  readonly timeFmt: TimeFormatOptions;
+}) {
+  const t = useT();
+  const { event, start, end } = block.occurrence;
+  const title = event.title.trim() === '' ? t('untitled') : event.title;
+  const sameDay = start.slice(0, 10) === end.slice(0, 10);
+  const range = sameDay
+    ? `${formatTime(start, timeFmt)} – ${formatTime(end, timeFmt)}`
+    : formatTime(start, timeFmt);
+  return (
+    <div
+      className="block"
+      style={blockStyle(block)}
+      data-open-start={block.startsBefore ? 'true' : undefined}
+      data-open-end={block.endsAfter ? 'true' : undefined}
+      title={`${title} · ${range}`}
+    >
+      <span className="block-title">{title}</span>
+      <span className="block-time">{range}</span>
+    </div>
+  );
+}
+
+function FailedBlock({ block }: { readonly block: TimedBlock }) {
+  const t = useT();
+  return (
+    <div className="block block-failed" style={blockStyle(block)}>
+      {t('eventFailed')}
+    </div>
+  );
+}
+
+function allDayStyle(bar: AllDayBar): Vars {
+  const color = calendarColorVars(bar.calendarColor);
+  return {
+    gridColumn: `${bar.startCol + 1} / ${bar.endCol + 2}`,
+    gridRow: bar.lane + 1,
+    '--bar': color.bar,
+    '--bar-bg': color.bg,
+  };
+}
+
+function AllDayItem({ bar }: { readonly bar: AllDayBar }) {
+  const t = useT();
+  const title =
+    bar.occurrence.event.title.trim() === '' ? t('untitled') : bar.occurrence.event.title;
+  return (
+    <div
+      className="bar"
+      style={allDayStyle(bar)}
+      data-open-start={bar.continuesBefore ? 'true' : undefined}
+      data-open-end={bar.continuesAfter ? 'true' : undefined}
+      title={title}
+    >
+      <span className="bar-title">{title}</span>
+    </div>
+  );
+}
+
+function FailedAllDay({ bar }: { readonly bar: AllDayBar }) {
+  const t = useT();
+  return (
+    <div className="bar bar-failed" style={allDayStyle(bar)}>
+      {t('eventFailed')}
+    </div>
+  );
+}
