@@ -43,7 +43,7 @@ describe('viewTitle', () => {
   it('names the day, the week range, or the month', () => {
     expect(viewTitle('day', '2026-10-13', 1, en)).toBe('Tuesday, October 13, 2026');
     expect(viewTitle('month', '2026-10-13', 1, en)).toBe('October 2026');
-    const week = viewTitle('week', '2026-10-13', 1, en).replace(/[\s  ]/g, ' ');
+    const week = viewTitle('week', '2026-10-13', 1, en).replace(/[\s\u2009\u202f]/g, ' ');
     expect(week).toMatch(/^Oct 12 ?[–-] ?18, 2026$/);
   });
 });
