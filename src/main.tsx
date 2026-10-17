@@ -2,7 +2,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from '@/app/App';
 import 'virtual:theme.css';
-import '@/app/app.css';
+import '@/ui/styles/base.css';
+import '@/ui/styles/shell.css';
+import '@/ui/styles/month.css';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('#root element not found');

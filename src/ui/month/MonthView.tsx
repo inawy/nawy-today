@@ -1,0 +1,149 @@
+import type { CSSProperties } from 'react';
+import { ErrorBoundary } from '@/lib/ErrorBoundary';
+import { formatDate, formatDayOfMonth, formatTime, formatWeekday } from '@/core/time';
+import type { FormatOptions, PlainDate, TimeFormatOptions } from '@/core/time';
+import type { MonthBar, MonthModel, WeekModel } from '@/features/month';
+import { useT } from '@/features/i18n';
+import { useSettings } from '@/features/settings';
+import { calendarColorVars } from '@/ui/theme/calendarColor';
+
+export interface MonthViewProps {
+  readonly model: MonthModel;
+  readonly today: PlainDate;
+  /** Lanes under each day number (matches the `maxLanes` the model was built with). */
+  readonly lanes: number;
+}
+
+type Vars = CSSProperties & Record<`--${string}`, string | number>;
+
+export function MonthView({ model, today, lanes }: MonthViewProps) {
+  const t = useT();
+  const { settings } = useSettings();
+  const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
+  const timeFmt: TimeFormatOptions = { ...fmt, hour12: settings.hour12 };
+  const header = model.weeks[0]?.days ?? [];
+
+  return (
+    <div className="month" style={{ '--lanes': lanes } as Vars}>
+      <div className="month-weekdays" aria-hidden="true">
+        {header.map((d) => (
+          <span key={d}>{formatWeekday(d, fmt, 'short')}</span>
+        ))}
+      </div>
+      {model.weeks.map((week) => (
+        <WeekRow
+          key={week.days[0]}
+          week={week}
+          month={model.month}
+          today={today}
+          lanes={lanes}
+          fmt={fmt}
+          timeFmt={timeFmt}
+          moreLabel={(count) => t('moreEvents', { count: formatCount(count, fmt) })}
+        />
+      ))}
+    </div>
+  );
+}
+
+function formatCount(n: number, fmt: FormatOptions): string {
+  return new Intl.NumberFormat(fmt.locale, { numberingSystem: fmt.numerals ?? 'latn' }).format(n);
+}
+
+interface WeekRowProps {
+  readonly week: WeekModel;
+  readonly month: number;
+  readonly today: PlainDate;
+  readonly lanes: number;
+  readonly fmt: FormatOptions;
+  readonly timeFmt: TimeFormatOptions;
+  readonly moreLabel: (count: number) => string;
+}
+
+function WeekRow({ week, month, today, lanes, fmt, timeFmt, moreLabel }: WeekRowProps) {
+  return (
+    <div className="week">
+      {week.days.map((day, col) => {
+        const inMonth = Number(day.slice(5, 7)) === month;
+        return (
+          <div
+            key={day}
+            className="day"
+            data-outside={inMonth ? undefined : 'true'}
+            data-today={day === today ? 'true' : undefined}
+            style={{ gridColumn: col + 1 } as Vars}
+          >
+            <time
+              className="day-number"
+              dateTime={day}
+              aria-label={formatDate(day, fmt, 'full')}
+              aria-current={day === today ? 'date' : undefined}
+            >
+              {formatDayOfMonth(day, fmt)}
+            </time>
+          </div>
+        );
+      })}
+      {week.days.map((day, col) => {
+        const hidden = week.hidden[col] ?? 0;
+        return hidden > 0 ? (
+          <span
+            key={`more-${day}`}
+            className="more"
+            style={{ gridColumn: col + 1, gridRow: lanes + 1 } as Vars}
+          >
+            {moreLabel(hidden)}
+          </span>
+        ) : null;
+      })}
+      {week.bars.map((bar) => (
+        <ErrorBoundary key={bar.occurrence.key} fallback={() => <FailedBar bar={bar} />}>
+          <EventBar bar={bar} timeFmt={timeFmt} />
+        </ErrorBoundary>
+      ))}
+    </div>
+  );
+}
+
+function barStyle(bar: MonthBar): Vars {
+  const color = calendarColorVars(bar.calendarColor);
+  return {
+    gridColumn: `${bar.startCol + 1} / ${bar.endCol + 2}`,
+    gridRow: bar.lane + 2,
+    '--bar': color.bar,
+    '--bar-bg': color.bg,
+  };
+}
+
+function EventBar({
+  bar,
+  timeFmt,
+}: {
+  readonly bar: MonthBar;
+  readonly timeFmt: TimeFormatOptions;
+}) {
+  const t = useT();
+  const { event, start } = bar.occurrence;
+  const title = event.title.trim() === '' ? t('untitled') : event.title;
+  return (
+    <div
+      className="bar"
+      style={barStyle(bar)}
+      data-open-start={bar.continuesBefore ? 'true' : undefined}
+      data-open-end={bar.continuesAfter ? 'true' : undefined}
+      title={title}
+    >
+      {bar.showTime && <span className="bar-time">{formatTime(start, timeFmt)}</span>}
+      <span className="bar-title">{title}</span>
+    </div>
+  );
+}
+
+function FailedBar({ bar }: { readonly bar: MonthBar }) {
+  const t = useT();
+  return (
+    <div className="bar bar-failed" style={barStyle(bar)}>
+      {t('eventFailed')}
+    </div>
+  );
+}

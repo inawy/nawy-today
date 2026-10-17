@@ -29,6 +29,9 @@ const ar = {
   themeAuto: 'تلقائي',
   themeLight: 'فاتح',
   themeDark: 'داكن',
+  skippedRecords: 'تم تجاهل {count} سجل تالف في العرض. لم يُحذف أي شيء من بياناتك.',
+  problemSeries: '{count} حدث متكرر به قاعدة غير مدعومة.',
+  actionFailed: 'تعذّر تنفيذ الإجراء. حاول مرة أخرى.',
   notSaved: 'تعذّر حفظ الإعدادات على هذا المتصفح؛ ستعمل لهذه الجلسة فقط.',
 } as const;
 
@@ -63,6 +66,10 @@ const en: Record<MessageKey, string> = {
   themeAuto: 'Auto',
   themeLight: 'Light',
   themeDark: 'Dark',
+  skippedRecords:
+    '{count} damaged record(s) were left out of the view. Nothing was deleted from your data.',
+  problemSeries: '{count} repeating event(s) have an unsupported rule.',
+  actionFailed: "Couldn't do that. Please try again.",
   notSaved: "Settings couldn't be saved in this browser; they apply to this session only.",
 };
 

@@ -1,0 +1,145 @@
+.shell {
+  min-block-size: 100dvh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'top top'
+    'side main';
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+}
+
+.topbar {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  padding-block-start: calc(8px + env(safe-area-inset-top));
+  border-block-end: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+}
+
+.topbar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-inline-start: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar {
+  grid-area: side;
+  background: var(--surface);
+  border-inline-end: 1px solid var(--border);
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.drawer-close,
+.backdrop {
+  display: none;
+}
+
+.main {
+  grid-area: main;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-heading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-block-end: 8px;
+}
+
+.sidebar-settings {
+  margin-block-start: 24px;
+}
+
+.calendar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.calendar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-block-size: 44px;
+  cursor: pointer;
+}
+
+.calendar-row input {
+  inline-size: 20px;
+  block-size: 20px;
+  margin: 0;
+  accent-color: var(--accent-fill);
+}
+
+.calendar-dot {
+  inline-size: 12px;
+  block-size: 12px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.calendar-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Narrow screens: the sidebar becomes a drawer that slides in from the inline start. */
+@media (max-width: 1023px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'top'
+      'main';
+  }
+
+  .sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: min(320px, 85vw);
+    z-index: 30;
+    padding-block-start: calc(16px + env(safe-area-inset-top));
+    transform: translateX(calc(-100% * var(--dir)));
+    visibility: hidden;
+    transition:
+      transform var(--dur) var(--ease),
+      visibility var(--dur);
+  }
+
+  .shell[data-drawer='open'] .sidebar {
+    transform: none;
+    visibility: visible;
+  }
+
+  .drawer-close {
+    display: inline-grid;
+    margin-block-end: 8px;
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgb(0 0 0 / 0.4);
+  }
+}
+
+@media (min-width: 1024px) {
+  .menu-btn {
+    display: none;
+  }
+}

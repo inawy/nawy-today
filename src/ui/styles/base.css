@@ -1,0 +1,162 @@
+/* Reset and base. Logical properties only (no left/right); 44px touch targets; 16px inputs (D-011). */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --dir: 1;
+  --radius: 8px;
+  --bar-h: 22px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur: 150ms;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    'IBM Plex Sans Arabic',
+    'Noto Sans Arabic',
+    Tahoma,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+:root[dir='rtl'] {
+  --dir: -1;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+select,
+input:not([type='checkbox']) {
+  font-size: 16px; /* below 16px iOS zooms the page on focus */
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.btn,
+.icon-btn {
+  min-block-size: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease);
+}
+
+.btn {
+  padding-inline: 16px;
+}
+
+.icon-btn {
+  min-inline-size: 44px;
+  display: inline-grid;
+  place-items: center;
+  border-color: transparent;
+  background: transparent;
+}
+
+.btn:hover,
+.icon-btn:hover {
+  background: var(--surface-2);
+}
+
+.btn-primary {
+  background: var(--accent-fill);
+  border-color: var(--accent-fill);
+  color: var(--on-accent-fill);
+}
+
+.btn-primary:hover {
+  background: var(--accent-fill);
+  filter: brightness(1.08);
+}
+
+.flip-rtl:dir(rtl) svg,
+:root[dir='rtl'] .flip-rtl svg {
+  transform: scaleX(-1);
+}
+
+:root[dir='ltr'] .flip-ltr svg {
+  transform: scaleX(-1);
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: 8px;
+  inset-block-start: -100px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.skip-link:focus {
+  inset-block-start: 8px;
+}
+
+.center-screen {
+  min-block-size: 100dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  text-align: center;
+  padding-inline: 16px;
+}
+
+.banner {
+  padding: 8px 16px;
+  background: var(--surface-2);
+  border-block-end: 1px solid var(--border);
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+  margin-block-end: 12px;
+}
+
+.field select {
+  min-block-size: 44px;
+  padding-inline: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
