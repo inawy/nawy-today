@@ -33,3 +33,6 @@ jobs:
         run: bash tools/ci-run.sh build npm run build
       - name: Dist checks (CSP, no inline script, brand token)
         run: bash tools/ci-run.sh dist node tools/check-dist.mjs
+      - name: Bundle size report (not a gate yet)
+        run: bash tools/ci-run.sh bundle node tools/measure/bundle-size.mjs
+
