@@ -19,7 +19,8 @@ export interface KeyLike {
   readonly metaKey: boolean;
   readonly altKey: boolean;
   readonly defaultPrevented?: boolean;
-  readonly target?: { readonly tagName?: string; readonly isContentEditable?: boolean } | null;
+  /** A DOM event target (or a stand-in with `tagName` / `isContentEditable` in tests). */
+  readonly target?: unknown;
 }
 
 const TYPING = new Set(['INPUT', 'SELECT', 'TEXTAREA']);
@@ -31,9 +32,9 @@ const TYPING = new Set(['INPUT', 'SELECT', 'TEXTAREA']);
  */
 export function shortcutFor(event: KeyLike): ShortcutAction | undefined {
   if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return undefined;
-  const target = event.target;
-  if (target?.isContentEditable || (target?.tagName && TYPING.has(target.tagName)))
-    return undefined;
+  const target = (event.target ?? {}) as { tagName?: unknown; isContentEditable?: unknown };
+  if (target.isContentEditable === true) return undefined;
+  if (typeof target.tagName === 'string' && TYPING.has(target.tagName)) return undefined;
   return BY_CODE[event.code];
 }
 
