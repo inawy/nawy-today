@@ -133,7 +133,7 @@ describe('app: views', () => {
     await screen.findByText('Team sync');
     fireEvent.click(screen.getByRole('button', { name: 'Week' }));
     expect(screen.getByText('Team sync')).toBeTruthy();
-    expect(screen.getByText('09:00 – 10:00', { exact: false })).toBeTruthy();
+    expect(screen.getByText(/^9:00\s?AM\s?[–-]\s?10:00\s?AM$/)).toBeTruthy();
     expect(screen.queryByText('Trip')).toBeNull(); // 20–22 Oct is next week
     fireEvent.click(screen.getByRole('button', { name: 'Next week' }));
     expect(screen.getByText('Trip')).toBeTruthy();

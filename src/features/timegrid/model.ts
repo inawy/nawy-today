@@ -2,7 +2,7 @@ import { blockPosition, clipToDay, layoutColumns, layoutWeekRow } from '@/core/l
 import type { BarSegment } from '@/core/layout';
 import { expandEvents } from '@/core/recurrence';
 import type { Occurrence, SeriesProblem } from '@/core/recurrence';
-import { addDays, epochDayOf } from '@/core/time';
+import { addDays, epochDayOf, toEpochMinute } from '@/core/time';
 import type { PlainDate } from '@/core/time';
 import { colorOf, prepareData } from '@/features/common/prepare';
 import { daySpan } from '@/features/month';
@@ -77,7 +77,7 @@ export function buildTimeGridModel(input: TimeGridInput): TimeGridModel {
       byKey.set(o.key, {
         o,
         startsBefore: o.start.slice(0, 10) < date,
-        endsAfter: o.end.slice(0, 10) > date && span.endMin === 1440,
+        endsAfter: (toEpochMinute(o.end) ?? 0) > ((epochDayOf(date) ?? 0) + 1) * 1440,
       });
     }
     const placed = layoutColumns(items);
