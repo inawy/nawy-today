@@ -46,7 +46,8 @@ export type UpdateResult<T> =
 
 /** One step of an atomic batch (see `applyOps`). */
 export type EventOp =
-  | { kind: 'create'; event: NewEvent }
+  /** `id` lets a later step of the same batch refer to the new record (series split). */
+  | { kind: 'create'; event: NewEvent; id?: string }
   | { kind: 'update'; id: string; patch: EventPatch; expectedUpdatedAt?: number }
   | { kind: 'delete'; id: string };
 
@@ -107,7 +108,9 @@ export function createStore(db: NawyDb, deps: StoreDeps = {}) {
       for (const op of ops) {
         if (op.kind === 'create') {
           await requireLiveCalendar(op.event.calendarId);
-          const event = valid(parseEvent({ ...op.event, id: newId(), createdAt: t, updatedAt: t }));
+          const event = valid(
+            parseEvent({ ...op.event, id: op.id ?? newId(), createdAt: t, updatedAt: t }),
+          );
           await db.events.add(event);
           created.push(event);
         } else if (op.kind === 'update') {
