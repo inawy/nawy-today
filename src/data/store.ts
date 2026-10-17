@@ -107,9 +107,7 @@ export function createStore(db: NawyDb, deps: StoreDeps = {}) {
       for (const op of ops) {
         if (op.kind === 'create') {
           await requireLiveCalendar(op.event.calendarId);
-          const event = valid(
-            parseEvent({ ...op.event, id: newId(), createdAt: t, updatedAt: t }),
-          );
+          const event = valid(parseEvent({ ...op.event, id: newId(), createdAt: t, updatedAt: t }));
           await db.events.add(event);
           created.push(event);
         } else if (op.kind === 'update') {
