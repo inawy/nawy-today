@@ -44,6 +44,26 @@ export interface UpdateOptions {
 export type UpdateResult<T> =
   { status: 'ok'; value: T } | { status: 'not-found' } | { status: 'conflict'; current: T };
 
+/** One step of an atomic batch (see `applyOps`). */
+export type EventOp =
+  | { kind: 'create'; event: NewEvent }
+  | { kind: 'update'; id: string; patch: EventPatch; expectedUpdatedAt?: number }
+  | { kind: 'delete'; id: string };
+
+/**
+ * Everything needed to take a batch back: the records as they were before it, and the ids it
+ * created. Plain data, so it can be held in UI state without keeping the database open.
+ */
+export interface UndoToken {
+  restore: CalEvent[];
+  remove: string[];
+}
+
+export type ApplyResult =
+  | { status: 'ok'; created: CalEvent[]; undo: UndoToken }
+  | { status: 'not-found'; id: string }
+  | { status: 'conflict'; id: string; current: CalEvent };
+
 function valid<T>(result: Result<T>): T {
   if (!result.ok) throw new ValidationError(result.error);
   return result.value;
@@ -55,6 +75,16 @@ const byStartThenId = (a: CalEvent, b: CalEvent): number =>
 const byCreatedThenId = (a: Calendar, b: Calendar): number =>
   a.createdAt - b.createdAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
+class Abort extends Error {
+  constructor(readonly result: ApplyResult) {
+    super('aborted');
+  }
+}
+
+function abort(result: ApplyResult): never {
+  throw new Abort(result);
+}
+
 export function createStore(db: NawyDb, deps: StoreDeps = {}) {
   const now = deps.now ?? nowMs;
   const newId = deps.newId ?? (() => crypto.randomUUID());
@@ -64,6 +94,65 @@ export function createStore(db: NawyDb, deps: StoreDeps = {}) {
     if (!calendar || calendar.deletedAt !== undefined) {
       throw new ValidationError('calendar not found');
     }
+  }
+
+  async function runOps(ops: readonly EventOp[]): Promise<ApplyResult> {
+    return db.transaction('rw', db.calendars, db.events, async (): Promise<ApplyResult> => {
+      const before = new Map<string, CalEvent>();
+      const created: CalEvent[] = [];
+      const t = now();
+      const remember = (e: CalEvent): void => {
+        if (!before.has(e.id)) before.set(e.id, e);
+      };
+      for (const op of ops) {
+        if (op.kind === 'create') {
+          await requireLiveCalendar(op.event.calendarId);
+          const event = valid(
+            parseEvent({ ...op.event, id: newId(), createdAt: t, updatedAt: t }),
+          );
+          await db.events.add(event);
+          created.push(event);
+        } else if (op.kind === 'update') {
+          const cur = await db.events.get(op.id);
+          if (!cur || cur.deletedAt !== undefined) return abort({ status: 'not-found', id: op.id });
+          if (op.expectedUpdatedAt !== undefined && op.expectedUpdatedAt !== cur.updatedAt) {
+            return abort({ status: 'conflict', id: op.id, current: cur });
+          }
+          if (op.patch.calendarId !== undefined && op.patch.calendarId !== cur.calendarId) {
+            await requireLiveCalendar(op.patch.calendarId);
+          }
+          remember(cur);
+          const next = valid(
+            parseEvent({
+              ...cur,
+              ...op.patch,
+              id: cur.id,
+              createdAt: cur.createdAt,
+              updatedAt: nextUpdatedAt(cur.updatedAt, t),
+            }),
+          );
+          await db.events.put(next);
+        } else {
+          const cur = await db.events.get(op.id);
+          if (!cur || cur.deletedAt !== undefined) return abort({ status: 'not-found', id: op.id });
+          const overrides = await db.events
+            .where('seriesId')
+            .equals(op.id)
+            .filter((e) => e.deletedAt === undefined)
+            .toArray();
+          for (const e of [cur, ...overrides]) remember(e);
+          await db.events.bulkPut([cur, ...overrides].map((e) => tombstoneEvent(e, t)));
+        }
+      }
+      return {
+        status: 'ok',
+        created,
+        undo: {
+          restore: [...before.values()].filter((e) => !created.some((c) => c.id === e.id)),
+          remove: created.map((c) => c.id),
+        },
+      };
+    });
   }
 
   return {
@@ -194,6 +283,50 @@ export function createStore(db: NawyDb, deps: StoreDeps = {}) {
           .toArray();
         await db.events.bulkPut([cur, ...overrides].map((e) => tombstoneEvent(e, t)));
         return true;
+      });
+    },
+
+    /**
+     * Applies several event changes as ONE transaction: all of them happen or none do. This is
+     * what "edit this and following" needs (shorten the old series, create the new one, move
+     * overrides) — a crash half-way must never leave a split series. A missing or stale target
+     * aborts the whole batch and nothing is written.
+     */
+    async applyOps(ops: readonly EventOp[]): Promise<ApplyResult> {
+      try {
+        return await runOps(ops);
+      } catch (e) {
+        if (e instanceof Abort) return e.result;
+        throw e;
+      }
+    },
+
+    /**
+     * Takes back a batch from `applyOps`. Restored records get a fresh, higher `updatedAt`, so
+     * they win a later merge like any other edit. Returns false if there was nothing to do.
+     */
+    async undo(token: UndoToken): Promise<boolean> {
+      return db.transaction('rw', db.calendars, db.events, async () => {
+        const t = now();
+        let changed = false;
+        for (const id of token.remove) {
+          const cur = await db.events.get(id);
+          if (cur && cur.deletedAt === undefined) {
+            await db.events.put(tombstoneEvent(cur, t));
+            changed = true;
+          }
+        }
+        for (const old of token.restore) {
+          const cur = await db.events.get(old.id);
+          if (!cur) continue;
+          await requireLiveCalendar(old.calendarId);
+          const { deletedAt: _gone, ...rest } = old;
+          void _gone;
+          const next = valid(parseEvent({ ...rest, updatedAt: nextUpdatedAt(cur.updatedAt, t) }));
+          await db.events.put(next);
+          changed = true;
+        }
+        return changed;
       });
     },
 
