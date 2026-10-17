@@ -171,13 +171,9 @@ describe('app: failures are contained (Phase 5 gate)', () => {
   it('reports an event whose rule the engine does not support, and still shows it', async () => {
     const { calendarId } = await seed();
     const db = createDb(dbName);
-    const { id: _i, createdAt: _c, updatedAt: _u, ...rest } = makeEvent();
-    await createStore(db).createEvent({
-      ...rest,
-      calendarId,
-      title: 'Odd rule',
-      rrule: 'FREQ=HOURLY',
-    });
+    await createStore(db).createEvent(
+      makeNewEvent({ calendarId, title: 'Odd rule', rrule: 'FREQ=HOURLY' }),
+    );
     db.close();
     open();
     expect(await screen.findByText('Odd rule')).toBeTruthy();
