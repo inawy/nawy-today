@@ -86,7 +86,12 @@ describe('applyOps', () => {
     const { store } = await setup();
     const series = await store.createEvent(timed({ rrule: 'FREQ=DAILY' }));
     await store.createEvent(
-      timed({ seriesId: series.id, originalStart: '2026-10-14T09:00', start: '2026-10-14T11:00' }),
+      timed({
+        seriesId: series.id,
+        originalStart: '2026-10-14T09:00',
+        start: '2026-10-14T11:00',
+        end: '2026-10-14T11:30',
+      }),
     );
     await store.applyOps([{ kind: 'delete', id: series.id }]);
     expect(await store.listEvents()).toEqual([]);
@@ -98,7 +103,12 @@ describe('undo', () => {
     const { store, clock } = await setup();
     const series = await store.createEvent(timed({ rrule: 'FREQ=DAILY' }));
     await store.createEvent(
-      timed({ seriesId: series.id, originalStart: '2026-10-14T09:00', start: '2026-10-14T11:00' }),
+      timed({
+        seriesId: series.id,
+        originalStart: '2026-10-14T09:00',
+        start: '2026-10-14T11:00',
+        end: '2026-10-14T11:30',
+      }),
     );
     const res = await store.applyOps([{ kind: 'delete', id: series.id }]);
     if (res.status !== 'ok') throw new Error('expected ok');
