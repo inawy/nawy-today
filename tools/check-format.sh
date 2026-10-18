@@ -9,5 +9,5 @@ fi
 
 npm run format >/dev/null 2>&1
 git diff -- src tests vite.config.ts eslint.config.js index.html \
-  | python3 tools/annotate.py "format check failed - apply this patch" head 40000
+  | python3 tools/annotate.py "format-patch" head 150000 3000
 exit 1
