@@ -44,10 +44,16 @@ describe('buildAgendaModel', () => {
   });
 
   it('other days have no marker: past days are all past, future days all upcoming', () => {
-    const past = build([makeEvent({ start: '2026-10-12T20:00', end: '2026-10-12T21:00' })], '2026-10-12');
+    const past = build(
+      [makeEvent({ start: '2026-10-12T20:00', end: '2026-10-12T21:00' })],
+      '2026-10-12',
+    );
     expect(past.nowIndex).toBeNull();
     expect(past.items.map((i) => i.status)).toEqual(['past']);
-    const future = build([makeEvent({ start: '2026-10-14T01:00', end: '2026-10-14T02:00' })], '2026-10-14');
+    const future = build(
+      [makeEvent({ start: '2026-10-14T01:00', end: '2026-10-14T02:00' })],
+      '2026-10-14',
+    );
     expect(future.items.map((i) => i.status)).toEqual(['upcoming']);
   });
 

@@ -29,7 +29,8 @@ export function AgendaView({ model, nowLocal, onOpenEvent }: AgendaViewProps) {
 
   const rows: ReactNode[] = [];
   model.items.forEach((item, i) => {
-    if (model.nowIndex === i) rows.push(<NowMarker key="now" nowLocal={nowLocal} timeFmt={timeFmt} />);
+    if (model.nowIndex === i)
+      rows.push(<NowMarker key="now" nowLocal={nowLocal} timeFmt={timeFmt} />);
     rows.push(
       <li key={item.key}>
         <ErrorBoundary fallback={() => <p className="agenda-failed muted">{t('eventFailed')}</p>}>

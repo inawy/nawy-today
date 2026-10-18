@@ -90,8 +90,6 @@ export function buildAgendaModel(input: AgendaInput): AgendaModel {
 
   const items = [...allDay, ...timed];
   const isToday = input.date === input.nowLocal.slice(0, 10);
-  const nowIndex = isToday
-    ? items.filter((i) => i.allDay || i.status === 'past').length
-    : null;
+  const nowIndex = isToday ? items.filter((i) => i.allDay || i.status === 'past').length : null;
   return { date: input.date, items, nowIndex, skipped, problems };
 }
