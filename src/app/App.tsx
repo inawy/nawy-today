@@ -6,6 +6,7 @@ import { useNowLocal } from '@/features/clock/useNowLocal';
 import { DataProvider, useCalendarData, useData } from '@/features/data';
 import { useT } from '@/features/i18n';
 import { buildAgendaModel } from '@/features/agenda';
+import { buildSearchIndex } from '@/features/search';
 import { buildMonthModel, monthOf } from '@/features/month';
 import { SettingsProvider, useSettings } from '@/features/settings';
 import type { ReadableStorage, WritableStorage } from '@/features/settings';
@@ -14,11 +15,13 @@ import { useEventFlow } from './useEventFlow';
 import { shiftAnchor, useShortcuts, viewTitle, visibleDays } from '@/features/view';
 import type { ShortcutAction, ViewKind } from '@/features/view';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
+import { useBackLayer } from '@/lib/useBackLayer';
 import { MonthView } from '@/ui/month/MonthView';
 import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
 import { PlusIcon } from '@/ui/shell/Icons';
 import { Shell } from '@/ui/shell/Shell';
 import { AgendaView } from '@/ui/agenda/AgendaView';
+import { SearchPanel } from '@/ui/search/SearchPanel';
 import { TimeGrid } from '@/ui/timegrid/TimeGrid';
 
 /** How many event rows fit under a day number before "+N" (responsive tuning comes with Phase 6). */
@@ -80,6 +83,7 @@ function Calendar({ now }: { readonly now: () => number }) {
   const [view, setView] = useState<ViewKind>(initialView);
   const [anchor, setAnchor] = useState<PlainDate>(today);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [failed, setFailed] = useState(false);
 
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
@@ -127,6 +131,13 @@ function Calendar({ now }: { readonly now: () => number }) {
     [calendarData.calendars, calendarData.events, anchor, nowLocal],
   );
 
+  // Built when the panel opens (and when data changes under it), not on every render.
+  const searchIndex = useMemo(
+    () =>
+      searchOpen ? buildSearchIndex(calendarData.calendars, calendarData.events) : undefined,
+    [searchOpen, calendarData.calendars, calendarData.events],
+  );
+
   const toggle = useCallback(
     (id: string, visible: boolean) => {
       void calendarData.toggleCalendar(id, visible).then((ok) => setFailed(!ok));
@@ -148,11 +159,22 @@ function Calendar({ now }: { readonly now: () => number }) {
       else if (action.kind === 'previous') previous();
       else if (action.kind === 'next') next();
       else if (action.kind === 'create') flow.openNew(anchor);
+      else if (action.kind === 'search') setSearchOpen(true);
       else setView(action.view);
     },
     [goToday, previous, next, flow, anchor],
   );
-  useShortcuts(!drawerOpen && !flow.dialogOpen, onShortcut);
+  useShortcuts(!drawerOpen && !flow.dialogOpen && !searchOpen, onShortcut);
+
+  // One history entry for "some dialog is open" (so search → editor never pops and re-pushes).
+  useBackLayer(
+    flow.dialogOpen || searchOpen,
+    async () => {
+      if (flow.dialogOpen) return flow.back();
+      setSearchOpen(false);
+      return true;
+    },
+  );
 
   if (data.status === 'error') return <RecoveryScreen onRetry={data.retry} />;
   if (calendarData.status === 'error') {
@@ -178,6 +200,7 @@ function Calendar({ now }: { readonly now: () => number }) {
       onToday={goToday}
       onPrevious={previous}
       onNext={next}
+      onSearch={() => setSearchOpen(true)}
     >
       {failed && (
         <p role="status" className="banner">
@@ -226,6 +249,17 @@ function Calendar({ now }: { readonly now: () => number }) {
         <PlusIcon />
       </button>
       {flow.overlay}
+      {searchOpen && searchIndex && (
+        <SearchPanel
+          index={searchIndex}
+          today={today}
+          onOpen={(occurrence) => {
+            setSearchOpen(false);
+            flow.openEvent(occurrence);
+          }}
+          onClose={() => setSearchOpen(false)}
+        />
+      )}
     </Shell>
   );
 }

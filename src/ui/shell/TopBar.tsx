@@ -2,7 +2,7 @@ import type { Ref } from 'react';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
 import type { ViewKind } from '@/features/view';
-import { ChevronIcon, MenuIcon } from './Icons';
+import { ChevronIcon, MenuIcon, SearchIcon } from './Icons';
 
 export interface TopBarProps {
   readonly title: string;
@@ -14,6 +14,7 @@ export interface TopBarProps {
   readonly onToday: () => void;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
+  readonly onSearch: () => void;
 }
 
 const VIEWS: readonly [ViewKind, MessageKey][] = [
@@ -46,6 +47,7 @@ export function TopBar({
   onToday,
   onPrevious,
   onNext,
+  onSearch,
 }: TopBarProps) {
   const t = useT();
   return (
@@ -84,6 +86,9 @@ export function TopBar({
       <h1 className="topbar-title" aria-live="polite">
         {title}
       </h1>
+      <button type="button" className="icon-btn" aria-label={t('search')} onClick={onSearch}>
+        <SearchIcon />
+      </button>
       <div role="group" aria-label={t('views')} className="view-switch">
         {VIEWS.map(([kind, key]) => (
           <button

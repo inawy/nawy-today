@@ -20,7 +20,6 @@ import {
 import type { Draft, Scope, Target } from '@/features/events';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
-import { useBackLayer } from '@/lib/useBackLayer';
 import { EventEditor } from '@/ui/editor/EventEditor';
 import type { SaveOutcome } from '@/ui/editor/EventEditor';
 import { ScopeDialog } from '@/ui/editor/ScopeDialog';
@@ -63,6 +62,8 @@ export interface EventFlow {
   readonly overlay: ReactNode;
   /** True while a dialog is open: global shortcuts must pause. */
   readonly dialogOpen: boolean;
+  /** What the Back button does while a dialog is open. Resolves true when it closed. */
+  readonly back: () => Promise<boolean>;
 }
 
 const newId = (): string => crypto.randomUUID();
@@ -232,19 +233,16 @@ export function useEventFlow({
   const closeEditor = useCallback(() => setEditing(null), []);
   const dismissToast = useCallback(() => setToast(null), []);
 
-  // The Back button closes (and saves) the editor, or cancels the scope question first.
-  useBackLayer(
-    editing !== null || ask !== null,
-    useCallback(async () => {
-      const pending = askRef.current;
-      if (pending) {
-        pending.resolve(null);
-        setAsk(null);
-        return false;
-      }
-      return (await closeEditorRef.current?.()) ?? true;
-    }, []),
-  );
+  /** Back button: cancel the scope question first, otherwise close (and save) the editor. */
+  const back = useCallback(async (): Promise<boolean> => {
+    const pending = askRef.current;
+    if (pending) {
+      pending.resolve(null);
+      setAsk(null);
+      return false;
+    }
+    return (await closeEditorRef.current?.()) ?? true;
+  }, []);
 
   const overlay = (
     <>
@@ -293,5 +291,5 @@ export function useEventFlow({
     </>
   );
 
-  return { openNew, openEvent, overlay, dialogOpen: editing !== null || ask !== null };
+  return { openNew, openEvent, overlay, dialogOpen: editing !== null || ask !== null, back };
 }

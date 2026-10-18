@@ -6,6 +6,7 @@ export type ShortcutAction =
   | { kind: 'previous' }
   | { kind: 'next' }
   | { kind: 'create' }
+  | { kind: 'search' }
   | { kind: 'view'; view: ViewKind };
 
 const BY_CODE: Record<string, ShortcutAction> = {
@@ -13,6 +14,7 @@ const BY_CODE: Record<string, ShortcutAction> = {
   KeyP: { kind: 'previous' },
   KeyN: { kind: 'next' },
   KeyC: { kind: 'create' },
+  Slash: { kind: 'search' },
   KeyA: { kind: 'view', view: 'agenda' },
   KeyD: { kind: 'view', view: 'day' },
   KeyW: { kind: 'view', view: 'week' },

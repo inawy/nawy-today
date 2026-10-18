@@ -46,3 +46,12 @@ export function PlusIcon() {
     </svg>
   );
 }
+
+export function SearchIcon() {
+  return (
+    <svg {...common}>
+      <circle cx="11" cy="11" r="6" />
+      <path d="M16 16l4 4" />
+    </svg>
+  );
+}

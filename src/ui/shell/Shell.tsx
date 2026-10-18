@@ -20,6 +20,7 @@ export interface ShellProps {
   readonly onToday: () => void;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
+  readonly onSearch: () => void;
   readonly children: ReactNode;
 }
 
@@ -39,6 +40,7 @@ export function Shell({
   onToday,
   onPrevious,
   onNext,
+  onSearch,
   children,
 }: ShellProps) {
   const t = useT();
@@ -80,6 +82,7 @@ export function Shell({
         onToday={onToday}
         onPrevious={onPrevious}
         onNext={onNext}
+        onSearch={onSearch}
       />
       <aside id="sidebar" ref={sidebarRef} className="sidebar" onKeyDown={onKeyDown}>
         <button

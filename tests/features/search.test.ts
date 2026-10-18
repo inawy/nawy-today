@@ -44,7 +44,7 @@ describe('searchEvents', () => {
       at('today', '2026-10-13'),
       at('far-future', '2027-06-01'),
     ];
-    expect(find(events, 't')).toEqual(['T today', 'T tomorrow', 'T yesterday', 'T far-past', 'T far-future']);
+    expect(find(events, 't')).toEqual(['T today', 'T tomorrow', 'T yesterday', 'T far-future', 'T far-past']);
   });
 
   it('a repeating event appears once, at its next occurrence', () => {
