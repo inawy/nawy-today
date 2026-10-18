@@ -21,9 +21,7 @@ import type { NewEvent } from '@/data';
 export type RepeatKind = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
 export type MonthlyMode = 'day' | 'nth';
 export type RepeatEnd =
-  | { kind: 'never' }
-  | { kind: 'until'; date: string }
-  | { kind: 'count'; count: number };
+  { kind: 'never' } | { kind: 'until'; date: string } | { kind: 'count'; count: number };
 
 export interface RepeatDraft {
   kind: RepeatKind;
@@ -179,13 +177,7 @@ export function repeatToRule(
 export type RepeatError = 'interval' | 'count' | 'until';
 
 export type DraftError =
-  | 'calendar'
-  | 'start'
-  | 'end'
-  | 'order'
-  | 'timezone'
-  | 'title-too-long'
-  | `repeat-${RepeatError}`;
+  'calendar' | 'start' | 'end' | 'order' | 'timezone' | 'title-too-long' | `repeat-${RepeatError}`;
 
 const MAX_TITLE = 500;
 
@@ -244,8 +236,7 @@ export function draftFromEvent(
   };
 }
 
-export type FieldsResult =
-  { ok: true; fields: NewEvent } | { ok: false; error: DraftError };
+export type FieldsResult = { ok: true; fields: NewEvent } | { ok: false; error: DraftError };
 
 /** Form → storable fields. Every failure is a named reason the UI can show next to the field. */
 export function draftToFields(draft: Draft): FieldsResult {

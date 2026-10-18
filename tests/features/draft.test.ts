@@ -108,7 +108,11 @@ describe('repeat <-> rule', () => {
   });
 
   it('until is a date for all-day and end-of-day for timed events', () => {
-    const r = { ...fresh().repeat, kind: 'daily', end: { kind: 'until', date: '2026-10-20' } } as const;
+    const r = {
+      ...fresh().repeat,
+      kind: 'daily',
+      end: { kind: 'until', date: '2026-10-20' },
+    } as const;
     expect(repeatToRule(r, start, true)).toEqual({ ok: true, rrule: 'FREQ=DAILY;UNTIL=20261020' });
     expect(repeatToRule(r, start, false)).toEqual({
       ok: true,
@@ -118,9 +122,17 @@ describe('repeat <-> rule', () => {
 
   it('rejects impossible settings with a reason', () => {
     const base = { ...fresh().repeat, kind: 'daily' } as const;
-    expect(repeatToRule({ ...base, interval: 0 }, start, false)).toEqual({ ok: false, error: 'interval' });
-    expect(repeatToRule({ ...base, end: { kind: 'count', count: 0 } }, start, false)).toEqual({ ok: false, error: 'count' });
-    expect(repeatToRule({ ...base, end: { kind: 'until', date: '2026-10-01' } }, start, false)).toEqual({ ok: false, error: 'until' });
+    expect(repeatToRule({ ...base, interval: 0 }, start, false)).toEqual({
+      ok: false,
+      error: 'interval',
+    });
+    expect(repeatToRule({ ...base, end: { kind: 'count', count: 0 } }, start, false)).toEqual({
+      ok: false,
+      error: 'count',
+    });
+    expect(
+      repeatToRule({ ...base, end: { kind: 'until', date: '2026-10-01' } }, start, false),
+    ).toEqual({ ok: false, error: 'until' });
   });
 
   it('an untouched stored rule comes back byte for byte', () => {
@@ -132,9 +144,18 @@ describe('repeat <-> rule', () => {
 
   it('classifies what the form can show, and keeps the rest as custom', () => {
     expect(repeatFromRule('FREQ=DAILY;INTERVAL=2', start).kind).toBe('daily');
-    expect(repeatFromRule('FREQ=WEEKLY;BYDAY=MO,WE', start)).toMatchObject({ kind: 'weekly', weekdays: [1, 3] });
-    expect(repeatFromRule('FREQ=MONTHLY;BYMONTHDAY=13', start)).toMatchObject({ kind: 'monthly', monthlyMode: 'day' });
-    expect(repeatFromRule('FREQ=MONTHLY;BYDAY=2TU', start)).toMatchObject({ kind: 'monthly', monthlyMode: 'nth' });
+    expect(repeatFromRule('FREQ=WEEKLY;BYDAY=MO,WE', start)).toMatchObject({
+      kind: 'weekly',
+      weekdays: [1, 3],
+    });
+    expect(repeatFromRule('FREQ=MONTHLY;BYMONTHDAY=13', start)).toMatchObject({
+      kind: 'monthly',
+      monthlyMode: 'day',
+    });
+    expect(repeatFromRule('FREQ=MONTHLY;BYDAY=2TU', start)).toMatchObject({
+      kind: 'monthly',
+      monthlyMode: 'nth',
+    });
     expect(repeatFromRule('FREQ=MONTHLY;BYMONTHDAY=1,15', start).kind).toBe('custom');
     expect(repeatFromRule('FREQ=WEEKLY;BYDAY=MO;WKST=SU', start).kind).toBe('custom');
     expect(repeatFromRule('garbage', start).kind).toBe('custom');
@@ -143,12 +164,18 @@ describe('repeat <-> rule', () => {
 
   it('a custom rule is kept untouched when the form is saved', () => {
     const r = repeatFromRule('FREQ=MONTHLY;BYMONTHDAY=1,15', start);
-    expect(repeatToRule(r, start, false)).toEqual({ ok: true, rrule: 'FREQ=MONTHLY;BYMONTHDAY=1,15' });
+    expect(repeatToRule(r, start, false)).toEqual({
+      ok: true,
+      rrule: 'FREQ=MONTHLY;BYMONTHDAY=1,15',
+    });
   });
 
   it('the fifth weekday means "the last"', () => {
     const r = { ...fresh().repeat, kind: 'monthly', monthlyMode: 'nth' } as const;
-    expect(repeatToRule(r, '2026-11-29', false)).toEqual({ ok: true, rrule: 'FREQ=MONTHLY;BYDAY=-1SU' });
+    expect(repeatToRule(r, '2026-11-29', false)).toEqual({
+      ok: true,
+      rrule: 'FREQ=MONTHLY;BYDAY=-1SU',
+    });
   });
 });
 
@@ -156,14 +183,24 @@ describe('draftFromEvent', () => {
   it('shows the occurrence, not the series start', () => {
     const e = makeEvent({ rrule: 'FREQ=DAILY' });
     const d = draftFromEvent(e, { start: '2026-10-20T09:00', end: '2026-10-20T10:00' }, 'UTC');
-    expect([d.startDate, d.startTime, d.endTime, d.tzid]).toEqual(['2026-10-20', '09:00', '10:00', 'Asia/Riyadh']);
+    expect([d.startDate, d.startTime, d.endTime, d.tzid]).toEqual([
+      '2026-10-20',
+      '09:00',
+      '10:00',
+      'Asia/Riyadh',
+    ]);
     expect(d.repeat.kind).toBe('daily');
   });
 
   it('turns the exclusive all-day end back into the last day', () => {
     const e = makeAllDayEvent({ start: '2026-10-13', end: '2026-10-16' });
     const d = draftFromEvent(e, { start: e.start, end: e.end }, 'UTC');
-    expect([d.allDay, d.startDate, d.endDate, d.tzid]).toEqual([true, '2026-10-13', '2026-10-15', 'UTC']);
+    expect([d.allDay, d.startDate, d.endDate, d.tzid]).toEqual([
+      true,
+      '2026-10-13',
+      '2026-10-15',
+      'UTC',
+    ]);
   });
 
   it('round-trips an event without changes', () => {
@@ -172,7 +209,14 @@ describe('draftFromEvent', () => {
     const r = draftToFields(d);
     expect(r).toMatchObject({
       ok: true,
-      fields: { title: 'Meeting', notes: 'n', location: 'l', start: e.start, end: e.end, rrule: 'FREQ=WEEKLY;BYDAY=TU' },
+      fields: {
+        title: 'Meeting',
+        notes: 'n',
+        location: 'l',
+        start: e.start,
+        end: e.end,
+        rrule: 'FREQ=WEEKLY;BYDAY=TU',
+      },
     });
     expect(isDirty(d, structuredClone(d))).toBe(false);
     expect(isDirty(d, { ...d, title: 'x' })).toBe(true);
@@ -181,6 +225,9 @@ describe('draftFromEvent', () => {
   it('round-trips an all-day event', () => {
     const e = makeAllDayEvent({ start: '2026-10-13', end: '2026-10-16' });
     const r = draftToFields(draftFromEvent(e, { start: e.start, end: e.end }, 'UTC'));
-    expect(r).toMatchObject({ ok: true, fields: { allDay: true, start: '2026-10-13', end: '2026-10-16' } });
+    expect(r).toMatchObject({
+      ok: true,
+      fields: { allDay: true, start: '2026-10-13', end: '2026-10-16' },
+    });
   });
 });
