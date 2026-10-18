@@ -13,6 +13,7 @@ const BY_CODE: Record<string, ShortcutAction> = {
   KeyP: { kind: 'previous' },
   KeyN: { kind: 'next' },
   KeyC: { kind: 'create' },
+  KeyA: { kind: 'view', view: 'agenda' },
   KeyD: { kind: 'view', view: 'day' },
   KeyW: { kind: 'view', view: 'week' },
   KeyM: { kind: 'view', view: 'month' },

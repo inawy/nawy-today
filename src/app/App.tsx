@@ -5,6 +5,7 @@ import type { NawyDb } from '@/data';
 import { useNowLocal } from '@/features/clock/useNowLocal';
 import { DataProvider, useCalendarData, useData } from '@/features/data';
 import { useT } from '@/features/i18n';
+import { buildAgendaModel } from '@/features/agenda';
 import { buildMonthModel, monthOf } from '@/features/month';
 import { SettingsProvider, useSettings } from '@/features/settings';
 import type { ReadableStorage, WritableStorage } from '@/features/settings';
@@ -17,6 +18,7 @@ import { MonthView } from '@/ui/month/MonthView';
 import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
 import { PlusIcon } from '@/ui/shell/Icons';
 import { Shell } from '@/ui/shell/Shell';
+import { AgendaView } from '@/ui/agenda/AgendaView';
 import { TimeGrid } from '@/ui/timegrid/TimeGrid';
 
 /** How many event rows fit under a day number before "+N" (responsive tuning comes with Phase 6). */
@@ -29,6 +31,15 @@ export interface AppProps {
   readonly create?: () => NawyDb;
   readonly now?: () => number;
   readonly storage?: (ReadableStorage & WritableStorage) | undefined;
+}
+
+/** Phones open on the Today list (PRODUCT_SPEC 3.2); wider screens on the month. */
+function initialView(): ViewKind {
+  try {
+    return window.matchMedia?.('(max-width: 599px)').matches ? 'agenda' : 'month';
+  } catch {
+    return 'month';
+  }
 }
 
 function browserStorage(): (ReadableStorage & WritableStorage) | undefined {
@@ -66,7 +77,7 @@ function Calendar({ now }: { readonly now: () => number }) {
   const calendarData = useCalendarData();
   const nowLocal = useNowLocal(now);
   const today = datePart(nowLocal);
-  const [view, setView] = useState<ViewKind>('month');
+  const [view, setView] = useState<ViewKind>(initialView);
   const [anchor, setAnchor] = useState<PlainDate>(today);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -98,10 +109,22 @@ function Calendar({ now }: { readonly now: () => number }) {
       buildTimeGridModel({
         calendars: calendarData.calendars,
         events: calendarData.events,
-        days: view === 'month' ? [] : visibleDays(view, anchor, settings.weekStart),
+        days:
+          view === 'day' || view === 'week' ? visibleDays(view, anchor, settings.weekStart) : [],
         maxAllDayLanes: MAX_ALL_DAY_LANES,
       }),
     [calendarData.calendars, calendarData.events, view, anchor, settings.weekStart],
+  );
+
+  const agendaModel = useMemo(
+    () =>
+      buildAgendaModel({
+        calendars: calendarData.calendars,
+        events: calendarData.events,
+        date: anchor,
+        nowLocal,
+      }),
+    [calendarData.calendars, calendarData.events, anchor, nowLocal],
   );
 
   const toggle = useCallback(
@@ -139,8 +162,9 @@ function Calendar({ now }: { readonly now: () => number }) {
 
   const count = (n: number) =>
     new Intl.NumberFormat(settings.locale, { numberingSystem: settings.numerals }).format(n);
-  const skipped = view === 'month' ? monthModel.skipped : gridModel.skipped;
-  const problems = view === 'month' ? monthModel.problems : gridModel.problems;
+  const active = view === 'month' ? monthModel : view === 'agenda' ? agendaModel : gridModel;
+  const skipped = active.skipped;
+  const problems = active.problems;
 
   return (
     <Shell
@@ -170,7 +194,9 @@ function Calendar({ now }: { readonly now: () => number }) {
           {t('problemSeries', { count: count(problems.length) })}
         </p>
       )}
-      {view === 'month' ? (
+      {view === 'agenda' ? (
+        <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.openEvent} />
+      ) : view === 'month' ? (
         <MonthView
           model={monthModel}
           today={today}

@@ -8,11 +8,12 @@ import {
 } from '@/core/time';
 import type { FormatOptions, IsoWeekday, PlainDate } from '@/core/time';
 
-export type ViewKind = 'day' | 'week' | 'month';
+export type ViewKind = 'agenda' | 'day' | 'week' | 'month';
 
 /** Moves the anchor date by whole units of the current view. Month moves clamp the day. */
 export function shiftAnchor(view: ViewKind, anchor: PlainDate, delta: number): PlainDate {
   switch (view) {
+    case 'agenda':
     case 'day':
       return addDays(anchor, delta);
     case 'week':
@@ -40,6 +41,7 @@ export function viewTitle(
   fmt: FormatOptions,
 ): string {
   switch (view) {
+    case 'agenda':
     case 'day':
       return formatDate(anchor, fmt, 'full');
     case 'week': {

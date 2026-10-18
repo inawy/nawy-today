@@ -1,0 +1,85 @@
+/* Today / agenda list. Logical properties only; 44px touch targets. */
+.agenda {
+  max-inline-size: 640px;
+  margin-inline: auto;
+  padding: 8px 12px 96px;
+}
+
+.agenda-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-empty {
+  padding: 24px 12px;
+  text-align: center;
+}
+
+.agenda-item {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  grid-template-areas:
+    'when title'
+    'when where';
+  align-items: center;
+  gap: 0 12px;
+  inline-size: 100%;
+  min-block-size: 56px;
+  padding: 8px 12px;
+  border: 0;
+  border-inline-start: 4px solid var(--bar);
+  border-radius: var(--radius);
+  background: var(--bar-bg);
+  color: var(--text);
+  text-align: start;
+  cursor: pointer;
+}
+
+.agenda-when {
+  grid-area: when;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.agenda-title {
+  grid-area: title;
+  overflow-wrap: anywhere;
+}
+
+.agenda-where {
+  grid-area: where;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.agenda-item[data-status='past'] {
+  opacity: 0.6;
+}
+
+.agenda-item[data-status='now'] {
+  box-shadow: 0 0 0 2px var(--now);
+}
+
+.agenda-now {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--now);
+  font-size: 0.75rem;
+}
+
+.agenda-now::after {
+  content: '';
+  flex: 1;
+  block-size: 2px;
+  background: var(--now);
+}
+
+@media (max-width: 599px) {
+  .agenda-item {
+    grid-template-columns: 5.5rem 1fr;
+  }
+}
