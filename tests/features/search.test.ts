@@ -30,7 +30,7 @@ describe('searchEvents', () => {
     ];
     expect(find(events, 'المدرسه')).toEqual(['اجتماع المدرسة']);
     expect(find(events, 'مَدرسَة')).toEqual(['اجتماع المدرسة']);
-    expect(find(events, 'مسول')).toEqual(['مسؤول']);
+    expect(find(events, 'مسئول')).toEqual(['مسؤول']);
   });
 
   it('an empty or blank query finds nothing', () => {

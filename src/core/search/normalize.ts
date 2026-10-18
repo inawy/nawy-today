@@ -8,8 +8,9 @@ const MAP: Readonly<Record<string, string>> = {
   إ: 'ا',
   آ: 'ا',
   ٱ: 'ا',
-  ؤ: 'و',
-  ئ: 'ي',
+  // Hamza on a carrier (waw / ya): the two spellings of the same word, e.g. مسؤول and مسئول.
+  ؤ: 'ء',
+  ئ: 'ء',
   ى: 'ي',
   ة: 'ه',
 };

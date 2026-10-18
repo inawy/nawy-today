@@ -12,8 +12,8 @@ describe('normalizeForSearch', () => {
     for (const w of ['أحمد', 'إحمد', 'آحمد', 'احمد', 'ٱحمد']) {
       expect(normalizeForSearch(w)).toBe('احمد');
     }
-    expect(normalizeForSearch('مسؤول')).toBe(normalizeForSearch('مسول'));
-    expect(normalizeForSearch('رئيس')).toBe(normalizeForSearch('ريس'));
+    expect(normalizeForSearch('مسؤول')).toBe(normalizeForSearch('مسئول'));
+    expect(normalizeForSearch('مسؤول')).not.toBe(normalizeForSearch('مسول')); // a dropped letter is not a spelling variant
   });
 
   it('folds ta marbuta to ha and alef maqsura to ya', () => {
