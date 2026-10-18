@@ -6,7 +6,9 @@ import { makeCalendar, makeEvent } from '../helpers/factories';
 const TODAY = '2026-10-13';
 const cal = makeCalendar();
 const find = (events: unknown[], q: string, limit?: number) =>
-  searchEvents(buildSearchIndex([cal], events), q, TODAY, limit).map((r) => r.occurrence.event.title);
+  searchEvents(buildSearchIndex([cal], events), q, TODAY, limit).map(
+    (r) => r.occurrence.event.title,
+  );
 
 describe('searchEvents', () => {
   it('matches title, location and notes; every word must be present', () => {
@@ -22,7 +24,10 @@ describe('searchEvents', () => {
   });
 
   it('finds Arabic text however it was written', () => {
-    const events = [makeEvent({ id: 'a', title: 'اجتماع المدرسة' }), makeEvent({ id: 'b', title: 'مسؤول' })];
+    const events = [
+      makeEvent({ id: 'a', title: 'اجتماع المدرسة' }),
+      makeEvent({ id: 'b', title: 'مسؤول' }),
+    ];
     expect(find(events, 'المدرسه')).toEqual(['اجتماع المدرسة']);
     expect(find(events, 'مَدرسَة')).toEqual(['اجتماع المدرسة']);
     expect(find(events, 'مسول')).toEqual(['مسؤول']);
@@ -44,7 +49,13 @@ describe('searchEvents', () => {
       at('today', '2026-10-13'),
       at('far-future', '2027-06-01'),
     ];
-    expect(find(events, 't')).toEqual(['T today', 'T tomorrow', 'T yesterday', 'T far-future', 'T far-past']);
+    expect(find(events, 't')).toEqual([
+      'T today',
+      'T tomorrow',
+      'T yesterday',
+      'T far-future',
+      'T far-past',
+    ]);
   });
 
   it('a repeating event appears once, at its next occurrence', () => {
@@ -65,13 +76,21 @@ describe('searchEvents', () => {
   it('an override is listed only when its text differs from its series', () => {
     const series = makeEvent({ id: 's', title: 'Standup', rrule: 'FREQ=DAILY' });
     const same = makeEvent({
-      id: 'o1', title: 'Standup', seriesId: 's', originalStart: '2026-10-14T09:00',
-      start: '2026-10-14T11:00', end: '2026-10-14T12:00',
+      id: 'o1',
+      title: 'Standup',
+      seriesId: 's',
+      originalStart: '2026-10-14T09:00',
+      start: '2026-10-14T11:00',
+      end: '2026-10-14T12:00',
     });
     expect(find([series, same], 'standup')).toEqual(['Standup']);
     const renamed = makeEvent({
-      id: 'o2', title: 'Standup with CEO', seriesId: 's', originalStart: '2026-10-15T09:00',
-      start: '2026-10-15T09:00', end: '2026-10-15T09:30',
+      id: 'o2',
+      title: 'Standup with CEO',
+      seriesId: 's',
+      originalStart: '2026-10-15T09:00',
+      start: '2026-10-15T09:00',
+      end: '2026-10-15T09:30',
     });
     expect(find([series, same, renamed], 'ceo')).toEqual(['Standup with CEO']);
   });
@@ -91,7 +110,9 @@ describe('searchEvents', () => {
   });
 
   it('respects the limit', () => {
-    const events = Array.from({ length: 80 }, (_, i) => makeEvent({ id: `e${i}`, title: `Item ${i}` }));
+    const events = Array.from({ length: 80 }, (_, i) =>
+      makeEvent({ id: `e${i}`, title: `Item ${i}` }),
+    );
     expect(find(events, 'item')).toHaveLength(50);
     expect(find(events, 'item', 5)).toHaveLength(5);
   });

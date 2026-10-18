@@ -57,7 +57,14 @@ const span = (e: CalEvent): number => {
 };
 
 function plainOccurrence(event: CalEvent): Occurrence {
-  return { key: event.id, event, start: event.start, end: event.end, recurring: false, override: false };
+  return {
+    key: event.id,
+    event,
+    start: event.start,
+    end: event.end,
+    recurring: false,
+    override: false,
+  };
 }
 
 function overrideOccurrence(event: CalEvent): Occurrence {
@@ -82,7 +89,15 @@ function seriesOccurrence(master: CalEvent, today: PlainDate): Occurrence {
   if (last) return last;
   const start = master.start;
   const end = isoOfEpochMinute((toEpochMinute(start) ?? 0) + span(master), start.length === 10);
-  return { key: master.id, event: master, start, end, originalStart: start, recurring: true, override: false };
+  return {
+    key: master.id,
+    event: master,
+    start,
+    end,
+    originalStart: start,
+    recurring: true,
+    override: false,
+  };
 }
 
 /**
@@ -109,13 +124,21 @@ export function searchEvents(
           ? seriesOccurrence(event, today)
           : plainOccurrence(event);
     const day = epochDayOf(occurrence.start.slice(0, 10)) ?? todayDay;
-    return { occurrence, calendarColor: colorOf(event, index.calendars), distance: Math.abs(day - todayDay) };
+    return {
+      occurrence,
+      calendarColor: colorOf(event, index.calendars),
+      distance: Math.abs(day - todayDay),
+    };
   });
 
   ranked.sort(
     (a, b) =>
       a.distance - b.distance ||
-      (a.occurrence.start < b.occurrence.start ? 1 : a.occurrence.start > b.occurrence.start ? -1 : 0) ||
+      (a.occurrence.start < b.occurrence.start
+        ? 1
+        : a.occurrence.start > b.occurrence.start
+          ? -1
+          : 0) ||
       a.occurrence.event.title.localeCompare(b.occurrence.event.title) ||
       (a.occurrence.key < b.occurrence.key ? -1 : 1),
   );

@@ -51,7 +51,10 @@ export function SearchPanel({ index, today, onOpen, onClose }: SearchPanelProps)
   };
 
   return (
-    <div className="modal-backdrop search-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="modal-backdrop search-backdrop"
+      onMouseDown={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div
         ref={dialogRef}
         className="modal search"
@@ -80,7 +83,11 @@ export function SearchPanel({ index, today, onOpen, onClose }: SearchPanelProps)
           }}
         />
         <p role="status" className="search-status muted">
-          {!typed ? t('searchHint') : results.length === 0 ? t('searchNone') : t('searchCount', { count })}
+          {!typed
+            ? t('searchHint')
+            : results.length === 0
+              ? t('searchNone')
+              : t('searchCount', { count })}
         </p>
         <ul className="search-list">
           {results.map((r) => (
@@ -134,4 +141,3 @@ function Row({
     </button>
   );
 }
-

@@ -133,8 +133,7 @@ function Calendar({ now }: { readonly now: () => number }) {
 
   // Built when the panel opens (and when data changes under it), not on every render.
   const searchIndex = useMemo(
-    () =>
-      searchOpen ? buildSearchIndex(calendarData.calendars, calendarData.events) : undefined,
+    () => (searchOpen ? buildSearchIndex(calendarData.calendars, calendarData.events) : undefined),
     [searchOpen, calendarData.calendars, calendarData.events],
   );
 
@@ -167,14 +166,11 @@ function Calendar({ now }: { readonly now: () => number }) {
   useShortcuts(!drawerOpen && !flow.dialogOpen && !searchOpen, onShortcut);
 
   // One history entry for "some dialog is open" (so search → editor never pops and re-pushes).
-  useBackLayer(
-    flow.dialogOpen || searchOpen,
-    async () => {
-      if (flow.dialogOpen) return flow.back();
-      setSearchOpen(false);
-      return true;
-    },
-  );
+  useBackLayer(flow.dialogOpen || searchOpen, async () => {
+    if (flow.dialogOpen) return flow.back();
+    setSearchOpen(false);
+    return true;
+  });
 
   if (data.status === 'error') return <RecoveryScreen onRetry={data.retry} />;
   if (calendarData.status === 'error') {
