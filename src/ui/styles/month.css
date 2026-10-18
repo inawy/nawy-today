@@ -132,3 +132,21 @@ button.more {
   cursor: pointer;
   text-decoration: underline;
 }
+
+/* Phones: a month bar is far smaller than a finger, so the whole day cell is the tap target and
+   opens that day's list (where events are big enough to tap). */
+@media (max-width: 599px) {
+  .day {
+    position: relative;
+  }
+
+  .day-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  button.bar {
+    pointer-events: none;
+  }
+}

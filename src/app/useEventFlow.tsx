@@ -20,6 +20,7 @@ import {
 import type { Draft, Scope, Target } from '@/features/events';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
+import { useBackLayer } from '@/lib/useBackLayer';
 import { EventEditor } from '@/ui/editor/EventEditor';
 import type { SaveOutcome } from '@/ui/editor/EventEditor';
 import { ScopeDialog } from '@/ui/editor/ScopeDialog';
@@ -78,6 +79,13 @@ export function useEventFlow({
   const [ask, setAsk] = useState<ScopeAsk | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const counter = useRef(0);
+  const closeEditorRef = useRef<(() => Promise<boolean>) | null>(null);
+  const askRef = useRef<ScopeAsk | null>(null);
+  askRef.current = ask;
+  const registerClose = useCallback((close: (() => Promise<boolean>) | null) => {
+    closeEditorRef.current = close;
+  }, []);
+
   const tz = useMemo(() => localTimeZone(), []);
 
   const notify = useCallback((message: string, undo?: UndoToken) => {
@@ -224,6 +232,20 @@ export function useEventFlow({
   const closeEditor = useCallback(() => setEditing(null), []);
   const dismissToast = useCallback(() => setToast(null), []);
 
+  // The Back button closes (and saves) the editor, or cancels the scope question first.
+  useBackLayer(
+    editing !== null || ask !== null,
+    useCallback(async () => {
+      const pending = askRef.current;
+      if (pending) {
+        pending.resolve(null);
+        setAsk(null);
+        return false;
+      }
+      return (await closeEditorRef.current?.()) ?? true;
+    }, []),
+  );
+
   const overlay = (
     <>
       {editing && (
@@ -237,6 +259,7 @@ export function useEventFlow({
           onSave={save}
           onDelete={editing.mode === 'edit' ? () => void remove() : undefined}
           onClose={closeEditor}
+          registerClose={registerClose}
         />
       )}
       {ask && (

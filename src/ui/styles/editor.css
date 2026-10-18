@@ -40,9 +40,12 @@ button.block {
   border-color: var(--now);
 }
 
+/* `--vvh`/`--vvt` follow the visible area, so an on-screen keyboard does not cover the form. */
 .modal-backdrop {
   position: fixed;
-  inset: 0;
+  inset-inline: 0;
+  inset-block-start: var(--vvt, 0);
+  block-size: var(--vvh, 100%);
   z-index: 40;
   display: flex;
   align-items: center;

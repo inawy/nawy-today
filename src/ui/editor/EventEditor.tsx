@@ -8,6 +8,7 @@ import type { Draft, DraftError } from '@/features/events';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
 import { trapTab } from '@/lib/focusTrap';
+import { useVisualViewport } from '@/lib/useVisualViewport';
 import { CloseIcon } from '@/ui/shell/Icons';
 import { RepeatFields } from './RepeatFields';
 
@@ -24,6 +25,11 @@ export interface EventEditorProps {
   readonly onSave: (draft: Draft) => Promise<SaveOutcome>;
   readonly onDelete?: (() => void) | undefined;
   readonly onClose: () => void;
+  /**
+   * Hands the owner the editor's own "close and save" so the Back button can use it. Resolves
+   * true when the editor closed, false when it stays open (nothing to save is a close).
+   */
+  readonly registerClose?: ((close: (() => Promise<boolean>) | null) => void) | undefined;
 }
 
 const ERROR_KEY: Record<DraftError, MessageKey> = {
@@ -64,6 +70,7 @@ export function EventEditor({
   onSave,
   onDelete,
   onClose,
+  registerClose,
 }: EventEditorProps) {
   const t = useT();
   const titleId = useId();
@@ -108,14 +115,23 @@ export function EventEditor({
     }
   }, [onSave]);
 
-  const requestClose = useCallback(async (): Promise<void> => {
+  const requestClose = useCallback(async (): Promise<boolean> => {
     if (!isDirty(initial, draftRef.current)) {
       onClose();
-      return;
+      return true;
     }
-    // A new event nobody typed anything into is not worth saving: it has no content yet.
-    if (await commit()) onClose();
+    if (await commit()) {
+      onClose();
+      return true;
+    }
+    return false;
   }, [commit, initial, onClose]);
+
+  useVisualViewport();
+  useEffect(() => {
+    registerClose?.(requestClose);
+    return () => registerClose?.(null);
+  }, [registerClose, requestClose]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.code === 'Escape') {
