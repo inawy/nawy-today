@@ -1,13 +1,6 @@
 import type { CalEvent } from '@/core/model';
 import { expandRule, formatRule, parseRule, splitSeries } from '@/core/recurrence';
-import {
-  addDays,
-  combine,
-  diffDays,
-  isoOfEpochMinute,
-  timePart,
-  toEpochMinute,
-} from '@/core/time';
+import { addDays, combine, diffDays, isoOfEpochMinute, timePart, toEpochMinute } from '@/core/time';
 import type { EventOp, EventPatch, NewEvent } from '@/data';
 
 // Turns "the user changed (or deleted) this occurrence, with this scope" into the exact list of
