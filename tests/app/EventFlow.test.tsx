@@ -22,7 +22,9 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-async function seed(extra: (store: ReturnType<typeof createStore>, calendarId: string) => Promise<void>) {
+async function seed(
+  extra: (store: ReturnType<typeof createStore>, calendarId: string) => Promise<void>,
+) {
   const db = createDb(dbName);
   const store = createStore(db);
   const calendar = await store.createCalendar({ name: 'Personal', color: 'blue' });
@@ -110,7 +112,9 @@ describe('edit and delete', () => {
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     fireEvent.change(within(dialog).getByLabelText('Ends · Time'), { target: { value: '07:00' } });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
-    expect((await within(dialog).findByRole('alert')).textContent).toBe('The end is before the start.');
+    expect((await within(dialog).findByRole('alert')).textContent).toBe(
+      'The end is before the start.',
+    );
     expect(screen.getByRole('dialog', { name: 'Edit event' })).toBeTruthy();
   });
 });
@@ -164,7 +168,9 @@ describe('repeating events', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
     const ask = await screen.findByRole('dialog', { name: 'Edit repeating event' });
     fireEvent.click(within(ask).getByRole('button', { name: 'Cancel' }));
-    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Edit repeating event' })).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Edit repeating event' })).toBeNull(),
+    );
     expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe('Nope');
     expect(bars(/Nope/).filter((b) => b.classList.contains('bar'))).toHaveLength(0);
   });
@@ -195,7 +201,9 @@ describe('when saving fails', () => {
       const db = createDb(dbName);
       const original = db.transaction.bind(db) as (...args: unknown[]) => Promise<unknown>;
       (db as unknown as { transaction: unknown }).transaction = (...args: unknown[]) =>
-        failing ? Promise.reject(new DOMException('full', 'QuotaExceededError')) : original(...args);
+        failing
+          ? Promise.reject(new DOMException('full', 'QuotaExceededError'))
+          : original(...args);
       return db;
     };
     open(create);

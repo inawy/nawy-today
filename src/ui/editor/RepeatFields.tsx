@@ -32,14 +32,20 @@ export interface RepeatFieldsProps {
 export function RepeatFields({ value, onChange, fmt, weekStart }: RepeatFieldsProps) {
   const t = useT();
   const kinds: readonly RepeatKind[] = value.kind === 'custom' ? [...KINDS, 'custom'] : KINDS;
-  const weekdays = Array.from({ length: 7 }, (_, i) => (((weekStart - 1 + i) % 7) + 1) as IsoWeekday);
+  const weekdays = Array.from(
+    { length: 7 },
+    (_, i) => (((weekStart - 1 + i) % 7) + 1) as IsoWeekday,
+  );
   // 2026-10-12 is a Monday: name weekdays through the same formatter as the rest of the app.
   const dayName = (d: IsoWeekday): string =>
     formatWeekday(`2026-10-${String(11 + d).padStart(2, '0')}`, fmt, 'short');
 
   const toggleDay = (d: IsoWeekday): void => {
     const has = value.weekdays.includes(d);
-    onChange({ ...value, weekdays: has ? value.weekdays.filter((x) => x !== d) : [...value.weekdays, d] });
+    onChange({
+      ...value,
+      weekdays: has ? value.weekdays.filter((x) => x !== d) : [...value.weekdays, d],
+    });
   };
 
   return (

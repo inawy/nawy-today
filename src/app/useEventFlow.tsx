@@ -66,7 +66,13 @@ export interface EventFlow {
 
 const newId = (): string => crypto.randomUUID();
 
-export function useEventFlow({ store, calendars, events, fmt, weekStart }: EventFlowInput): EventFlow {
+export function useEventFlow({
+  store,
+  calendars,
+  events,
+  fmt,
+  weekStart,
+}: EventFlowInput): EventFlow {
   const t = useT();
   const [editing, setEditing] = useState<Editing | null>(null);
   const [ask, setAsk] = useState<ScopeAsk | null>(null);
@@ -95,7 +101,10 @@ export function useEventFlow({ store, calendars, events, fmt, weekStart }: Event
         if (!calendar) {
           // First use: there is nowhere to put an event yet, so make the one calendar people need.
           try {
-            calendar = await store.createCalendar({ name: t('defaultCalendarName'), color: 'blue' });
+            calendar = await store.createCalendar({
+              name: t('defaultCalendarName'),
+              color: 'blue',
+            });
           } catch {
             notify(t('actionFailed'));
             return;

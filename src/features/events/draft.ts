@@ -292,7 +292,8 @@ export function isDirty(a: Draft, b: Draft): boolean {
 }
 
 const TIME_RE = /^\d{2}:\d{2}$/;
-const minutesOf = (time: string): number => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
+const minutesOf = (time: string): number =>
+  Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
 const timeOf = (minutes: number): string =>
   `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 
@@ -300,10 +301,7 @@ const timeOf = (minutes: number): string =>
  * Changing the start moves the end with it, so the length stays the same (as people expect from
  * a calendar). A start typed halfway (not yet a valid date or time) changes nothing else.
  */
-export function withStart(
-  draft: Draft,
-  next: { startDate?: string; startTime?: string },
-): Draft {
+export function withStart(draft: Draft, next: { startDate?: string; startTime?: string }): Draft {
   const startDate = next.startDate ?? draft.startDate;
   const startTime = next.startTime ?? draft.startTime;
   const out: Draft = { ...draft, startDate, startTime };

@@ -148,8 +148,14 @@ export function TimeGrid({
                     if (e.target !== e.currentTarget) return;
                     const box = e.currentTarget.getBoundingClientRect();
                     if (box.height <= 0) return;
-                    const half = Math.min(47, Math.floor(((e.clientY - box.top) / box.height) * 48));
-                    onCreateAt(d.date, `${pad(Math.floor(half / 2))}:${half % 2 === 0 ? '00' : '30'}`);
+                    const half = Math.min(
+                      47,
+                      Math.floor(((e.clientY - box.top) / box.height) * 48),
+                    );
+                    onCreateAt(
+                      d.date,
+                      `${pad(Math.floor(half / 2))}:${half % 2 === 0 ? '00' : '30'}`,
+                    );
                   }}
                 >
                   {d.blocks.map((block) => (

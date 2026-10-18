@@ -39,7 +39,8 @@ const ERROR_KEY: Record<DraftError, MessageKey> = {
 };
 
 function timeZoneOptions(current: string): string[] {
-  const all = (Intl as unknown as { supportedValuesOf?: (key: string) => string[] }).supportedValuesOf;
+  const all = (Intl as unknown as { supportedValuesOf?: (key: string) => string[] })
+    .supportedValuesOf;
   let listed: string[];
   try {
     listed = all ? all('timeZone') : [];
@@ -130,7 +131,10 @@ export function EventEditor({
   };
 
   return (
-    <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && void requestClose()}>
+    <div
+      className="modal-backdrop"
+      onMouseDown={(e) => e.target === e.currentTarget && void requestClose()}
+    >
       <div
         ref={dialogRef}
         className="modal ed"

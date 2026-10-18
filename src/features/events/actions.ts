@@ -13,7 +13,10 @@ export type Outcome =
   /** The browser could not write (storage full, blocked, closed). */
   | { status: 'failed' };
 
-export async function execute(store: Pick<Store, 'applyOps'>, ops: readonly EventOp[]): Promise<Outcome> {
+export async function execute(
+  store: Pick<Store, 'applyOps'>,
+  ops: readonly EventOp[],
+): Promise<Outcome> {
   try {
     const result = await store.applyOps(ops);
     if (result.status === 'ok') return { status: 'ok', undo: result.undo };

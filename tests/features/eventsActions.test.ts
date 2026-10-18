@@ -31,7 +31,9 @@ describe('execute', () => {
     const e = await store.createEvent(base);
     await store.updateEvent(e.id, { title: 'x' });
     expect(
-      await execute(store, [{ kind: 'update', id: e.id, patch: {}, expectedUpdatedAt: e.updatedAt }]),
+      await execute(store, [
+        { kind: 'update', id: e.id, patch: {}, expectedUpdatedAt: e.updatedAt },
+      ]),
     ).toEqual({ status: 'conflict' });
     expect(await execute(store, [{ kind: 'delete', id: 'nope' }])).toEqual({ status: 'not-found' });
   });
@@ -68,7 +70,12 @@ describe('resolveTarget', () => {
     const { store } = testStore();
     await store.createCalendar({ name: 'P', color: 'blue' });
     const master = await store.createEvent({ ...base, rrule: 'FREQ=DAILY;COUNT=5' });
-    const plain = await store.createEvent({ ...base, title: 'Plain', start: '2026-11-01T09:00', end: '2026-11-01T10:00' });
+    const plain = await store.createEvent({
+      ...base,
+      title: 'Plain',
+      start: '2026-11-01T09:00',
+      end: '2026-11-01T10:00',
+    });
     await store.createEvent({
       ...base,
       title: 'Moved',
@@ -85,17 +92,26 @@ describe('resolveTarget', () => {
       return o;
     };
 
-    const plainT = resolveTarget(events, find((o) => o.event.id === plain.id));
+    const plainT = resolveTarget(
+      events,
+      find((o) => o.event.id === plain.id),
+    );
     expect(plainT.master.id).toBe(plain.id);
     expect(plainT.originalStart).toBeUndefined();
 
-    const plainOccurrence = resolveTarget(events, find((o) => o.start === '2026-10-14T09:00'));
+    const plainOccurrence = resolveTarget(
+      events,
+      find((o) => o.start === '2026-10-14T09:00'),
+    );
     expect(plainOccurrence.master.id).toBe(master.id);
     expect(plainOccurrence.originalStart).toBe('2026-10-14T09:00');
     expect(plainOccurrence.override).toBeUndefined();
     expect(plainOccurrence.overrides).toHaveLength(1);
 
-    const moved = resolveTarget(events, find((o) => o.event.title === 'Moved'));
+    const moved = resolveTarget(
+      events,
+      find((o) => o.event.title === 'Moved'),
+    );
     expect(moved.master.id).toBe(master.id);
     expect(moved.override?.title).toBe('Moved');
     expect(moved.originalStart).toBe('2026-10-15T09:00');
@@ -104,7 +120,11 @@ describe('resolveTarget', () => {
   it('treats an override whose series is gone as a plain event', async () => {
     const { store } = testStore();
     await store.createCalendar({ name: 'P', color: 'blue' });
-    const orphan = await store.createEvent({ ...base, seriesId: 'gone', originalStart: '2026-10-13T09:00' });
+    const orphan = await store.createEvent({
+      ...base,
+      seriesId: 'gone',
+      originalStart: '2026-10-13T09:00',
+    });
     const t = resolveTarget([orphan], {
       key: 'k',
       event: orphan,
