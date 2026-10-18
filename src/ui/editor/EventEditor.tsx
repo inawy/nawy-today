@@ -40,7 +40,7 @@ const ERROR_KEY: Record<DraftError, MessageKey> = {
 
 function timeZoneOptions(current: string): string[] {
   const all = (Intl as unknown as { supportedValuesOf?: (key: string) => string[] }).supportedValuesOf;
-  let listed: string[] = [];
+  let listed: string[];
   try {
     listed = all ? all('timeZone') : [];
   } catch {
