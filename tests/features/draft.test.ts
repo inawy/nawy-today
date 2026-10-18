@@ -104,7 +104,7 @@ describe('repeat <-> rule', () => {
     });
     expect(build({ kind: 'yearly' })).toEqual({
       ok: true,
-      rrule: 'FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=13',
+      rrule: 'FREQ=YEARLY;BYMONTHDAY=13;BYMONTH=10',
     });
   });
 
