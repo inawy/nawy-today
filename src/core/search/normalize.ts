@@ -14,10 +14,11 @@ const MAP: Readonly<Record<string, string>> = {
   ة: 'ه',
 };
 
-// Arabic harakat/Quranic marks (064B–065F, 0670, 06D6–06ED), tatweel, and invisible direction
+// Arabic harakat/Quranic marks (U+064B-065F, U+0670, U+06D6-06ED), tatweel, and invisible direction
 // marks that pasted text often carries.
-const IGNORED = /[ً-ٰٟۖ-ۭـ​-‏‪-‮⁦-⁩﻿]/g;
-const LATIN_MARKS = /[̀-ͯ]/g;
+const IGNORED =
+  /[\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g;
+const LATIN_MARKS = /[\u0300-\u036F]/g;
 
 function digit(ch: string): string {
   const code = ch.charCodeAt(0);
@@ -31,7 +32,7 @@ export function normalizeForSearch(text: string): string {
   const folded = text
     .normalize('NFKC')
     .replace(/[أإآٱؤئىة]/g, (c) => MAP[c] ?? c)
-    .replace(/[٠-٩۰-۹]/g, digit)
+    .replace(/[\u0660-\u0669\u06F0-\u06F9]/g, digit)
     .normalize('NFD')
     .replace(IGNORED, '')
     .replace(LATIN_MARKS, '')

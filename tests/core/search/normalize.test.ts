@@ -28,7 +28,7 @@ describe('normalizeForSearch', () => {
 
   it('ignores case, Latin accents, invisible marks and extra spaces', () => {
     expect(normalizeForSearch('  Café   MEETING ')).toBe('cafe meeting');
-    expect(normalizeForSearch('a‏b')).toBe('ab');
+    expect(normalizeForSearch('a\u200Fb')).toBe('ab');
   });
 
   it('keeps unrelated letters distinct', () => {
