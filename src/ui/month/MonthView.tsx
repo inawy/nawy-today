@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { formatDate, formatDayOfMonth, formatTime, formatWeekday } from '@/core/time';
 import type { FormatOptions, PlainDate, TimeFormatOptions } from '@/core/time';
+import type { Occurrence } from '@/core/recurrence';
 import type { MonthBar, MonthModel, WeekModel } from '@/features/month';
 import { useT } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
@@ -14,11 +15,13 @@ export interface MonthViewProps {
   readonly lanes: number;
   /** Opens the day view for a date (day number or its "+N"). */
   readonly onOpenDay: (date: PlainDate) => void;
+  /** Opens an event for editing. */
+  readonly onOpenEvent: (occurrence: Occurrence) => void;
 }
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
-export function MonthView({ model, today, lanes, onOpenDay }: MonthViewProps) {
+export function MonthView({ model, today, lanes, onOpenDay, onOpenEvent }: MonthViewProps) {
   const t = useT();
   const { settings } = useSettings();
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
@@ -42,6 +45,7 @@ export function MonthView({ model, today, lanes, onOpenDay }: MonthViewProps) {
           fmt={fmt}
           timeFmt={timeFmt}
           onOpenDay={onOpenDay}
+          onOpenEvent={onOpenEvent}
           moreLabel={(count) => t('moreEvents', { count: formatCount(count, fmt) })}
         />
       ))}
@@ -61,10 +65,21 @@ interface WeekRowProps {
   readonly fmt: FormatOptions;
   readonly timeFmt: TimeFormatOptions;
   readonly onOpenDay: (date: PlainDate) => void;
+  readonly onOpenEvent: (occurrence: Occurrence) => void;
   readonly moreLabel: (count: number) => string;
 }
 
-function WeekRow({ week, month, today, lanes, fmt, timeFmt, onOpenDay, moreLabel }: WeekRowProps) {
+function WeekRow({
+  week,
+  month,
+  today,
+  lanes,
+  fmt,
+  timeFmt,
+  onOpenDay,
+  onOpenEvent,
+  moreLabel,
+}: WeekRowProps) {
   return (
     <div className="week">
       {week.days.map((day, col) => {
@@ -108,7 +123,7 @@ function WeekRow({ week, month, today, lanes, fmt, timeFmt, onOpenDay, moreLabel
       })}
       {week.bars.map((bar) => (
         <ErrorBoundary key={bar.occurrence.key} fallback={() => <FailedBar bar={bar} />}>
-          <EventBar bar={bar} timeFmt={timeFmt} />
+          <EventBar bar={bar} timeFmt={timeFmt} onOpen={onOpenEvent} />
         </ErrorBoundary>
       ))}
     </div>
@@ -128,24 +143,28 @@ function barStyle(bar: MonthBar): Vars {
 function EventBar({
   bar,
   timeFmt,
+  onOpen,
 }: {
   readonly bar: MonthBar;
   readonly timeFmt: TimeFormatOptions;
+  readonly onOpen: (occurrence: Occurrence) => void;
 }) {
   const t = useT();
   const { event, start } = bar.occurrence;
   const title = event.title.trim() === '' ? t('untitled') : event.title;
   return (
-    <div
+    <button
+      type="button"
       className="bar"
       style={barStyle(bar)}
       data-open-start={bar.continuesBefore ? 'true' : undefined}
       data-open-end={bar.continuesAfter ? 'true' : undefined}
       title={title}
+      onClick={() => onOpen(bar.occurrence)}
     >
       {bar.showTime && <span className="bar-time">{formatTime(start, timeFmt)}</span>}
       <span className="bar-title">{title}</span>
-    </div>
+    </button>
   );
 }
 

@@ -290,3 +290,36 @@ export function draftToFields(draft: Draft): FieldsResult {
 export function isDirty(a: Draft, b: Draft): boolean {
   return JSON.stringify(a) !== JSON.stringify(b);
 }
+
+const TIME_RE = /^\d{2}:\d{2}$/;
+const minutesOf = (time: string): number => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
+const timeOf = (minutes: number): string =>
+  `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+
+/**
+ * Changing the start moves the end with it, so the length stays the same (as people expect from
+ * a calendar). A start typed halfway (not yet a valid date or time) changes nothing else.
+ */
+export function withStart(
+  draft: Draft,
+  next: { startDate?: string; startTime?: string },
+): Draft {
+  const startDate = next.startDate ?? draft.startDate;
+  const startTime = next.startTime ?? draft.startTime;
+  const out: Draft = { ...draft, startDate, startTime };
+  if (!isValidDate(startDate) || !isValidDate(draft.startDate) || !isValidDate(draft.endDate)) {
+    return out;
+  }
+  out.endDate = addDays(draft.endDate, diffDays(draft.startDate, startDate));
+  if (
+    !draft.allDay &&
+    draft.startDate === draft.endDate &&
+    TIME_RE.test(startTime) &&
+    TIME_RE.test(draft.startTime) &&
+    TIME_RE.test(draft.endTime)
+  ) {
+    const length = Math.max(0, minutesOf(draft.endTime) - minutesOf(draft.startTime));
+    out.endTime = timeOf(Math.min(minutesOf(startTime) + length, 23 * 60 + 59));
+  }
+  return out;
+}

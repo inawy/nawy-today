@@ -101,7 +101,7 @@ function canonical(rrule: string | undefined): string | undefined {
   return parsed.ok ? formatRule(parsed.rule) : rrule;
 }
 
-const ruleChanged = (before: string | undefined, after: string | undefined): boolean =>
+export const ruleChanged = (before: string | undefined, after: string | undefined): boolean =>
   canonical(before) !== canonical(after);
 
 // ---------------------------------------------------------------------------------------------

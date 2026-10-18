@@ -9,11 +9,13 @@ import { buildMonthModel, monthOf } from '@/features/month';
 import { SettingsProvider, useSettings } from '@/features/settings';
 import type { ReadableStorage, WritableStorage } from '@/features/settings';
 import { buildTimeGridModel } from '@/features/timegrid';
+import { useEventFlow } from './useEventFlow';
 import { shiftAnchor, useShortcuts, viewTitle, visibleDays } from '@/features/view';
 import type { ShortcutAction, ViewKind } from '@/features/view';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { MonthView } from '@/ui/month/MonthView';
 import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
+import { PlusIcon } from '@/ui/shell/Icons';
 import { Shell } from '@/ui/shell/Shell';
 import { TimeGrid } from '@/ui/timegrid/TimeGrid';
 
@@ -71,6 +73,14 @@ function Calendar({ now }: { readonly now: () => number }) {
 
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
 
+  const flow = useEventFlow({
+    store: data.status === 'ready' ? data.store : undefined,
+    calendars: calendarData.calendars,
+    events: calendarData.events,
+    fmt,
+    weekStart: settings.weekStart,
+  });
+
   const monthModel = useMemo(() => {
     const { year, month } = monthOf(anchor);
     return buildMonthModel({
@@ -114,11 +124,12 @@ function Calendar({ now }: { readonly now: () => number }) {
       if (action.kind === 'today') goToday();
       else if (action.kind === 'previous') previous();
       else if (action.kind === 'next') next();
+      else if (action.kind === 'create') flow.openNew(anchor);
       else setView(action.view);
     },
-    [goToday, previous, next],
+    [goToday, previous, next, flow, anchor],
   );
-  useShortcuts(!drawerOpen, onShortcut);
+  useShortcuts(!drawerOpen && !flow.dialogOpen, onShortcut);
 
   if (data.status === 'error') return <RecoveryScreen onRetry={data.retry} />;
   if (calendarData.status === 'error') {
@@ -160,7 +171,13 @@ function Calendar({ now }: { readonly now: () => number }) {
         </p>
       )}
       {view === 'month' ? (
-        <MonthView model={monthModel} today={today} lanes={MAX_LANES} onOpenDay={openDay} />
+        <MonthView
+          model={monthModel}
+          today={today}
+          lanes={MAX_LANES}
+          onOpenDay={openDay}
+          onOpenEvent={flow.openEvent}
+        />
       ) : (
         <TimeGrid
           key={view}
@@ -169,8 +186,20 @@ function Calendar({ now }: { readonly now: () => number }) {
           nowLocal={nowLocal}
           lanes={MAX_ALL_DAY_LANES}
           onOpenDay={view === 'week' ? openDay : undefined}
+          onOpenEvent={flow.openEvent}
+          onCreateAt={flow.openNew}
         />
       )}
+      <button
+        type="button"
+        className="fab"
+        aria-label={t('addEvent')}
+        title={t('addEvent')}
+        onClick={() => flow.openNew(anchor)}
+      >
+        <PlusIcon />
+      </button>
+      {flow.overlay}
     </Shell>
   );
 }

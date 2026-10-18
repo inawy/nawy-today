@@ -30,6 +30,8 @@ const view = (
   m: TimeGridModel,
   props: {
     onOpenDay?: (d: string) => void;
+    onOpenEvent?: (id: string) => void;
+    onCreateAt?: (date: string, time: string) => void;
     now?: string;
     locale?: 'ar' | 'en';
     extra?: object;
@@ -46,6 +48,8 @@ const view = (
         nowLocal={props.now ?? '2026-10-13T12:00'}
         lanes={3}
         onOpenDay={props.onOpenDay}
+        onOpenEvent={(o) => props.onOpenEvent?.(o.event.id)}
+        onCreateAt={(d, tm) => props.onCreateAt?.(d, tm)}
       />
     </SettingsProvider>,
   );
@@ -148,5 +152,25 @@ describe('TimeGrid', () => {
     view(model([]), { locale: 'ar', extra: { numerals: 'arab' } });
     expect(screen.getByText('طوال اليوم')).toBeTruthy();
     expect(screen.getByText(/١٣\D*٠٠/)).toBeTruthy();
+  });
+
+  it('opens an event when its block is clicked, without starting a new event', () => {
+    const onOpenEvent = vi.fn();
+    const onCreateAt = vi.fn();
+    view(model([makeEvent({ id: 'ev-3', title: 'Standup' })]), { onOpenEvent, onCreateAt });
+    fireEvent.click(screen.getByRole('button', { name: /Standup/ }));
+    expect(onOpenEvent).toHaveBeenCalledWith('ev-3');
+    expect(onCreateAt).not.toHaveBeenCalled();
+  });
+
+  it('a click on an empty spot of a day starts an event on the nearest half hour', () => {
+    const onCreateAt = vi.fn();
+    const { container } = view(model([]), { onCreateAt });
+    const col = container.querySelectorAll<HTMLElement>('.tg-col')[1] as HTMLElement;
+    col.getBoundingClientRect = () => ({ top: 0, height: 2400 }) as DOMRect;
+    fireEvent.click(col, { clientY: 1000 + 10 }); // 10:00 is at 1000px; +10px is still inside the 10:00 half hour
+    expect(onCreateAt).toHaveBeenCalledWith('2026-10-13', '10:00');
+    fireEvent.click(col, { clientY: 1000 + 60 });
+    expect(onCreateAt).toHaveBeenLastCalledWith('2026-10-13', '10:30');
   });
 });

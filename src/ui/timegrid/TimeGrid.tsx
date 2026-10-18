@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { nowPosition } from '@/core/layout';
+import type { Occurrence } from '@/core/recurrence';
 import { formatDate, formatDayOfMonth, formatTime, formatWeekday } from '@/core/time';
 import type { FormatOptions, PlainDate, PlainDateTime, TimeFormatOptions } from '@/core/time';
 import { useT } from '@/features/i18n';
@@ -20,13 +21,25 @@ export interface TimeGridProps {
   readonly lanes: number;
   /** In the week view a day header opens that day; the day view passes nothing. */
   readonly onOpenDay?: ((date: PlainDate) => void) | undefined;
+  /** Opens an event for editing. */
+  readonly onOpenEvent: (occurrence: Occurrence) => void;
+  /** Clicking an empty spot of a day starts a new event there (`time` is `HH:mm`, on the half hour). */
+  readonly onCreateAt: (date: PlainDate, time: string) => void;
 }
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
 const pad = (n: number): string => String(n).padStart(2, '0');
 
-export function TimeGrid({ model, today, nowLocal, lanes, onOpenDay }: TimeGridProps) {
+export function TimeGrid({
+  model,
+  today,
+  nowLocal,
+  lanes,
+  onOpenDay,
+  onOpenEvent,
+  onCreateAt,
+}: TimeGridProps) {
   const t = useT();
   const { settings } = useSettings();
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
@@ -107,7 +120,7 @@ export function TimeGrid({ model, today, nowLocal, lanes, onOpenDay }: TimeGridP
           )}
           {model.allDay.bars.map((bar) => (
             <ErrorBoundary key={bar.occurrence.key} fallback={() => <FailedAllDay bar={bar} />}>
-              <AllDayItem bar={bar} />
+              <AllDayItem bar={bar} onOpen={onOpenEvent} />
             </ErrorBoundary>
           ))}
         </div>
@@ -130,10 +143,18 @@ export function TimeGrid({ model, today, nowLocal, lanes, onOpenDay }: TimeGridP
                   key={d.date}
                   className="tg-col"
                   data-today={d.date === today ? 'true' : undefined}
+                  onClick={(e) => {
+                    // Only a click on the empty column itself, never on an event inside it.
+                    if (e.target !== e.currentTarget) return;
+                    const box = e.currentTarget.getBoundingClientRect();
+                    if (box.height <= 0) return;
+                    const half = Math.min(47, Math.floor(((e.clientY - box.top) / box.height) * 48));
+                    onCreateAt(d.date, `${pad(Math.floor(half / 2))}:${half % 2 === 0 ? '00' : '30'}`);
+                  }}
                 >
                   {d.blocks.map((block) => (
                     <ErrorBoundary key={block.key} fallback={() => <FailedBlock block={block} />}>
-                      <Block block={block} timeFmt={timeFmt} />
+                      <Block block={block} timeFmt={timeFmt} onOpen={onOpenEvent} />
                     </ErrorBoundary>
                   ))}
                   {now !== null && (
@@ -169,9 +190,11 @@ function blockStyle(block: TimedBlock): Vars {
 function Block({
   block,
   timeFmt,
+  onOpen,
 }: {
   readonly block: TimedBlock;
   readonly timeFmt: TimeFormatOptions;
+  readonly onOpen: (occurrence: Occurrence) => void;
 }) {
   const t = useT();
   const { event, start, end } = block.occurrence;
@@ -181,16 +204,18 @@ function Block({
     ? `${formatTime(start, timeFmt)} – ${formatTime(end, timeFmt)}`
     : formatTime(start, timeFmt);
   return (
-    <div
+    <button
+      type="button"
       className="block"
       style={blockStyle(block)}
       data-open-start={block.startsBefore ? 'true' : undefined}
       data-open-end={block.endsAfter ? 'true' : undefined}
       title={`${title} · ${range}`}
+      onClick={() => onOpen(block.occurrence)}
     >
       <span className="block-title">{title}</span>
       <span className="block-time">{range}</span>
-    </div>
+    </button>
   );
 }
 
@@ -213,20 +238,28 @@ function allDayStyle(bar: AllDayBar): Vars {
   };
 }
 
-function AllDayItem({ bar }: { readonly bar: AllDayBar }) {
+function AllDayItem({
+  bar,
+  onOpen,
+}: {
+  readonly bar: AllDayBar;
+  readonly onOpen: (occurrence: Occurrence) => void;
+}) {
   const t = useT();
   const title =
     bar.occurrence.event.title.trim() === '' ? t('untitled') : bar.occurrence.event.title;
   return (
-    <div
+    <button
+      type="button"
       className="bar"
       style={allDayStyle(bar)}
       data-open-start={bar.continuesBefore ? 'true' : undefined}
       data-open-end={bar.continuesAfter ? 'true' : undefined}
       title={title}
+      onClick={() => onOpen(bar.occurrence)}
     >
       <span className="bar-title">{title}</span>
-    </div>
+    </button>
   );
 }
 

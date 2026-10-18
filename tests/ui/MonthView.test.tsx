@@ -28,10 +28,17 @@ function model(events: unknown[], maxLanes = 3): MonthModel {
 }
 
 const opened: string[] = [];
+const openedEvents: string[] = [];
 const view = (m: MonthModel, locale: 'ar' | 'en' = 'en', extra: object = {}) =>
   render(
     <SettingsProvider storage={storage(locale, extra)} languages={[locale]}>
-      <MonthView model={m} today="2026-10-13" lanes={3} onOpenDay={(d) => opened.push(d)} />
+      <MonthView
+        model={m}
+        today="2026-10-13"
+        lanes={3}
+        onOpenDay={(d) => opened.push(d)}
+        onOpenEvent={(o) => openedEvents.push(o.event.id)}
+      />
     </SettingsProvider>,
   );
 
@@ -108,5 +115,12 @@ describe('MonthView', () => {
     view(model(events));
     fireEvent.click(screen.getByRole('button', { name: /^\+3 more, Tuesday, October 13, 2026$/ }));
     expect(opened).toEqual(['2026-10-13']);
+  });
+
+  it('opens an event for editing when its bar is clicked', () => {
+    openedEvents.length = 0;
+    view(model([makeEvent({ id: 'ev-9', title: 'Standup' })]));
+    fireEvent.click(screen.getByRole('button', { name: /Standup/ }));
+    expect(openedEvents).toEqual(['ev-9']);
   });
 });

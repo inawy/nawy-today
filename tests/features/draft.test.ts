@@ -7,6 +7,7 @@ import {
   isDirty,
   repeatFromRule,
   repeatToRule,
+  withStart,
 } from '@/features/events/draft';
 import type { Draft } from '@/features/events/draft';
 import { makeAllDayEvent, makeEvent } from '../helpers/factories';
@@ -229,5 +230,27 @@ describe('draftFromEvent', () => {
       ok: true,
       fields: { allDay: true, start: '2026-10-13', end: '2026-10-16' },
     });
+  });
+});
+
+describe('withStart', () => {
+  it('keeps the length when the start time moves', () => {
+    const d = withStart(fresh({ endTime: '10:30' }), { startTime: '14:00' });
+    expect([d.startTime, d.endTime, d.endDate]).toEqual(['14:00', '15:30', '2026-10-13']);
+  });
+
+  it('keeps the length across days when the start date moves', () => {
+    const d = withStart(fresh({ endDate: '2026-10-14' }), { startDate: '2026-10-20' });
+    expect([d.startDate, d.endDate]).toEqual(['2026-10-20', '2026-10-21']);
+  });
+
+  it('stops at the end of the day instead of wrapping', () => {
+    const d = withStart(fresh({ endTime: '10:00' }), { startTime: '23:30' });
+    expect(d.endTime).toBe('23:59');
+  });
+
+  it('ignores a half-typed value', () => {
+    const d = withStart(fresh(), { startDate: '2026-1' });
+    expect([d.startDate, d.endDate]).toEqual(['2026-1', '2026-10-13']);
   });
 });
