@@ -24,7 +24,7 @@ import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
 import { PlusIcon } from '@/ui/shell/Icons';
 import { Shell } from '@/ui/shell/Shell';
 import { AgendaView } from '@/ui/agenda/AgendaView';
-import { DataDialog } from '@/ui/data/DataDialog';
+import { DataDialog } from '@/ui/backup/DataDialog';
 import { SearchPanel } from '@/ui/search/SearchPanel';
 import { TimeGrid } from '@/ui/timegrid/TimeGrid';
 

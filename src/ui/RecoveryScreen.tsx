@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FileToSave } from '@/features/backup';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
-import { downloadFile } from '@/ui/data/download';
+import { downloadFile } from '@/ui/backup/download';
 
 /** What the recovery screen can do when the data cannot be opened (D-028). */
 export interface DataRecovery {
