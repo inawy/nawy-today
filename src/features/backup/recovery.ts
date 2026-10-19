@@ -17,10 +17,7 @@ export async function latestSnapshotFile(
   const found = await getSnapshotJson(snapshotDb, newest.id);
   if (!found) return undefined;
   return {
-    name: backupFileName(found.createdAt, timeZone).replace(
-      'nawy-today-',
-      'nawy-today-snapshot-',
-    ),
+    name: backupFileName(found.createdAt, timeZone).replace('nawy-today-', 'nawy-today-snapshot-'),
     text: found.json,
   };
 }

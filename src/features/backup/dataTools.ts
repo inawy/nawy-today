@@ -13,13 +13,7 @@ import {
   replaceWithSafetySnapshot,
   takeSnapshot,
 } from '@/data';
-import type {
-  ImportPlan,
-  NawyDb,
-  ReplaceSummary,
-  SnapshotDb,
-  SnapshotInfo,
-} from '@/data';
+import type { ImportPlan, NawyDb, ReplaceSummary, SnapshotDb, SnapshotInfo } from '@/data';
 import { backupFileName, readBackupText } from './files';
 import type { ReadFailure } from './files';
 
@@ -180,7 +174,10 @@ export function createDataTools(deps: DataToolsDeps): DataTools {
       const found = await getSnapshotJson(snapshotDb, id);
       if (!found) return undefined;
       return {
-        name: backupFileName(found.createdAt, timeZone).replace('nawy-today-', 'nawy-today-snapshot-'),
+        name: backupFileName(found.createdAt, timeZone).replace(
+          'nawy-today-',
+          'nawy-today-snapshot-',
+        ),
         text: found.json,
       };
     },

@@ -109,7 +109,12 @@ export function DataDialog({
 
   const openInspection = (outcome: Awaited<ReturnType<DataTools['inspectFile']>>, mode: Mode) => {
     if (outcome.ok) setView({ kind: 'preview', inspection: outcome.inspection, mode });
-    else setMessage(outcome.failure === 'snapshot-missing' ? 'importMissing' : failureMessageKey(outcome.failure));
+    else
+      setMessage(
+        outcome.failure === 'snapshot-missing'
+          ? 'importMissing'
+          : failureMessageKey(outcome.failure),
+      );
   };
 
   const onFile = (file: File | undefined) => {
@@ -189,7 +194,12 @@ export function DataDialog({
                     ? t('neverBackedUp')
                     : t('lastBackup', { date: when(lastBackupAt) })}
                 </p>
-                <button type="button" className="btn btn-primary" disabled={busy} onClick={exportNow}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={busy}
+                  onClick={exportNow}
+                >
                   {t('exportButton')}
                 </button>
               </section>
@@ -241,7 +251,8 @@ export function DataDialog({
                             <span className="snapshot-info">
                               <span>{when(s.createdAt)}</span>
                               <span className="muted">
-                                {t(REASONS[s.reason])} · {num(Math.max(1, Math.round(s.bytes / 1024)))} KB
+                                {t(REASONS[s.reason])} ·{' '}
+                                {num(Math.max(1, Math.round(s.bytes / 1024)))} KB
                               </span>
                             </span>
                             <button

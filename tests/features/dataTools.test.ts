@@ -57,7 +57,13 @@ describe('inspectFile refuses, with a named reason and without touching anything
     ['another app', JSON.stringify({ app: 'nawy-notes', schemaVersion: 1 }), 'wrong-app'],
     [
       'a newer version',
-      JSON.stringify({ app: 'nawy-today', schemaVersion: 999, exportedAt: 1, calendars: [], events: [] }),
+      JSON.stringify({
+        app: 'nawy-today',
+        schemaVersion: 999,
+        exportedAt: 1,
+        calendars: [],
+        events: [],
+      }),
       'newer-version',
     ],
   ])('%s', async (_name, text, failure) => {
@@ -185,4 +191,3 @@ describe('format', () => {
     expect(file.text).toBe(serializeEnvelope(await exportEnvelope(db, clock.now()), true));
   });
 });
-

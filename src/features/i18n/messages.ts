@@ -118,7 +118,8 @@ const ar = {
   undoFailed: 'تعذّر التراجع.',
   dataTitle: 'البيانات والنسخ الاحتياطي',
   exportTitle: 'نسخة احتياطية',
-  exportHelp: 'ملف فيه كل تقاويمك وأحداثك. احفظه خارج هذا المتصفح (في ملفاتك أو في مكان تثق به)؛ هو الضمان الحقيقي لبياناتك.',
+  exportHelp:
+    'ملف فيه كل تقاويمك وأحداثك. احفظه خارج هذا المتصفح (في ملفاتك أو في مكان تثق به)؛ هو الضمان الحقيقي لبياناتك.',
   exportButton: 'تنزيل نسخة احتياطية',
   exportFailed: 'تعذّر إنشاء الملف.',
   lastBackup: 'آخر نسخة: {date}',
@@ -139,7 +140,8 @@ const ar = {
   modeMerge: 'دمج مع بياناتي (الأحدث يفوز)',
   modeMergeHelp: 'يضيف ما ليس عندك ويحدّث ما هو أقدم. لا يعيد حدثًا حذفته بعد تاريخ هذه النسخة.',
   modeReplace: 'استبدال بيانات هذا الجهاز بما في النسخة',
-  modeReplaceHelp: 'يجعل الجهاز مطابقًا للنسخة: يعيد ما حذفته بعدها ويحذف ما أضفته بعدها. هذا هو الاسترداد.',
+  modeReplaceHelp:
+    'يجعل الجهاز مطابقًا للنسخة: يعيد ما حذفته بعدها ويحذف ما أضفته بعدها. هذا هو الاسترداد.',
   previewCalendars: 'التقاويم',
   previewEvents: 'الأحداث',
   countAdded: 'جديد',
@@ -153,7 +155,8 @@ const ar = {
   applyOrphans: 'وحُذف {count} حدث لأن تقويمه أو سلسلته لم تعد موجودة.',
   back: 'رجوع',
   snapshotsTitle: 'اللقطات',
-  snapshotsHelp: 'نسخ تلقائية على هذا الجهاز نفسه (آخر 5). تحميك من خطأ بشري، لا من أن يمسح المتصفح بياناته؛ للأمان الحقيقي نزّل نسخة احتياطية.',
+  snapshotsHelp:
+    'نسخ تلقائية على هذا الجهاز نفسه (آخر 5). تحميك من خطأ بشري، لا من أن يمسح المتصفح بياناته؛ للأمان الحقيقي نزّل نسخة احتياطية.',
   snapshotNow: 'خذ لقطة الآن',
   snapshotNone: 'لا لقطات بعد.',
   snapshotsUnavailable: 'تعذّر فتح اللقطات في هذا المتصفح.',
@@ -176,9 +179,11 @@ const ar = {
   recoverySnapshot: 'تنزيل آخر لقطة محفوظة',
   recoveryNoSnapshot: 'لا توجد لقطة محفوظة في هذا المتصفح.',
   recoveryReset: 'مسح بيانات هذا الجهاز والبدء من جديد',
-  recoveryResetWarn: 'سيُحذف ملف البيانات الذي تعذّر فتحه من هذا الجهاز. اللقطات المحفوظة لا تُمس، وبعد البدء تستطيع استردادها أو استيراد ملف نسخة احتياطية.',
+  recoveryResetWarn:
+    'سيُحذف ملف البيانات الذي تعذّر فتحه من هذا الجهاز. اللقطات المحفوظة لا تُمس، وبعد البدء تستطيع استردادها أو استيراد ملف نسخة احتياطية.',
   recoveryResetConfirm: 'نعم، امسح وابدأ من جديد',
-  recoveryResetFailed: 'تعذّر المسح (ربما التطبيق مفتوح في تبويب آخر). أغلق التبويبات الأخرى وأعد المحاولة.',
+  recoveryResetFailed:
+    'تعذّر المسح (ربما التطبيق مفتوح في تبويب آخر). أغلق التبويبات الأخرى وأعد المحاولة.',
 } as const;
 
 export type MessageKey = keyof typeof ar;
@@ -302,13 +307,15 @@ const en: Record<MessageKey, string> = {
   undoFailed: 'Could not undo.',
   dataTitle: 'Data & backups',
   exportTitle: 'Backup file',
-  exportHelp: 'A file with all your calendars and events. Keep it outside this browser (in your files or somewhere you trust); it is the real safety net for your data.',
+  exportHelp:
+    'A file with all your calendars and events. Keep it outside this browser (in your files or somewhere you trust); it is the real safety net for your data.',
   exportButton: 'Download a backup',
   exportFailed: 'Could not create the file.',
   lastBackup: 'Last backup: {date}',
   neverBackedUp: 'No backup file saved yet.',
   importTitle: 'Import from a file',
-  importHelp: 'Choose a Nawy Today backup file. We show you what would change before anything is written.',
+  importHelp:
+    'Choose a Nawy Today backup file. We show you what would change before anything is written.',
   importChoose: 'Choose a file…',
   importNotBackup: 'This file is not a Nawy Today backup.',
   importWrongApp: 'This file comes from another app.',
@@ -321,23 +328,28 @@ const en: Record<MessageKey, string> = {
   sourceFile: 'file {name}',
   sourceSnapshot: 'snapshot {date}',
   modeMerge: 'Merge with my data (newest wins)',
-  modeMergeHelp: 'Adds what you do not have and updates what is older. It does not bring back an event you deleted after this backup was made.',
-  modeReplace: 'Replace this device\'s data with the backup',
-  modeReplaceHelp: 'Makes this device match the backup: brings back what you deleted since and removes what you added since. This is a restore.',
+  modeMergeHelp:
+    'Adds what you do not have and updates what is older. It does not bring back an event you deleted after this backup was made.',
+  modeReplace: "Replace this device's data with the backup",
+  modeReplaceHelp:
+    'Makes this device match the backup: brings back what you deleted since and removes what you added since. This is a restore.',
   previewCalendars: 'Calendars',
   previewEvents: 'Events',
   countAdded: 'New',
   countUpdated: 'Updated',
   countRemoved: 'Will be deleted',
   countSame: 'Unchanged',
-  previewSafety: 'Before applying we save a safety snapshot of your current data, so you can go back.',
+  previewSafety:
+    'Before applying we save a safety snapshot of your current data, so you can go back.',
   apply: 'Apply',
   applyFailed: 'Could not apply, and nothing changed. Try again.',
   applyDone: 'Done. New: {added}, updated: {updated}, deleted: {removed}.',
-  applyOrphans: '{count} event(s) were also deleted because their calendar or series no longer exists.',
+  applyOrphans:
+    '{count} event(s) were also deleted because their calendar or series no longer exists.',
   back: 'Back',
   snapshotsTitle: 'Snapshots',
-  snapshotsHelp: 'Automatic copies on this device itself (the last 5). They protect you from a mistake, not from the browser clearing its data; for real safety download a backup.',
+  snapshotsHelp:
+    'Automatic copies on this device itself (the last 5). They protect you from a mistake, not from the browser clearing its data; for real safety download a backup.',
   snapshotNow: 'Take a snapshot now',
   snapshotNone: 'No snapshots yet.',
   snapshotsUnavailable: 'Snapshots could not be opened in this browser.',
@@ -349,8 +361,10 @@ const en: Record<MessageKey, string> = {
   snapshotDownload: 'Download',
   snapshotTaken: 'Snapshot saved.',
   storageTitle: 'Storage',
-  persistGranted: 'Storage is persistent: the browser will not clear your data automatically when space runs low.',
-  persistDenied: 'Storage is not guaranteed: the browser may clear data when space runs low. Download a backup.',
+  persistGranted:
+    'Storage is persistent: the browser will not clear your data automatically when space runs low.',
+  persistDenied:
+    'Storage is not guaranteed: the browser may clear data when space runs low. Download a backup.',
   persistUnsupported: 'This browser cannot be asked for persistent storage; download a backup.',
   persistPending: 'Checking storage…',
   reminderText: 'You have not saved a backup file in {days} days.',
@@ -359,10 +373,12 @@ const en: Record<MessageKey, string> = {
   recoveryTitle: 'Recovery',
   recoverySnapshot: 'Download the latest saved snapshot',
   recoveryNoSnapshot: 'No snapshot is saved in this browser.',
-  recoveryReset: 'Erase this device\'s data and start fresh',
-  recoveryResetWarn: 'The data file that could not be opened will be deleted from this device. Saved snapshots are not touched, and once started you can restore one or import a backup file.',
+  recoveryReset: "Erase this device's data and start fresh",
+  recoveryResetWarn:
+    'The data file that could not be opened will be deleted from this device. Saved snapshots are not touched, and once started you can restore one or import a backup file.',
   recoveryResetConfirm: 'Yes, erase and start fresh',
-  recoveryResetFailed: 'Could not erase (the app may be open in another tab). Close other tabs and try again.',
+  recoveryResetFailed:
+    'Could not erase (the app may be open in another tab). Close other tabs and try again.',
 };
 
 export const MESSAGES: Record<Locale, Record<MessageKey, string>> = { ar, en };
