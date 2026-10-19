@@ -10,7 +10,10 @@ function fakeWorld(options: { controlled: boolean; waiting?: boolean; active?: b
   const registrationListeners: Record<string, () => void> = {};
   const installingListeners: (() => void)[] = [];
   const containerListeners = new Set<() => void>();
-  const installing = { state: 'installing', addEventListener: (_t: 'statechange', l: () => void) => installingListeners.push(l) };
+  const installing = {
+    state: 'installing',
+    addEventListener: (_t: 'statechange', l: () => void) => installingListeners.push(l),
+  };
   const registration: WorkerRegistration = {
     waiting: options.waiting ? { postMessage: (m) => posted.push(m) } : null,
     installing: null,
@@ -49,7 +52,10 @@ function probe(container: WorkerContainer | undefined) {
   render(<Probe />);
   return box;
 }
-const settle = () => act(async () => { await Promise.resolve(); });
+const settle = () =>
+  act(async () => {
+    await Promise.resolve();
+  });
 
 describe('useServiceWorker', () => {
   it('does nothing without a container (development)', () => {

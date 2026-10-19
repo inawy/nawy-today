@@ -5,12 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
 import { readBrand } from '../../tools/vite/nawy-plugins';
-import {
-  buildManifest,
-  buildServiceWorker,
-  listFiles,
-  versionOf,
-} from '../../tools/vite/pwa';
+import { buildManifest, buildServiceWorker, listFiles, versionOf } from '../../tools/vite/pwa';
 
 const brand = readBrand(path.resolve('brand.json'));
 const template = readFileSync(path.resolve('tools/vite/sw.template.js'), 'utf8');
@@ -33,7 +28,9 @@ describe('manifest', () => {
 
   it('has the icons installability needs, including a maskable one, with relative paths', () => {
     const sizes = m.icons.map((i) => `${i.sizes}:${i.purpose}`);
-    expect(sizes).toEqual(expect.arrayContaining(['192x192:any', '512x512:any', '512x512:maskable']));
+    expect(sizes).toEqual(
+      expect.arrayContaining(['192x192:any', '512x512:any', '512x512:maskable']),
+    );
     for (const icon of m.icons) {
       expect(icon.src.startsWith('/')).toBe(false);
       expect(() => readFileSync(path.resolve('public', icon.src))).not.toThrow();
@@ -43,10 +40,28 @@ describe('manifest', () => {
 
 describe('versionOf / listFiles', () => {
   it('changes with any file content or name, and not with order', () => {
-    const a = versionOf([{ path: 'a.js', content: '1' }, { path: 'b.css', content: '2' }]);
-    expect(versionOf([{ path: 'b.css', content: '2' }, { path: 'a.js', content: '1' }])).toBe(a);
-    expect(versionOf([{ path: 'a.js', content: '1x' }, { path: 'b.css', content: '2' }])).not.toBe(a);
-    expect(versionOf([{ path: 'a2.js', content: '1' }, { path: 'b.css', content: '2' }])).not.toBe(a);
+    const a = versionOf([
+      { path: 'a.js', content: '1' },
+      { path: 'b.css', content: '2' },
+    ]);
+    expect(
+      versionOf([
+        { path: 'b.css', content: '2' },
+        { path: 'a.js', content: '1' },
+      ]),
+    ).toBe(a);
+    expect(
+      versionOf([
+        { path: 'a.js', content: '1x' },
+        { path: 'b.css', content: '2' },
+      ]),
+    ).not.toBe(a);
+    expect(
+      versionOf([
+        { path: 'a2.js', content: '1' },
+        { path: 'b.css', content: '2' },
+      ]),
+    ).not.toBe(a);
     expect(a).toMatch(/^[0-9a-f]{12}$/);
   });
 
@@ -71,13 +86,17 @@ function boot(version = 'abcdef012345', precache = ['index.html', 'assets/app.js
   const log = { skipWaiting: vi.fn(), claim: vi.fn(), fetched: [] as string[] };
 
   const key = (r: unknown): string =>
-    new URL(typeof r === 'string' ? r : (r as { url: string }).url, 'https://app.test/today/sw.js').href;
+    new URL(typeof r === 'string' ? r : (r as { url: string }).url, 'https://app.test/today/sw.js')
+      .href;
 
   class FakeRequest {
     url: string;
     method: string;
     mode: string;
-    constructor(input: string | FakeRequest, init: { cache?: string; method?: string; mode?: string } = {}) {
+    constructor(
+      input: string | FakeRequest,
+      init: { cache?: string; method?: string; mode?: string } = {},
+    ) {
       this.url = key(input);
       this.method = init.method ?? 'GET';
       this.mode = init.mode ?? 'cors';
@@ -164,7 +183,11 @@ describe('service worker', () => {
     w.stores.set('unrelated', new Map());
     await w.waitable('install');
     await w.waitable('activate');
-    expect([...w.stores.keys()].sort()).toEqual(['nawy-notes:v1', 'nawy-today:vabcdef012345', 'unrelated']);
+    expect([...w.stores.keys()].sort()).toEqual([
+      'nawy-notes:v1',
+      'nawy-today:vabcdef012345',
+      'unrelated',
+    ]);
     expect(w.log.claim).toHaveBeenCalledTimes(1);
   });
 
@@ -174,9 +197,11 @@ describe('service worker', () => {
     expect(await w.respond({ url: 'https://app.test/today/', mode: 'navigate' })).toEqual({
       body: 'cached:https://app.test/today/index.html',
     });
-    expect(await w.respond({ url: 'https://app.test/today/?view=week', mode: 'navigate' })).toEqual({
-      body: 'cached:https://app.test/today/index.html',
-    });
+    expect(await w.respond({ url: 'https://app.test/today/?view=week', mode: 'navigate' })).toEqual(
+      {
+        body: 'cached:https://app.test/today/index.html',
+      },
+    );
     expect(await w.respond({ url: 'https://app.test/today/assets/app.js' })).toEqual({
       body: 'cached:https://app.test/today/assets/app.js',
     });

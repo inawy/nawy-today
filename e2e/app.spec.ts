@@ -27,8 +27,14 @@ test.describe('the whole cycle in a real browser', () => {
     await dialog.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByRole('button', { name: /Late lunch/ }).first()).toBeVisible();
 
-    await page.getByRole('button', { name: /Late lunch/ }).first().click();
-    await page.getByRole('dialog', { name: 'Edit event' }).getByRole('button', { name: 'Delete' }).click();
+    await page
+      .getByRole('button', { name: /Late lunch/ })
+      .first()
+      .click();
+    await page
+      .getByRole('dialog', { name: 'Edit event' })
+      .getByRole('button', { name: 'Delete' })
+      .click();
     await expect(page.getByRole('button', { name: /Late lunch/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Undo' }).click();
     await expect(page.getByRole('button', { name: /Late lunch/ }).first()).toBeVisible();
@@ -39,7 +45,9 @@ test.describe('the whole cycle in a real browser', () => {
     await addEvent(page, 'اجتماع المدرسة');
     await page.getByRole('button', { name: 'Search' }).click();
     await page.getByRole('searchbox', { name: 'Search' }).fill('المَدرسه');
-    await expect(page.getByRole('dialog', { name: 'Search' }).getByText('اجتماع المدرسة')).toBeVisible();
+    await expect(
+      page.getByRole('dialog', { name: 'Search' }).getByText('اجتماع المدرسة'),
+    ).toBeVisible();
   });
 });
 
@@ -52,7 +60,9 @@ test.describe('offline (the app is cached by its service worker)', () => {
     await addEvent(page, 'Offline check');
     // The worker installs in the background: wait until it controls this page.
     await expect
-      .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null), { timeout: 20_000 })
+      .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null), {
+        timeout: 20_000,
+      })
       .toBe(true);
     await expect(page.getByText('The app is ready to work offline.')).toBeVisible();
 
@@ -72,7 +82,9 @@ test.describe('offline (the app is cached by its service worker)', () => {
   }) => {
     await page.goto('/');
     await expect
-      .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null), { timeout: 20_000 })
+      .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null), {
+        timeout: 20_000,
+      })
       .toBe(true);
     const names = await page.evaluate(() => caches.keys());
     expect(names.length).toBeGreaterThan(0);
@@ -109,7 +121,9 @@ test.describe('security (D-010)', () => {
     await addEvent(page, evil);
     await page.reload();
     await expect(page.getByRole('button', { name: /<img src=x/ }).first()).toBeVisible();
-    expect(await page.evaluate(() => (window as unknown as { __pwned?: number }).__pwned)).toBeUndefined();
+    expect(
+      await page.evaluate(() => (window as unknown as { __pwned?: number }).__pwned),
+    ).toBeUndefined();
     expect(await page.locator('img[src="x"]').count()).toBe(0);
   });
 
@@ -117,7 +131,9 @@ test.describe('security (D-010)', () => {
     await page.goto('/');
     const result = await page.evaluate(async () => {
       const violations: string[] = [];
-      document.addEventListener('securitypolicyviolation', (e) => violations.push(e.violatedDirective));
+      document.addEventListener('securitypolicyviolation', (e) =>
+        violations.push(e.violatedDirective),
+      );
       const s = document.createElement('script');
       s.textContent = 'window.__injected = 1';
       document.head.appendChild(s);
@@ -157,7 +173,10 @@ test.describe('on a phone', () => {
 
   test('opens on the Today list, fits the screen, and Back closes the editor', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('button', { name: 'Agenda' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: 'Agenda' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
@@ -181,7 +200,10 @@ test.describe('on a phone', () => {
         .filter((el) => el.offsetParent !== null)
         .map((el) => ({ el, box: el.getBoundingClientRect() }))
         .filter(({ box }) => box.height > 0 && box.height < 43.5)
-        .map(({ el, box }) => `${el.tagName} "${el.getAttribute('aria-label') ?? el.textContent?.trim().slice(0, 20)}" ${Math.round(box.height)}px`),
+        .map(
+          ({ el, box }) =>
+            `${el.tagName} "${el.getAttribute('aria-label') ?? el.textContent?.trim().slice(0, 20)}" ${Math.round(box.height)}px`,
+        ),
     );
     expect(small).toEqual([]);
   });
