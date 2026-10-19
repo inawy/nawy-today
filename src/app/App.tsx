@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { datePart, localTimeZone, nowMs } from '@/core/time';
 import type { FormatOptions, PlainDate } from '@/core/time';
-import type { NawyDb } from '@/data';
+import type { NawyDb, SnapshotDb } from '@/data';
+import type { FileToSave } from '@/features/backup';
 import { useNowLocal } from '@/features/clock/useNowLocal';
 import { DataProvider, useCalendarData, useData } from '@/features/data';
 import { useT } from '@/features/i18n';
@@ -36,6 +37,9 @@ const MAX_ALL_DAY_LANES = 3;
 export interface AppProps {
   /** Injectable for tests; defaults to the real database. */
   readonly create?: () => NawyDb;
+  readonly createSnapshots?: () => SnapshotDb;
+  /** How a produced backup reaches the person; injectable for tests (default: browser download). */
+  readonly saveFile?: (file: FileToSave) => void;
   readonly now?: () => number;
   readonly storage?: (ReadableStorage & WritableStorage) | undefined;
   /** The service worker container; injectable for tests. Off in development. */
@@ -65,7 +69,14 @@ function browserStorage(): (ReadableStorage & WritableStorage) | undefined {
   }
 }
 
-export function App({ create, now = nowMs, storage, serviceWorker }: AppProps) {
+export function App({
+  create,
+  createSnapshots,
+  saveFile,
+  now = nowMs,
+  storage,
+  serviceWorker,
+}: AppProps) {
   const worker = useMemo(() => serviceWorker ?? browserWorkerContainer(), [serviceWorker]);
   return (
     <SettingsProvider
@@ -78,8 +89,16 @@ export function App({ create, now = nowMs, storage, serviceWorker }: AppProps) {
           <RecoveryScreen kind="render" retryLabel="reload" onRetry={reset} />
         )}
       >
-        <DataProvider {...(create ? { create } : {})}>
-          <Calendar now={now} worker={worker} storage={storage ?? browserStorage()} />
+        <DataProvider
+          {...(create ? { create } : {})}
+          {...(createSnapshots ? { createSnapshots } : {})}
+        >
+          <Calendar
+            now={now}
+            worker={worker}
+            storage={storage ?? browserStorage()}
+            saveFile={saveFile}
+          />
         </DataProvider>
       </ErrorBoundary>
     </SettingsProvider>
@@ -90,10 +109,12 @@ function Calendar({
   now,
   worker,
   storage,
+  saveFile,
 }: {
   readonly now: () => number;
   readonly worker: WorkerContainer | undefined;
   readonly storage: (ReadableStorage & WritableStorage) | undefined;
+  readonly saveFile: ((file: FileToSave) => void) | undefined;
 }) {
   const t = useT();
   const { settings } = useSettings();
@@ -226,6 +247,7 @@ function Calendar({
         recovery={{
           loadLatestSnapshot: () => latestSnapshotFile(snapshotDb, localTimeZone()),
           reset,
+          ...(saveFile ? { save: saveFile } : {}),
         }}
       />
     );
@@ -345,6 +367,7 @@ function Calendar({
           tools={tools}
           persistence={data.persistence}
           lastBackupAt={reminder.lastBackupAt}
+          {...(saveFile ? { save: saveFile } : {})}
           onClose={() => setDataOpen(false)}
         />
       )}

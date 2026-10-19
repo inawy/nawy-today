@@ -48,6 +48,17 @@ const PERSISTENCE: Record<PersistenceResult | 'pending', MessageKey> = {
   pending: 'persistPending',
 };
 
+/** `Blob.text()` where it exists, a FileReader where it does not (older browsers, jsdom). */
+function readText(file: File): Promise<string> {
+  if (typeof file.text === 'function') return file.text();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
 /** Export, import with a preview, snapshots and restore, and the state of the storage. */
 export function DataDialog({
   tools,
@@ -120,7 +131,7 @@ export function DataDialog({
   const onFile = (file: File | undefined) => {
     if (!file) return;
     void run(async () => {
-      const text = await file.text();
+      const text = await readText(file);
       openInspection(await tools.inspectFile(file.name, text, file.size), 'merge');
     }, 'importInvalid');
   };

@@ -1,5 +1,5 @@
 import { serializeEnvelope } from '@/core/model';
-import type { Envelope } from '@/core/model';
+import type { Envelope, MergePlan, ReplacePlan } from '@/core/model';
 import { nowMs } from '@/core/time';
 import type { TimeZoneId } from '@/core/time';
 import {
@@ -50,14 +50,14 @@ export interface Summary {
   readonly events: Counts;
 }
 
-const mergeCounts = (p: ImportPlan['events']): Counts => ({
+const mergeCounts = (p: MergePlan<unknown>): Counts => ({
   added: p.added.length,
   updated: p.updated.length,
   removed: p.deleted.length,
   same: p.same + p.older + p.tombstones.length,
 });
 
-const replaceCounts = (p: ReplaceSummary['events']): Counts => ({
+const replaceCounts = (p: ReplacePlan<unknown>): Counts => ({
   added: p.added,
   updated: p.changed,
   removed: p.removed,
