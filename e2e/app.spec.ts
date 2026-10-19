@@ -66,24 +66,8 @@ test.describe('offline (the app is cached by its service worker)', () => {
       .toBe(true);
     await expect(page.getByText('The app is ready to work offline.')).toBeVisible();
 
-    const seen: string[] = [];
-    page.on('requestfailed', (r) => seen.push(`FAILED ${r.url()} ${r.failure()?.errorText}`));
-    page.on('console', (m) => seen.push(`console ${m.type()}: ${m.text()}`));
-    page.on('pageerror', (e) => seen.push(`pageerror ${e.message}`));
-    const keys = await page.evaluate(async () => {
-      const out: string[] = [];
-      for (const n of await caches.keys()) {
-        const c = await caches.open(n);
-        for (const r of await c.keys()) out.push(`${n} ${r.url}`);
-      }
-      return out;
-    });
-    seen.push(`CACHE ${keys.join(' | ')}`);
     await context.setOffline(true);
     await page.reload();
-    await page.waitForTimeout(1500);
-    const html = (await page.content()).slice(0, 500);
-    expect(seen.join('\n') + '\n' + html, 'diagnostics').toContain('<h1');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.getByRole('button', { name: /Offline check/ }).first()).toBeVisible();
 
