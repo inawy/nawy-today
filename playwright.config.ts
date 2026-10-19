@@ -7,7 +7,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['list'], ['json', { outputFile: 'test-results/report.json' }]] : 'list',
+  reporter: process.env.CI
+    ? [['list'], ['json', { outputFile: 'test-results/report.json' }]]
+    : 'list',
   use: {
     baseURL: 'http://localhost:4173',
     trace: 'retain-on-failure',
