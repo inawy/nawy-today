@@ -151,7 +151,9 @@ describe('data dialog', () => {
     db.close();
 
     dialog = await openData();
-    fireEvent.click(await within(dialog).findByRole('button', { name: 'Restore' }));
+    // Newest first: the manual snapshot (the one taken above) is the first row.
+    const restoreButtons = await within(dialog).findAllByRole('button', { name: 'Restore' });
+    fireEvent.click(restoreButtons[0] as HTMLElement);
     expect(await within(dialog).findByText('Preview before applying')).toBeTruthy();
     // A snapshot opens in "replace" mode: that is what makes the deleted event come back.
     const replace = within(dialog).getByRole('radio', { name: /Replace this device/ });

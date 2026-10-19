@@ -22,9 +22,13 @@ export type ReadOutcome =
 export function readBackupText(text: string, byteLength: number = text.length): ReadOutcome {
   if (byteLength > MAX_BACKUP_BYTES) return { ok: false, failure: 'too-big' };
   const parsed = parseEnvelope(text);
-  return parsed.ok
-    ? { ok: true, envelope: parsed.value }
-    : { ok: false, failure: parsed.error.code };
+  if (parsed.ok) return { ok: true, envelope: parsed.value };
+  // JSON with no `app` field at all is just some file, not "another app's backup".
+  const error = parsed.error;
+  if (error.code === 'wrong-app' && error.found === undefined) {
+    return { ok: false, failure: 'not-an-envelope' };
+  }
+  return { ok: false, failure: error.code };
 }
 
 /** The message shown for each way a file can be refused. */

@@ -42,6 +42,9 @@ describe('readBackupText / failureMessageKey', () => {
   it('names an empty or foreign file instead of throwing', () => {
     expect(readBackupText('')).toEqual({ ok: false, failure: 'not-json' });
     expect(readBackupText('null')).toEqual({ ok: false, failure: 'not-an-envelope' });
+    // An object with no `app` field is just some JSON; one that names another app says so.
+    expect(readBackupText('{"hello":1}')).toEqual({ ok: false, failure: 'not-an-envelope' });
+    expect(readBackupText('{"app":"nawy-notes"}')).toEqual({ ok: false, failure: 'wrong-app' });
   });
 });
 
