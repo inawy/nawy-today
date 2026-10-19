@@ -162,3 +162,12 @@ export async function replaceWithSafetySnapshot(
   await takeSnapshot(db, snapshotDb, reason, now);
   return applyReplace(db, envelope, now);
 }
+
+/** The stored file text of a snapshot, as it would be downloaded. Undefined if no such id. */
+export async function getSnapshotJson(
+  snapshotDb: SnapshotDb,
+  id: number,
+): Promise<{ createdAt: number; json: string } | undefined> {
+  const snapshot = await snapshotDb.snapshots.get(id);
+  return snapshot && { createdAt: snapshot.createdAt, json: snapshot.json };
+}

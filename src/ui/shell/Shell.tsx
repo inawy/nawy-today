@@ -22,6 +22,7 @@ export interface ShellProps {
   readonly onNext: () => void;
   readonly onSearch: () => void;
   readonly onInstall?: (() => void) | undefined;
+  readonly onOpenData?: (() => void) | undefined;
   readonly children: ReactNode;
 }
 
@@ -43,6 +44,7 @@ export function Shell({
   onNext,
   onSearch,
   onInstall,
+  onOpenData,
   children,
 }: ShellProps) {
   const t = useT();
@@ -96,7 +98,12 @@ export function Shell({
         >
           <CloseIcon />
         </button>
-        <Sidebar calendars={calendars} onToggleCalendar={onToggleCalendar} onInstall={onInstall} />
+        <Sidebar
+          calendars={calendars}
+          onToggleCalendar={onToggleCalendar}
+          onInstall={onInstall}
+          onOpenData={onOpenData}
+        />
       </aside>
       {open && <div className="backdrop" aria-hidden="true" onClick={close} />}
       <main id="main" className="main">

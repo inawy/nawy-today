@@ -1,0 +1,109 @@
+/* "Data & backups" dialog and the recovery actions. Logical properties; 44px targets; 16px inputs. */
+.modal.data {
+  inline-size: min(640px, 100%);
+  max-block-size: min(760px, 100%);
+}
+
+.data-title {
+  padding: 16px 16px 4px;
+  font-size: 1.15rem;
+}
+
+.data-body {
+  display: grid;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow-y: auto;
+  min-block-size: 0;
+}
+
+.data-section {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding-block: 12px;
+  border-block-start: 1px solid var(--border);
+}
+
+.data-section:first-of-type {
+  border-block-start: 0;
+}
+
+.data-section h3 {
+  font-size: 1rem;
+}
+
+.data-section p {
+  margin: 0;
+}
+
+.snapshot-list {
+  inline-size: 100%;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.snapshot-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.snapshot-info {
+  flex: 1 1 160px;
+  display: grid;
+}
+
+.data-modes {
+  inline-size: 100%;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.data-mode {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-block-size: 44px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.data-mode > span {
+  display: grid;
+  gap: 2px;
+}
+
+.data-counts {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-counts th,
+.data-counts td {
+  padding: 6px 8px;
+  text-align: start;
+  border-block-end: 1px solid var(--border);
+}
+
+.data-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.recovery-actions {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  max-inline-size: 420px;
+}

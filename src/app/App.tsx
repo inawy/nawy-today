@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
-import { datePart, nowMs } from '@/core/time';
+import { datePart, localTimeZone, nowMs } from '@/core/time';
 import type { FormatOptions, PlainDate } from '@/core/time';
 import type { NawyDb } from '@/data';
 import { useNowLocal } from '@/features/clock/useNowLocal';
 import { DataProvider, useCalendarData, useData } from '@/features/data';
 import { useT } from '@/features/i18n';
 import { buildAgendaModel } from '@/features/agenda';
+import { createDataTools, latestSnapshotFile, useBackupReminder } from '@/features/backup';
 import { useInstallPrompt, useServiceWorker } from '@/features/pwa';
 import type { WorkerContainer } from '@/features/pwa';
 import { buildSearchIndex } from '@/features/search';
@@ -23,6 +24,7 @@ import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
 import { PlusIcon } from '@/ui/shell/Icons';
 import { Shell } from '@/ui/shell/Shell';
 import { AgendaView } from '@/ui/agenda/AgendaView';
+import { DataDialog } from '@/ui/data/DataDialog';
 import { SearchPanel } from '@/ui/search/SearchPanel';
 import { TimeGrid } from '@/ui/timegrid/TimeGrid';
 
@@ -77,7 +79,7 @@ export function App({ create, now = nowMs, storage, serviceWorker }: AppProps) {
         )}
       >
         <DataProvider {...(create ? { create } : {})}>
-          <Calendar now={now} worker={worker} />
+          <Calendar now={now} worker={worker} storage={storage ?? browserStorage()} />
         </DataProvider>
       </ErrorBoundary>
     </SettingsProvider>
@@ -87,9 +89,11 @@ export function App({ create, now = nowMs, storage, serviceWorker }: AppProps) {
 function Calendar({
   now,
   worker,
+  storage,
 }: {
   readonly now: () => number;
   readonly worker: WorkerContainer | undefined;
+  readonly storage: (ReadableStorage & WritableStorage) | undefined;
 }) {
   const t = useT();
   const { settings } = useSettings();
@@ -101,9 +105,31 @@ function Calendar({
   const [anchor, setAnchor] = useState<PlainDate>(today);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
   const pwa = useServiceWorker(worker);
   const installer = useInstallPrompt();
   const [failed, setFailed] = useState(false);
+
+  const reminder = useBackupReminder({
+    storage,
+    now,
+    eventCount: calendarData.events.filter((e) => e.seriesId === undefined).length,
+    enabled: data.status === 'ready' && calendarData.status === 'ready',
+  });
+  const { markBackedUp } = reminder;
+  const tools = useMemo(
+    () =>
+      data.status === 'ready'
+        ? createDataTools({
+            db: data.db,
+            snapshotDb: data.snapshotDb,
+            timeZone: localTimeZone(),
+            now,
+            onBackup: markBackedUp,
+          })
+        : undefined,
+    [data, now, markBackedUp],
+  );
 
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
 
@@ -182,16 +208,28 @@ function Calendar({
     },
     [goToday, previous, next, flow, anchor],
   );
-  useShortcuts(!drawerOpen && !flow.dialogOpen && !searchOpen, onShortcut);
+  useShortcuts(!drawerOpen && !flow.dialogOpen && !searchOpen && !dataOpen, onShortcut);
 
   // One history entry for "some dialog is open" (so search → editor never pops and re-pushes).
-  useBackLayer(flow.dialogOpen || searchOpen, async () => {
+  useBackLayer(flow.dialogOpen || searchOpen || dataOpen, async () => {
     if (flow.dialogOpen) return flow.back();
-    setSearchOpen(false);
+    if (dataOpen) setDataOpen(false);
+    else setSearchOpen(false);
     return true;
   });
 
-  if (data.status === 'error') return <RecoveryScreen onRetry={data.retry} />;
+  if (data.status === 'error') {
+    const { snapshotDb, reset } = data;
+    return (
+      <RecoveryScreen
+        onRetry={data.retry}
+        recovery={{
+          loadLatestSnapshot: () => latestSnapshotFile(snapshotDb, localTimeZone()),
+          reset,
+        }}
+      />
+    );
+  }
   if (calendarData.status === 'error') {
     return <RecoveryScreen onRetry={() => window.location.reload()} retryLabel="reload" />;
   }
@@ -217,6 +255,14 @@ function Calendar({
       onNext={next}
       onSearch={() => setSearchOpen(true)}
       onInstall={installer.canInstall ? installer.install : undefined}
+      onOpenData={
+        tools
+          ? () => {
+              setDrawerOpen(false);
+              setDataOpen(true);
+            }
+          : undefined
+      }
     >
       {pwa.updateReady && !flow.dialogOpen && !searchOpen && (
         <p role="status" className="banner banner-action">
@@ -232,6 +278,19 @@ function Calendar({
           <button type="button" className="btn" onClick={pwa.dismissOfflineReady}>
             {t('dismiss')}
           </button>
+        </p>
+      )}
+      {reminder.show && !flow.dialogOpen && !searchOpen && !dataOpen && (
+        <p role="status" className="banner banner-action">
+          <span>{t('reminderText', { days: count(reminder.days) })}</span>
+          <span className="banner-buttons">
+            <button type="button" className="btn" onClick={() => setDataOpen(true)}>
+              {t('reminderNow')}
+            </button>
+            <button type="button" className="btn" onClick={reminder.dismiss}>
+              {t('reminderLater')}
+            </button>
+          </span>
         </p>
       )}
       {failed && (
@@ -281,6 +340,14 @@ function Calendar({
         <PlusIcon />
       </button>
       {flow.overlay}
+      {dataOpen && tools && data.status === 'ready' && (
+        <DataDialog
+          tools={tools}
+          persistence={data.persistence}
+          lastBackupAt={reminder.lastBackupAt}
+          onClose={() => setDataOpen(false)}
+        />
+      )}
       {searchOpen && searchIndex && (
         <SearchPanel
           index={searchIndex}

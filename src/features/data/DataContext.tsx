@@ -1,15 +1,30 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { createDb, createStore, requestPersistence } from '@/data';
-import type { NawyDb, PersistenceResult, Store } from '@/data';
+import {
+  createDb,
+  createSnapshotDb,
+  createStore,
+  maybeTakeDailySnapshot,
+  requestPersistence,
+  resetDatabase,
+} from '@/data';
+import type { NawyDb, PersistenceResult, SnapshotDb, Store } from '@/data';
 
 export type DataState =
   | { readonly status: 'loading' }
-  | { readonly status: 'error'; readonly retry: () => void }
+  | {
+      readonly status: 'error';
+      readonly retry: () => void;
+      /** Snapshots live in their own database, so they may still be readable. */
+      readonly snapshotDb: SnapshotDb;
+      /** Deletes the unopenable database and starts empty. Resolves false if it could not. */
+      readonly reset: () => Promise<boolean>;
+    }
   | {
       readonly status: 'ready';
       readonly store: Store;
       readonly db: NawyDb;
+      readonly snapshotDb: SnapshotDb;
       readonly persistence: PersistenceResult | 'pending';
     };
 
@@ -19,14 +34,20 @@ export interface DataProviderProps {
   readonly children: ReactNode;
   /** Injectable for tests. */
   readonly create?: () => NawyDb;
+  readonly createSnapshots?: () => SnapshotDb;
 }
 
 /** Opens the local database once. Failure is a state the UI can show, never a blank page. */
-export function DataProvider({ children, create = createDb }: DataProviderProps) {
+export function DataProvider({
+  children,
+  create = createDb,
+  createSnapshots = createSnapshotDb,
+}: DataProviderProps) {
+  const snapshotDb = useMemo(() => createSnapshots(), [createSnapshots]);
   const [attempt, setAttempt] = useState(0);
-  const [opened, setOpened] = useState<{ db: NawyDb; store: Store } | 'loading' | 'error'>(
-    'loading',
-  );
+  const [opened, setOpened] = useState<
+    { db: NawyDb; store: Store } | { error: NawyDb } | 'loading'
+  >('loading');
   const [persistence, setPersistence] = useState<PersistenceResult | 'pending'>('pending');
 
   useEffect(() => {
@@ -38,7 +59,7 @@ export function DataProvider({ children, create = createDb }: DataProviderProps)
         if (!cancelled) setOpened({ db, store: createStore(db) });
       },
       () => {
-        if (!cancelled) setOpened('error');
+        if (!cancelled) setOpened({ error: db });
       },
     );
     return () => {
@@ -47,8 +68,14 @@ export function DataProvider({ children, create = createDb }: DataProviderProps)
     };
   }, [create, attempt]);
 
+  // A daily snapshot, once the data is open. Best effort: never blocks or breaks the app.
   useEffect(() => {
-    if (typeof opened === 'string') return;
+    if (typeof opened === 'string' || 'error' in opened) return;
+    void maybeTakeDailySnapshot(opened.db, snapshotDb).catch(() => undefined);
+  }, [opened, snapshotDb]);
+
+  useEffect(() => {
+    if (typeof opened === 'string' || 'error' in opened) return;
     let cancelled = false;
     void requestPersistence().then((result) => {
       if (!cancelled) setPersistence(result);
@@ -61,9 +88,17 @@ export function DataProvider({ children, create = createDb }: DataProviderProps)
   const retry = useCallback(() => setAttempt((n) => n + 1), []);
   const value = useMemo<DataState>(() => {
     if (opened === 'loading') return { status: 'loading' };
-    if (opened === 'error') return { status: 'error', retry };
-    return { status: 'ready', store: opened.store, db: opened.db, persistence };
-  }, [opened, persistence, retry]);
+    if ('error' in opened) {
+      const name = opened.error.name;
+      const reset = async (): Promise<boolean> => {
+        const done = await resetDatabase(name);
+        if (done) retry();
+        return done;
+      };
+      return { status: 'error', retry, snapshotDb, reset };
+    }
+    return { status: 'ready', store: opened.store, db: opened.db, snapshotDb, persistence };
+  }, [opened, persistence, retry, snapshotDb]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
