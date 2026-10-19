@@ -1,5 +1,5 @@
 // Post-build guard: what actually shipped must match the security and brand promises.
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 
 const fail = [];
 const html = readFileSync('dist/index.html', 'utf8');
@@ -28,10 +28,37 @@ if (/https?:\/\//.test(css.replace(/http:\/\/www\.w3\.org\/\d+\/svg/g, ''))) {
   fail.push('built CSS references an external URL');
 }
 
+// PWA: manifest, icons and the service worker must exist, agree with each other and stay local.
+if (!/<link rel="manifest" href="\.\/manifest\.webmanifest"/.test(html)) {
+  fail.push('index.html does not link the manifest');
+}
+if (!existsSync('dist/manifest.webmanifest')) {
+  fail.push('dist/manifest.webmanifest is missing');
+} else {
+  const manifest = JSON.parse(readFileSync('dist/manifest.webmanifest', 'utf8'));
+  if (manifest.theme_color !== brand.accent) fail.push('manifest theme_color is not the brand accent');
+  if (manifest.start_url !== './' || manifest.scope !== './') fail.push('manifest is not relative');
+  if (!manifest.icons?.some((i) => i.purpose === 'maskable')) fail.push('manifest has no maskable icon');
+  for (const icon of manifest.icons ?? []) {
+    if (!existsSync(`dist/${icon.src}`)) fail.push(`manifest icon missing from dist: ${icon.src}`);
+  }
+}
+if (!existsSync('dist/sw.js')) {
+  fail.push('dist/sw.js is missing');
+} else {
+  const sw = readFileSync('dist/sw.js', 'utf8');
+  if (sw.includes('__VERSION__') || sw.includes('__PRECACHE__')) fail.push('sw.js placeholders not replaced');
+  if (!sw.includes('"./index.html"')) fail.push('sw.js does not precache index.html');
+  if (/https?:\/\//.test(sw)) fail.push('sw.js references an external URL');
+  if (/skipWaiting\(\)/.test(sw.split("addEventListener('message'")[0] ?? '')) {
+    fail.push('sw.js calls skipWaiting outside the message handler');
+  }
+}
+
 if (fail.length > 0) {
   console.error(`dist check failed:\n- ${fail.join('\n- ')}`);
   process.exit(1);
 }
 console.log(
-  'dist check ok: CSP present, no inline script/style, no external URLs, brand token shipped',
+  'dist check ok: CSP present, no inline script/style, no external URLs, brand token, manifest and worker shipped',
 );

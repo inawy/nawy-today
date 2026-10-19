@@ -160,3 +160,10 @@ input:not([type='checkbox']) {
     animation-duration: 0.01ms !important;
   }
 }
+
+.banner-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}

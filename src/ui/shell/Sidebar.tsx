@@ -8,6 +8,8 @@ import { calendarColorVars } from '@/ui/theme/calendarColor';
 export interface SidebarProps {
   readonly calendars: readonly Calendar[];
   readonly onToggleCalendar: (id: string, visible: boolean) => void;
+  /** Present only when the browser can install the app right now. */
+  readonly onInstall?: (() => void) | undefined;
 }
 
 const THEMES: readonly [ThemePreference, MessageKey][] = [
@@ -16,7 +18,7 @@ const THEMES: readonly [ThemePreference, MessageKey][] = [
   ['dark', 'themeDark'],
 ];
 
-export function Sidebar({ calendars, onToggleCalendar }: SidebarProps) {
+export function Sidebar({ calendars, onToggleCalendar, onInstall }: SidebarProps) {
   const t = useT();
   const { settings, update, persisted } = useSettings();
 
@@ -82,6 +84,11 @@ export function Sidebar({ calendars, onToggleCalendar }: SidebarProps) {
             ))}
           </select>
         </label>
+        {onInstall && (
+          <button type="button" className="btn" onClick={onInstall}>
+            {t('installApp')}
+          </button>
+        )}
         {!persisted && (
           <p role="status" className="muted">
             {t('notSaved')}

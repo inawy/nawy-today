@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
+import { fileURLToPath } from 'node:url';
 import { themeCss } from '../../src/ui/theme/tokens';
 import type { Brand } from '../../src/ui/theme/tokens';
+import { pwaPlugin } from './pwa';
 
 // Build-time plumbing that keeps ONE source of truth for the brand (D-011) and ships a strict
 // Content-Security-Policy (D-010).
@@ -57,10 +59,15 @@ export function nawyPlugins(brandPath: string): Plugin[] {
               '<head>',
               `<head>\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`,
             );
+            out = out.replace(
+              '</head>',
+              '  <link rel="manifest" href="./manifest.webmanifest" />\n  </head>',
+            );
           }
           return out;
         },
       },
     },
+    pwaPlugin(brand, fileURLToPath(new URL('./sw.template.js', import.meta.url))),
   ];
 }

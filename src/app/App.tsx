@@ -6,6 +6,8 @@ import { useNowLocal } from '@/features/clock/useNowLocal';
 import { DataProvider, useCalendarData, useData } from '@/features/data';
 import { useT } from '@/features/i18n';
 import { buildAgendaModel } from '@/features/agenda';
+import { useInstallPrompt, useServiceWorker } from '@/features/pwa';
+import type { WorkerContainer } from '@/features/pwa';
 import { buildSearchIndex } from '@/features/search';
 import { buildMonthModel, monthOf } from '@/features/month';
 import { SettingsProvider, useSettings } from '@/features/settings';
@@ -34,6 +36,8 @@ export interface AppProps {
   readonly create?: () => NawyDb;
   readonly now?: () => number;
   readonly storage?: (ReadableStorage & WritableStorage) | undefined;
+  /** The service worker container; injectable for tests. Off in development. */
+  readonly serviceWorker?: WorkerContainer | undefined;
 }
 
 /** Phones open on the Today list (PRODUCT_SPEC 3.2); wider screens on the month. */
@@ -45,6 +49,12 @@ function initialView(): ViewKind {
   }
 }
 
+function browserWorkerContainer(): WorkerContainer | undefined {
+  // Development has no worker (it would cache the dev server); builds do.
+  if (!import.meta.env.PROD) return undefined;
+  return 'serviceWorker' in navigator ? (navigator.serviceWorker as WorkerContainer) : undefined;
+}
+
 function browserStorage(): (ReadableStorage & WritableStorage) | undefined {
   try {
     return window.localStorage; // reading the property itself can throw when storage is blocked
@@ -53,7 +63,8 @@ function browserStorage(): (ReadableStorage & WritableStorage) | undefined {
   }
 }
 
-export function App({ create, now = nowMs, storage }: AppProps) {
+export function App({ create, now = nowMs, storage, serviceWorker }: AppProps) {
+  const worker = useMemo(() => serviceWorker ?? browserWorkerContainer(), [serviceWorker]);
   return (
     <SettingsProvider
       storage={storage ?? browserStorage()}
@@ -66,14 +77,20 @@ export function App({ create, now = nowMs, storage }: AppProps) {
         )}
       >
         <DataProvider {...(create ? { create } : {})}>
-          <Calendar now={now} />
+          <Calendar now={now} worker={worker} />
         </DataProvider>
       </ErrorBoundary>
     </SettingsProvider>
   );
 }
 
-function Calendar({ now }: { readonly now: () => number }) {
+function Calendar({
+  now,
+  worker,
+}: {
+  readonly now: () => number;
+  readonly worker: WorkerContainer | undefined;
+}) {
   const t = useT();
   const { settings } = useSettings();
   const data = useData();
@@ -84,6 +101,8 @@ function Calendar({ now }: { readonly now: () => number }) {
   const [anchor, setAnchor] = useState<PlainDate>(today);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const pwa = useServiceWorker(worker);
+  const installer = useInstallPrompt();
   const [failed, setFailed] = useState(false);
 
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
@@ -197,7 +216,24 @@ function Calendar({ now }: { readonly now: () => number }) {
       onPrevious={previous}
       onNext={next}
       onSearch={() => setSearchOpen(true)}
+      onInstall={installer.canInstall ? installer.install : undefined}
     >
+      {pwa.updateReady && !flow.dialogOpen && !searchOpen && (
+        <p role="status" className="banner banner-action">
+          <span>{t('updateReady')}</span>
+          <button type="button" className="btn" onClick={pwa.applyUpdate}>
+            {t('updateNow')}
+          </button>
+        </p>
+      )}
+      {pwa.offlineReady && !pwa.updateReady && (
+        <p role="status" className="banner banner-action">
+          <span>{t('offlineReady')}</span>
+          <button type="button" className="btn" onClick={pwa.dismissOfflineReady}>
+            {t('dismiss')}
+          </button>
+        </p>
+      )}
       {failed && (
         <p role="status" className="banner">
           {t('actionFailed')}
