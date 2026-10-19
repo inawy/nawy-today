@@ -14,5 +14,5 @@ if git diff --quiet -- package-lock.json; then
   exit 0
 fi
 
-git diff -- package-lock.json | python3 tools/annotate.py "lockfile out of sync - apply this patch" head 40000
+git diff -- package-lock.json | python3 tools/annotate.py "lockfile-patch" head 400000 3000
 exit 1

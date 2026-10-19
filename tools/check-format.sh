@@ -8,6 +8,6 @@ if npm run format:check; then
 fi
 
 npm run format >/dev/null 2>&1
-git diff -- src tests vite.config.ts eslint.config.js index.html \
+git diff -- src tests e2e vite.config.ts playwright.config.ts eslint.config.js index.html \
   | python3 tools/annotate.py "format-patch" head 150000 3000
 exit 1
