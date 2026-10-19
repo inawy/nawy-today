@@ -123,7 +123,13 @@ describe('data dialog', () => {
     chooseFile(
       dialog,
       'future.json',
-      JSON.stringify({ app: 'nawy-today', schemaVersion: 99, exportedAt: 1, calendars: [], events: [] }),
+      JSON.stringify({
+        app: 'nawy-today',
+        schemaVersion: 99,
+        exportedAt: 1,
+        calendars: [],
+        events: [],
+      }),
     );
     expect(await within(dialog).findByText(/newer version of the app/)).toBeTruthy();
   });
@@ -252,7 +258,9 @@ describe('recovery when the data cannot be opened', () => {
 
   it('says so when there is no snapshot', async () => {
     open(memoryStorage(), failingFirst());
-    fireEvent.click(await screen.findByRole('button', { name: 'Download the latest saved snapshot' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Download the latest saved snapshot' }),
+    );
     expect(await screen.findByText('No snapshot is saved in this browser.')).toBeTruthy();
     expect(saved).toHaveLength(0);
   });
