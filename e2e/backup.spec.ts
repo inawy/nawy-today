@@ -76,6 +76,30 @@ test.describe('backup file, in a real browser', () => {
 });
 
 test.describe('a database that cannot be opened (simulated corruption)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      const real = indexedDB.open.bind(indexedDB);
+      indexedDB.open = ((name: string, version?: number) => {
+        if (name !== 'nawy-today' || localStorage.getItem('e2e-break-db') !== '1') {
+          return real(name, version);
+        }
+        const request = {
+          error: new DOMException('simulated failure', 'UnknownError'),
+          result: undefined,
+          onerror: null as ((e: unknown) => void) | null,
+        };
+        setTimeout(() => {
+          request.onerror?.({
+            target: request,
+            preventDefault: () => undefined,
+            stopPropagation: () => undefined,
+          });
+        }, 0);
+        return request as unknown as IDBOpenDBRequest;
+      }) as typeof indexedDB.open;
+    });
+  });
+
   test('recovery screen, snapshot kept, fresh start, then restore from the snapshot', async ({
     page,
   }, testInfo) => {
@@ -86,21 +110,10 @@ test.describe('a database that cannot be opened (simulated corruption)', () => {
     await expect(dialog.getByText('Snapshot saved.')).toBeVisible();
     await dialog.getByRole('button', { name: 'Close' }).click();
 
-    // Make the main database unopenable by the app: a far newer version than it knows. (The app's
-    // own connection steps aside on `versionchange`, so this upgrade goes through.)
-    const bumped = await page.evaluate(
-      () =>
-        new Promise<string>((resolve) => {
-          const request = indexedDB.open('nawy-today', 9999);
-          request.onsuccess = () => {
-            request.result.close();
-            resolve('bumped');
-          };
-          request.onerror = () => resolve(`error ${String(request.error)}`);
-          request.onblocked = () => resolve('blocked');
-        }),
-    );
-    expect(bumped).toBe('bumped');
+    // Make opening the main database fail, the way a corrupt file or blocked storage would for the
+    // app: `indexedDB.open('nawy-today')` errors while the flag is set. (Real corruption cannot be
+    // produced from a test; this exercises the app's whole reaction to an open() that rejects.)
+    await page.evaluate(() => localStorage.setItem('e2e-break-db', '1'));
 
     await page.reload();
     await expect(page.getByRole('alert')).toContainText("Couldn't open your data on this device.");
@@ -115,7 +128,9 @@ test.describe('a database that cannot be opened (simulated corruption)', () => {
     await download.saveAs(file);
     expect(JSON.parse(await readFile(file, 'utf8'))).toMatchObject({ app: 'nawy-today' });
 
-    // Erasing asks first and says what it does.
+    // Erasing asks first and says what it does. (The fault is lifted first: after a real erase
+    // the browser opens a fresh file; the flag stands in for "the broken file is gone".)
+    await page.evaluate(() => localStorage.removeItem('e2e-break-db'));
     await page.getByRole('button', { name: /Erase this device/ }).click();
     await expect(page.getByText(/will be deleted from this device/)).toBeVisible();
     await page.getByRole('button', { name: 'Yes, erase and start fresh' }).click();
