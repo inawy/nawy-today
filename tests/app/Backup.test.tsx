@@ -227,7 +227,10 @@ describe('recovery when the data cannot be opened', () => {
     return () => {
       calls += 1;
       const db = createDb(dbName);
-      if (calls === 1) db.open = () => Promise.reject(new Error('cannot open'));
+      if (calls === 1) {
+        // What a corrupt or too-new database looks like to the app: opening rejects.
+        db.open = (() => Promise.reject(new Error('cannot open'))) as unknown as typeof db.open;
+      }
       return db;
     };
   };
