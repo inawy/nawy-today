@@ -41,7 +41,10 @@ test.describe('backup file, in a real browser', () => {
 
     // Delete it through the UI.
     await eventButton(page, 'Precious').click();
-    await page.getByRole('dialog', { name: 'Edit event' }).getByRole('button', { name: 'Delete' }).click();
+    await page
+      .getByRole('dialog', { name: 'Edit event' })
+      .getByRole('button', { name: 'Delete' })
+      .click();
     await expect(page.getByRole('button', { name: /Precious/ })).toHaveCount(0);
 
     dialog = await openData(page);
