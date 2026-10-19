@@ -1,5 +1,6 @@
+import Dexie from 'dexie';
 import { nowMs } from '@/core/time';
-import type { NawyDb } from './schema';
+import { DEFAULT_DB_NAME, type NawyDb } from './schema';
 
 // The ONLY place in the app that removes records from the main database (enforced by lint,
 // D-008): tombstones older than the retention period. Everything else deletes by writing a
@@ -41,4 +42,18 @@ export function purgeExpiredTombstones(
 
     return { events: eventKeys.length, calendars: calendarKeys.length };
   });
+}
+
+/**
+ * Deletes the whole main database file (recovery only, D-028). Used when it cannot be opened and
+ * the person explicitly chose to start clean; the snapshots live in another database and stay.
+ * Resolves false when the browser refuses or another tab holds it open.
+ */
+export async function resetDatabase(name: string = DEFAULT_DB_NAME): Promise<boolean> {
+  try {
+    await Dexie.delete(name);
+    return true;
+  } catch {
+    return false;
+  }
 }

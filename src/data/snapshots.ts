@@ -7,7 +7,13 @@ import {
   type Result,
 } from '@/core/model';
 import { nowMs } from '@/core/time';
-import { applyImport, exportEnvelope, type ImportResult } from './backup';
+import {
+  applyImport,
+  applyReplace,
+  exportEnvelope,
+  type ImportResult,
+  type ReplaceResult,
+} from './backup';
 import type { NawyDb } from './schema';
 
 // Automatic local snapshots (D-008). They live in their OWN database, so a problem in the main
@@ -143,4 +149,16 @@ export async function importWithSafetySnapshot(
 ): Promise<ImportResult> {
   await takeSnapshot(db, snapshotDb, 'before-import', now);
   return applyImport(db, envelope, now);
+}
+
+/** Replaces the data with an envelope after first taking a safety snapshot of the current data. */
+export async function replaceWithSafetySnapshot(
+  db: NawyDb,
+  snapshotDb: SnapshotDb,
+  envelope: Envelope,
+  reason: 'before-import' | 'before-restore',
+  now: () => number = nowMs,
+): Promise<ReplaceResult> {
+  await takeSnapshot(db, snapshotDb, reason, now);
+  return applyReplace(db, envelope, now);
 }
