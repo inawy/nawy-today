@@ -43,12 +43,14 @@ self.addEventListener('fetch', (event) => {
     // One page app: every navigation inside the scope is the shell.
     event.respondWith(
       caches
-        .match('./index.html', { cacheName: CACHE })
+        .match('./index.html', { cacheName: CACHE, ignoreVary: true })
         .then((cached) => cached || fetch(request)),
     );
     return;
   }
   event.respondWith(
-    caches.match(request, { cacheName: CACHE }).then((cached) => cached || fetch(request)),
+    caches
+      .match(request.url, { cacheName: CACHE, ignoreVary: true })
+      .then((cached) => cached || fetch(request)),
   );
 });
