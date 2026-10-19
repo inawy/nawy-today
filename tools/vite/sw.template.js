@@ -1,5 +1,5 @@
-/* Nawy Today service worker (D-009, D-027). Generated at build: __VERSION__ and __PRECACHE__ are
-   replaced by tools/vite/pwa.ts. Hand-written, no library.
+/* Nawy Today service worker (D-009, D-027). Generated at build: the version and file-list placeholders
+   below are replaced by tools/vite/pwa.ts. Hand-written, no library.
 
    - Offline: the whole app is precached; page loads are answered from the cache.
    - Isolation (D-009): every cache this worker creates starts with "nawy-today:" and it only ever

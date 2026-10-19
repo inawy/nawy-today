@@ -62,8 +62,8 @@ export function versionOf(files: readonly { path: string; content: Buffer | stri
 export function buildServiceWorker(template: string, version: string, precache: readonly string[]) {
   if (!/^[0-9a-f]{12}$/.test(version)) throw new Error('bad version');
   return template
-    .replace('__VERSION__', version)
-    .replace('__PRECACHE__', JSON.stringify(precache.map((p) => `./${p}`)));
+    .replaceAll('__VERSION__', version)
+    .replaceAll('__PRECACHE__', JSON.stringify(precache.map((p) => `./${p}`)));
 }
 
 export function pwaPlugin(brand: BrandFile, templatePath: string): Plugin {
