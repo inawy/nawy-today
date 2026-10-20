@@ -55,8 +55,11 @@
   overflow-wrap: anywhere;
 }
 
+/* Finished items are quieter through colour, not opacity: fading the whole row lowered the
+   text below WCAG AA contrast (found by the axe gate once the clock had passed the event). */
 .agenda-item[data-status='past'] {
-  opacity: 0.6;
+  color: var(--text-muted);
+  border-inline-start-color: color-mix(in srgb, var(--bar) 45%, transparent);
 }
 
 .agenda-item[data-status='now'] {
