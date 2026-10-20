@@ -26,7 +26,7 @@ jobs:
         run: |
           nohup npx vite preview --port 4174 --strictPort > preview.log 2>&1 &
           for i in $(seq 1 30); do curl -sf http://localhost:4174/ > /dev/null && break; sleep 1; done
-      - run: node tools/shots/shots.mjs
+      - run: bash tools/ci-run.sh e2e node tools/shots/shots.mjs
       - name: Publish screenshots
         run: |
           cd shots
