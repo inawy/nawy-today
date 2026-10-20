@@ -26,6 +26,10 @@ describe('manifest', () => {
     });
   });
 
+  it('offers a monochrome icon for themed launchers', () => {
+    expect(m.icons.some((i) => i.purpose === 'monochrome')).toBe(true);
+  });
+
   it('has the icons installability needs, including a maskable one, with relative paths', () => {
     const sizes = m.icons.map((i) => `${i.sizes}:${i.purpose}`);
     expect(sizes).toEqual(
