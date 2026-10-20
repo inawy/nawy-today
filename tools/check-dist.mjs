@@ -28,6 +28,12 @@ if (/https?:\/\//.test(css.replace(/http:\/\/www\.w3\.org\/\d+\/svg/g, ''))) {
   fail.push('built CSS references an external URL');
 }
 
+// Every URL in the page must be relative: the app is served from a sub-path (GitHub Pages), where
+// "/icons/x.png" would point outside it (installed apps then fall back to a generic icon).
+for (const m of html.matchAll(/(?:href|src)="(\/[^"]*)"/g)) {
+  fail.push(`index.html has an absolute URL: ${m[1]}`);
+}
+
 // PWA: manifest, icons and the service worker must exist, agree with each other and stay local.
 if (!/<link rel="manifest" href="\.\/manifest\.webmanifest"/.test(html)) {
   fail.push('index.html does not link the manifest');

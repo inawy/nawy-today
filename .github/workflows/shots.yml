@@ -1,0 +1,39 @@
+name: shots
+
+# Design review aid: builds the app, takes screenshots of the real screens with realistic data and
+# pushes them to the `shots` branch (force-pushed; PNGs only) so they can be looked at.
+on:
+  push:
+    branches: ['ux/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Serve the build
+        run: |
+          nohup npx vite preview --port 4174 --strictPort > preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:4174/ > /dev/null && break; sleep 1; done
+      - run: node tools/shots/shots.mjs
+      - name: Publish screenshots
+        run: |
+          cd shots
+          git init -q
+          git config user.name "shots-bot"
+          git config user.email "shots-bot@users.noreply.github.com"
+          git checkout -q -b shots
+          git add -A
+          git commit -q -m "screenshots of ${GITHUB_SHA}"
+          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" HEAD:refs/heads/shots
