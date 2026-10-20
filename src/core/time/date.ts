@@ -1,4 +1,5 @@
 import { Temporal } from 'temporal-polyfill';
+import { daysInMonthOf } from './civil';
 import type { IsoWeekday, PlainDate } from './types';
 
 // All functions here take and return plain `YYYY-MM-DD` strings. Temporal never leaks out of
@@ -12,13 +13,21 @@ function parse(date: PlainDate): Temporal.PlainDate {
   return Temporal.PlainDate.from(date, { overflow: 'reject' });
 }
 
+/**
+ * `YYYY-MM-DD` that is a real calendar day. Plain integer checks: every stored event is checked
+ * on every render, and going through Temporal for each one was the main cost of opening a
+ * month with thousands of events (PRODUCT_SPEC section 5 budget).
+ */
 export function isValidDate(value: string): value is PlainDate {
-  try {
-    parse(value);
-    return true;
-  } catch {
-    return false;
-  }
+  return DATE_RE.test(value) && isRealDay(value);
+}
+
+/** Assumes the `YYYY-MM-DD` shape; checks month and day ranges (proleptic Gregorian). */
+export function isRealDay(value: string): boolean {
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(5, 7));
+  const day = Number(value.slice(8, 10));
+  return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonthOf(year, month);
 }
 
 export function dateParts(date: PlainDate): { year: number; month: number; day: number } {

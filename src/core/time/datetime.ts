@@ -1,4 +1,5 @@
 import { Temporal } from 'temporal-polyfill';
+import { isRealDay } from './date';
 import type { PlainDate, PlainDateTime, TimeZoneId } from './types';
 
 // Wall-clock arithmetic with explicit time zones. Event times are stored as local wall-clock
@@ -16,13 +17,12 @@ function parse(value: PlainDateTime): Temporal.PlainDateTime {
   return Temporal.PlainDateTime.from(value, { overflow: 'reject' });
 }
 
+/** `YYYY-MM-DDTHH:mm` naming a real day and a real minute (integer checks, see isValidDate). */
 export function isValidDateTime(value: string): value is PlainDateTime {
-  try {
-    parse(value);
-    return true;
-  } catch {
-    return false;
-  }
+  if (!DATETIME_RE.test(value)) return false;
+  const hour = Number(value.slice(11, 13));
+  const minute = Number(value.slice(14, 16));
+  return hour <= 23 && minute <= 59 && isRealDay(value);
 }
 
 // Building an Intl.DateTimeFormat costs tens of microseconds, and every stored event is

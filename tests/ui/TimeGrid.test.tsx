@@ -119,11 +119,11 @@ describe('TimeGrid', () => {
     cleanup();
     const opened: string[] = [];
     view(model([]), { onOpenDay: (d) => opened.push(d) });
-    fireEvent.click(screen.getByRole('button', { name: 'Wednesday, October 14, 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: /^Wed 14, Wednesday, October 14, 2026$/ }));
     expect(opened).toEqual(['2026-10-14']);
     expect(
       screen
-        .getByRole('button', { name: 'Tuesday, October 13, 2026' })
+        .getByRole('button', { name: /^Tue 13, Tuesday, October 13, 2026$/ })
         .getAttribute('aria-current'),
     ).toBe('date');
   });

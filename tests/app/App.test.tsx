@@ -123,7 +123,7 @@ describe('app: views', () => {
     expect(pressed('Day')).toBe(true);
 
     fireEvent.click(screen.getByRole('button', { name: 'Week' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Saturday, October 17, 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: /^Sat 17, Saturday, October 17, 2026$/ }));
     expect(titleOf()).toBe('Saturday, October 17, 2026');
   });
 
