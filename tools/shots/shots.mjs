@@ -80,7 +80,11 @@ async function session(name, contextOptions, steps) {
     await page.waitForTimeout(250);
     await page.screenshot({ path: `${OUT}/${name}-${label}.png` });
   };
-  await steps(page, shot);
+  try {
+    await steps(page, shot);
+  } catch (error) {
+    console.error(`session ${name} stopped early:`, String(error).slice(0, 400));
+  }
   await context.close();
 }
 
@@ -105,7 +109,7 @@ await session('desktop-en-dark', { viewport: { width: 1280, height: 800 }, local
 await session('phone-ar', { viewport: { width: 390, height: 844 }, locale: 'ar-SA', hasTouch: true, isMobile: true, deviceScaleFactor: 2 }, async (page, shot) => {
   await shot('agenda');
   await page.getByRole('button', { name: 'القائمة' }).click(); await shot('drawer');
-  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'إغلاق القائمة' }).click();
   await page.getByRole('button', { name: 'شهر' }).click(); await shot('month');
   await page.getByRole('button', { name: 'إضافة حدث' }).click(); await shot('editor');
 });
