@@ -167,3 +167,9 @@ input:not([type='checkbox']) {
   justify-content: space-between;
   gap: 12px;
 }
+
+.banner-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

@@ -9,6 +9,7 @@ import '@/ui/styles/timegrid.css';
 import '@/ui/styles/editor.css';
 import '@/ui/styles/agenda.css';
 import '@/ui/styles/search.css';
+import '@/ui/styles/backup.css';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('#root element not found');

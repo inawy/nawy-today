@@ -1,12 +1,15 @@
 import {
   buildEnvelope,
   planMerge,
+  planReplace,
   recordsToWrite,
+  tombstoneCalendar,
   tombstoneEvent,
   type CalEvent,
   type Calendar,
   type Envelope,
   type MergePlan,
+  type ReplacePlan,
 } from '@/core/model';
 import { nowMs } from '@/core/time';
 import type { NawyDb } from './schema';
@@ -108,5 +111,64 @@ export function applyImport(
     await db.events.bulkPut(recordsToWrite(plan.events));
     const orphanedEvents = await tombstoneOrphans(db, now);
     return { ...plan, orphanedEvents };
+  });
+}
+
+// ---------------------------------------------------------------------------------------------
+// Replace (restore): the device becomes what the file says, by writing new versions.
+
+export interface ReplaceSummary {
+  calendars: ReplacePlan<Calendar>;
+  events: ReplacePlan<CalEvent>;
+}
+
+export interface ReplaceResult extends ReplaceSummary {
+  /** Live local events left without a calendar or series by the replace, deleted as well. */
+  orphanedEvents: number;
+}
+
+async function computeReplace(
+  db: NawyDb,
+  envelope: Envelope,
+  now: number,
+): Promise<ReplaceSummary> {
+  const [calendars, events] = await Promise.all([db.calendars.toArray(), db.events.toArray()]);
+  return {
+    calendars: planReplace(
+      new Map(calendars.map((c) => [c.id, c])),
+      envelope.calendars,
+      tombstoneCalendar,
+      now,
+    ),
+    events: planReplace(
+      new Map(events.map((e) => [e.id, e])),
+      envelope.events,
+      tombstoneEvent,
+      now,
+    ),
+  };
+}
+
+/** What a replace would do, without writing anything. */
+export function previewReplace(
+  db: NawyDb,
+  envelope: Envelope,
+  now: () => number = nowMs,
+): Promise<ReplaceSummary> {
+  return db.transaction('r', db.calendars, db.events, () => computeReplace(db, envelope, now()));
+}
+
+/** Makes the database match the envelope, atomically. Nothing is physically removed. */
+export function applyReplace(
+  db: NawyDb,
+  envelope: Envelope,
+  now: () => number = nowMs,
+): Promise<ReplaceResult> {
+  return db.transaction('rw', db.calendars, db.events, async () => {
+    const summary = await computeReplace(db, envelope, now());
+    await db.calendars.bulkPut(summary.calendars.write);
+    await db.events.bulkPut(summary.events.write);
+    const orphanedEvents = await tombstoneOrphans(db, now);
+    return { ...summary, orphanedEvents };
   });
 }

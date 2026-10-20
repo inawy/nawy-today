@@ -10,6 +10,7 @@ export interface SidebarProps {
   readonly onToggleCalendar: (id: string, visible: boolean) => void;
   /** Present only when the browser can install the app right now. */
   readonly onInstall?: (() => void) | undefined;
+  readonly onOpenData?: (() => void) | undefined;
 }
 
 const THEMES: readonly [ThemePreference, MessageKey][] = [
@@ -18,7 +19,7 @@ const THEMES: readonly [ThemePreference, MessageKey][] = [
   ['dark', 'themeDark'],
 ];
 
-export function Sidebar({ calendars, onToggleCalendar, onInstall }: SidebarProps) {
+export function Sidebar({ calendars, onToggleCalendar, onInstall, onOpenData }: SidebarProps) {
   const t = useT();
   const { settings, update, persisted } = useSettings();
 
@@ -84,6 +85,11 @@ export function Sidebar({ calendars, onToggleCalendar, onInstall }: SidebarProps
             ))}
           </select>
         </label>
+        {onOpenData && (
+          <button type="button" className="btn" onClick={onOpenData}>
+            {t('dataTitle')}
+          </button>
+        )}
         {onInstall && (
           <button type="button" className="btn" onClick={onInstall}>
             {t('installApp')}
