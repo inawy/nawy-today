@@ -95,6 +95,7 @@ test.describe('keyboard and focus', () => {
     page,
   }) => {
     await page.goto('/');
+    await expect(page.getByRole('button', { name: 'Add event' })).toBeVisible(); // app is ready
     await page.keyboard.press('KeyC');
     const editor = page.getByRole('dialog', { name: 'New event' });
     await expect(editor).toBeVisible();
@@ -183,12 +184,15 @@ test.describe('automated accessibility checks (axe, WCAG 2.0/2.1 A and AA)', () 
     await expect(page.getByRole('dialog', { name: 'New event' })).toBeVisible();
     await expectNoViolations(page, 'editor');
     await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog', { name: 'New event' })).toBeHidden();
 
     await page.keyboard.press('Slash');
     await page.getByRole('searchbox', { name: 'Search' }).fill('dent');
     await expect(page.getByRole('dialog', { name: 'Search' }).getByText('Dentist')).toBeVisible();
     await expectNoViolations(page, 'search');
     await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog', { name: 'Search' })).toBeHidden();
+    expect(page.url()).toContain('localhost:4173'); // Back/Escape never leaves the app
 
     await page.getByRole('button', { name: 'Data & backups' }).click();
     await expect(page.getByRole('dialog', { name: 'Data & backups' })).toBeVisible();

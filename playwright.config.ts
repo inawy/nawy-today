@@ -15,6 +15,9 @@ export default defineConfig({
     trace: 'retain-on-failure',
     locale: 'en-US',
     timezoneId: 'Asia/Riyadh',
+    // Colour transitions would make contrast checks sample a half-way colour (the app honours
+    // prefers-reduced-motion by switching them off).
+    reducedMotion: 'reduce',
   },
   webServer: {
     command: 'npm run preview -- --port 4173 --strictPort',
