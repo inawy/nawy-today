@@ -3,6 +3,8 @@ import { buildAgendaModel } from '@/features/agenda';
 import { buildMonthModel } from '@/features/month';
 import { buildTimeGridModel } from '@/features/timegrid';
 import { addDays } from '@/core/time';
+import { prepareData } from '@/features/common/prepare';
+import { expandEvents } from '@/core/recurrence';
 import { makeCalendar, makeEvent } from '../helpers/factories';
 
 // PRODUCT_SPEC section 5: "5000 events, opening the month <= 300 ms for the first paint".
@@ -44,7 +46,11 @@ describe('performance gate: 5000 events', () => {
       }),
     );
     expect(value.skipped).toBe(0);
-    expect(ms).toBeLessThan(300);
+    // Where the time goes, so a failure says what to fix rather than just "too slow".
+    const prepared = time(() => prepareData([calendar], events));
+    const expanded = time(() => expandEvents(prepared.value.events, '2026-09-27', '2026-11-08'));
+    const breakdown = `total ${ms.toFixed(0)} ms (validate ${prepared.ms.toFixed(0)}, expand ${expanded.ms.toFixed(0)})`;
+    expect(ms, breakdown).toBeLessThan(300);
   });
 
   it('builds the week and agenda models within 300 ms', () => {

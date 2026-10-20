@@ -25,14 +25,24 @@ export function isValidDateTime(value: string): value is PlainDateTime {
   }
 }
 
+// Building an Intl.DateTimeFormat costs tens of microseconds, and every stored event is
+// validated on every render, so answers are remembered (bounded: stored values are untrusted).
+const zoneAnswers = new Map<string, boolean>();
+const MAX_REMEMBERED_ZONES = 500;
+
 export function isValidTimeZone(value: string): boolean {
   if (value === '') return false;
+  const known = zoneAnswers.get(value);
+  if (known !== undefined) return known;
+  let valid: boolean;
   try {
     new Intl.DateTimeFormat('en', { timeZone: value });
-    return true;
+    valid = true;
   } catch {
-    return false;
+    valid = false;
   }
+  if (zoneAnswers.size < MAX_REMEMBERED_ZONES) zoneAnswers.set(value, valid);
+  return valid;
 }
 
 /** The device's current IANA time zone. */
