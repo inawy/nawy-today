@@ -212,6 +212,19 @@ test.describe('automated accessibility checks (axe, WCAG 2.0/2.1 A and AA)', () 
     await expectNoViolations(page, 'agenda');
   });
 
+  test('the agenda with a finished event (dimmed rows must keep their contrast)', async ({
+    page,
+  }) => {
+    // Fixed clock: noon in Riyadh, add the event, then let three hours pass so it has ended.
+    await page.clock.install({ time: new Date('2026-10-20T09:00:00Z') });
+    await page.goto('/');
+    await addEvent(page, 'Already over');
+    await page.keyboard.press('KeyA');
+    await page.clock.fastForward('03:00:00');
+    await expect(page.locator('.agenda-item[data-status="past"]').first()).toBeVisible();
+    await expectNoViolations(page, 'agenda, past event');
+  });
+
   test('dark theme', async ({ page }) => {
     await page.goto('/');
     await addEvent(page, 'Dentist');
