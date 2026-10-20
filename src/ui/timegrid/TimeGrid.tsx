@@ -64,11 +64,14 @@ export function TimeGrid({
         <div className="tg-gutter" />
         <div className="tg-cells">
           {model.days.map((d) => {
-            const label = formatDate(d.date, fmt, 'full');
+            const weekday = formatWeekday(d.date, fmt, 'short');
+            const dayNumber = formatDayOfMonth(d.date, fmt);
+            // The accessible name starts with the visible text ("Mon 19", WCAG 2.5.3) and then
+            // adds the full date.
+            const label = `${weekday} ${dayNumber}, ${formatDate(d.date, fmt, 'full')}`;
             const content = (
               <>
-                <span className="tg-weekday">{formatWeekday(d.date, fmt, 'short')}</span>
-                <span className="tg-daynum">{formatDayOfMonth(d.date, fmt)}</span>
+                <span className="tg-weekday">{weekday}</span> <span className="tg-daynum">{dayNumber}</span>
               </>
             );
             return onOpenDay ? (
