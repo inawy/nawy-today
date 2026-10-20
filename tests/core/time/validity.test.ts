@@ -52,7 +52,13 @@ describe('isValidDateTime matches the Date round trip', () => {
   });
 
   it('rejects other shapes', () => {
-    for (const v of ['', '2026-10-13', '2026-10-13T9:00', '2026-10-13 09:00', '2026-10-13T09:00:00']) {
+    for (const v of [
+      '',
+      '2026-10-13',
+      '2026-10-13T9:00',
+      '2026-10-13 09:00',
+      '2026-10-13T09:00:00',
+    ]) {
       expect(isValidDateTime(v), v).toBe(false);
     }
   });
