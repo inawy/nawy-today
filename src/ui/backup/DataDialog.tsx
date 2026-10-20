@@ -224,6 +224,7 @@ export function DataDialog({
                   accept=".json,application/json"
                   className="sr-only"
                   tabIndex={-1}
+                  aria-label={t('importChoose')}
                   data-testid="import-file"
                   onChange={(e) => {
                     onFile(e.currentTarget.files?.[0]);
