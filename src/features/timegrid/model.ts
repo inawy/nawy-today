@@ -69,11 +69,14 @@ export function buildTimeGridModel(input: TimeGridInput): TimeGridModel {
 
   const days = input.days.map((date): DayColumn => {
     const items: { id: string; startMin: number; endMin: number }[] = [];
+    const itemById = new Map<string, { id: string; startMin: number; endMin: number }>();
     const byKey = new Map<string, { o: Occurrence; startsBefore: boolean; endsAfter: boolean }>();
     for (const o of timed) {
       const span = clipToDay(o.start, o.end, date);
       if (!span) continue;
-      items.push({ id: o.key, startMin: span.startMin, endMin: span.endMin });
+      const item = { id: o.key, startMin: span.startMin, endMin: span.endMin };
+      items.push(item);
+      itemById.set(o.key, item);
       byKey.set(o.key, {
         o,
         startsBefore: o.start.slice(0, 10) < date,
@@ -83,7 +86,7 @@ export function buildTimeGridModel(input: TimeGridInput): TimeGridModel {
     const placed = layoutColumns(items);
     const blocks = placed.flatMap((p): TimedBlock[] => {
       const entry = byKey.get(p.id);
-      const item = items.find((i) => i.id === p.id);
+      const item = itemById.get(p.id);
       if (!entry || !item) return [];
       const { top, height } = blockPosition(item);
       return [

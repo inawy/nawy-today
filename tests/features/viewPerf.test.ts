@@ -10,17 +10,18 @@ import { makeCalendar, makeEvent } from '../helpers/factories';
 // real first paint is measured in the browser (e2e/release.spec.ts).
 
 const calendar = makeCalendar({ id: 'cal-1' });
+// 5000 events over about three years (roughly 4-5 a day), with some all-day and some repeating.
 const events = Array.from({ length: 5000 }, (_, i) => {
-  // Crowd October 2026 on purpose: ~1700 events land in the month being opened.
-  const date = addDays('2026-09-20', i % 60);
+  const date = addDays('2025-10-01', Math.floor((i * 1095) / 5000));
   const hour = String(8 + (i % 10)).padStart(2, '0');
+  const allDay = i % 17 === 0;
   return makeEvent({
     id: `e${i}`,
     title: `Event ${i}`,
-    start: `${date}T${hour}:00`,
-    end: `${date}T${hour}:45`,
+    ...(allDay
+      ? { allDay: true, start: date, end: addDays(date, 1), tzid: undefined }
+      : { start: `${date}T${hour}:00`, end: `${date}T${hour}:45` }),
     ...(i % 40 === 0 && { rrule: 'FREQ=WEEKLY;COUNT=20' }),
-    ...(i % 17 === 0 && { allDay: true, start: date, end: addDays(date, 1) }),
   });
 });
 
