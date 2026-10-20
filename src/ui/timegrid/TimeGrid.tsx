@@ -71,7 +71,8 @@ export function TimeGrid({
             const label = `${weekday} ${dayNumber}, ${formatDate(d.date, fmt, 'full')}`;
             const content = (
               <>
-                <span className="tg-weekday">{weekday}</span> <span className="tg-daynum">{dayNumber}</span>
+                <span className="tg-weekday">{weekday}</span>{' '}
+                <span className="tg-daynum">{dayNumber}</span>
               </>
             );
             return onOpenDay ? (
