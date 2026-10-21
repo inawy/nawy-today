@@ -292,9 +292,7 @@ function Calendar({
   return (
     <Shell
       title={viewTitle(view, anchor, settings.weekStart, fmt)}
-      subtitle={
-        settings.hijri ? hijriSubtitle(view, anchor, settings.weekStart, fmt) : undefined
-      }
+      subtitle={settings.hijri ? hijriSubtitle(view, anchor, settings.weekStart, fmt) : undefined}
       view={view}
       onView={setView}
       drawerOpen={drawerOpen}

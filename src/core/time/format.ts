@@ -87,7 +87,10 @@ export function formatHijriDate(date: PlainDate, o: FormatOptions): string {
   return f.format(utcMidnight(date));
 }
 
-function hijriFormatter(o: FormatOptions, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+function hijriFormatter(
+  o: FormatOptions,
+  options: Intl.DateTimeFormatOptions,
+): Intl.DateTimeFormat {
   return formatter(o.locale, {
     calendar: 'islamic-umalqura',
     numberingSystem: o.numerals ?? 'latn',
