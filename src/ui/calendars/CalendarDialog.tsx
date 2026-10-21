@@ -161,7 +161,11 @@ export function CalendarDialog({
                   </button>
                 </div>
               ) : canDelete ? (
-                <button type="button" className="btn btn-danger" onClick={() => setConfirming(true)}>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => setConfirming(true)}
+                >
                   {t('calendarDelete')}
                 </button>
               ) : (
