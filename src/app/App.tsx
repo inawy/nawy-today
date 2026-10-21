@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { datePart, localTimeZone, nowMs } from '@/core/time';
 import type { FormatOptions, PlainDate } from '@/core/time';
 import type { NawyDb, SnapshotDb } from '@/data';
