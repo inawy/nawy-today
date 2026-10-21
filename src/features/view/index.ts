@@ -2,3 +2,7 @@ export { shiftAnchor, viewTitle, visibleDays } from './nav';
 export type { ViewKind } from './nav';
 export { shortcutFor, useShortcuts } from './shortcuts';
 export type { KeyLike, ShortcutAction } from './shortcuts';
+export { motionBetween } from './motion';
+export type { ViewMotion } from './motion';
+export { useViewMotion } from './useViewMotion';
+export type { MotionState } from './useViewMotion';

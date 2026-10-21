@@ -150,3 +150,10 @@ button.more {
     pointer-events: none;
   }
 }
+
+/* On a phone a bar is only a few characters wide: the title says more than the time does. */
+@media (max-width: 599px) {
+  .bar-time {
+    display: none;
+  }
+}

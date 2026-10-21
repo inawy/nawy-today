@@ -63,13 +63,13 @@ export function TopBar({
       >
         <MenuIcon />
       </button>
-      <button type="button" className="btn" onClick={onToday}>
+      <button type="button" className="btn tb-today" onClick={onToday}>
         {t('today')}
       </button>
       {/* Each chevron is drawn pointing to the inline end and mirrored where needed. */}
       <button
         type="button"
-        className="icon-btn flip-ltr"
+        className="icon-btn flip-ltr tb-previous"
         aria-label={t(PREVIOUS[view])}
         onClick={onPrevious}
       >
@@ -77,7 +77,7 @@ export function TopBar({
       </button>
       <button
         type="button"
-        className="icon-btn flip-rtl"
+        className="icon-btn flip-rtl tb-next"
         aria-label={t(NEXT[view])}
         onClick={onNext}
       >
@@ -86,7 +86,7 @@ export function TopBar({
       <h1 className="topbar-title" aria-live="polite">
         {title}
       </h1>
-      <button type="button" className="icon-btn" aria-label={t('search')} onClick={onSearch}>
+      <button type="button" className="icon-btn tb-search" aria-label={t('search')} onClick={onSearch}>
         <SearchIcon />
       </button>
       <div role="group" aria-label={t('views')} className="view-switch">

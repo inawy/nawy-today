@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { datePart, localTimeZone, nowMs } from '@/core/time';
 import type { FormatOptions, PlainDate } from '@/core/time';
 import type { NawyDb, SnapshotDb } from '@/data';
@@ -16,7 +16,7 @@ import { SettingsProvider, useSettings } from '@/features/settings';
 import type { ReadableStorage, WritableStorage } from '@/features/settings';
 import { buildTimeGridModel } from '@/features/timegrid';
 import { useEventFlow } from './useEventFlow';
-import { shiftAnchor, useShortcuts, viewTitle, visibleDays } from '@/features/view';
+import { shiftAnchor, useShortcuts, useViewMotion, viewTitle, visibleDays } from '@/features/view';
 import type { ShortcutAction, ViewKind } from '@/features/view';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { useBackLayer } from '@/lib/useBackLayer';
@@ -24,6 +24,7 @@ import { MonthView } from '@/ui/month/MonthView';
 import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
 import { PlusIcon } from '@/ui/shell/Icons';
 import { Shell } from '@/ui/shell/Shell';
+import { ViewMotion } from '@/ui/shell/ViewMotion';
 import { AgendaView } from '@/ui/agenda/AgendaView';
 import { DataDialog } from '@/ui/backup/DataDialog';
 import { SearchPanel } from '@/ui/search/SearchPanel';
@@ -124,10 +125,17 @@ function Calendar({
   const today = datePart(nowLocal);
   const [view, setView] = useState<ViewKind>(initialView);
   const [anchor, setAnchor] = useState<PlainDate>(today);
+  const motion = useViewMotion(view, anchor);
+  const pwa = useServiceWorker(worker);
+  const { offlineReady, dismissOfflineReady } = pwa;
+  useEffect(() => {
+    if (!offlineReady) return;
+    const id = window.setTimeout(dismissOfflineReady, 6000);
+    return () => window.clearTimeout(id);
+  }, [offlineReady, dismissOfflineReady]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [dataOpen, setDataOpen] = useState(false);
-  const pwa = useServiceWorker(worker);
   const installer = useInstallPrompt();
   const [failed, setFailed] = useState(false);
 
@@ -295,7 +303,7 @@ function Calendar({
         </p>
       )}
       {pwa.offlineReady && !pwa.updateReady && (
-        <p role="status" className="banner banner-action">
+        <p role="status" className="toast">
           <span>{t('offlineReady')}</span>
           <button type="button" className="btn" onClick={pwa.dismissOfflineReady}>
             {t('dismiss')}
@@ -330,6 +338,7 @@ function Calendar({
           {t('problemSeries', { count: count(problems.length) })}
         </p>
       )}
+      <ViewMotion motion={motion.kind} tick={motion.tick}>
       {view === 'agenda' ? (
         <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.openEvent} />
       ) : view === 'month' ? (
@@ -352,6 +361,7 @@ function Calendar({
           onCreateAt={flow.openNew}
         />
       )}
+      </ViewMotion>
       <button
         type="button"
         className="fab"
