@@ -228,11 +228,11 @@
     inset-block-end: 0;
     z-index: 15;
     margin: 0;
-    padding: 6px 12px;
+    padding: 6px 8px;
     padding-block-end: calc(6px + env(safe-area-inset-bottom));
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
     background: var(--surface);
     border-block-start: 1px solid var(--border);
   }
@@ -243,8 +243,10 @@
     margin: 0;
     border-radius: var(--radius);
     min-block-size: 44px;
-    padding-inline: 4px;
+    padding-inline: 2px;
     min-inline-size: 0;
+    font-size: 0.875rem;
+    white-space: nowrap;
   }
 
   .main {
