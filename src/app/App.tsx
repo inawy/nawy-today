@@ -339,28 +339,28 @@ function Calendar({
         </p>
       )}
       <ViewMotion motion={motion.kind} tick={motion.tick}>
-      {view === 'agenda' ? (
-        <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.openEvent} />
-      ) : view === 'month' ? (
-        <MonthView
-          model={monthModel}
-          today={today}
-          lanes={MAX_LANES}
-          onOpenDay={openDay}
-          onOpenEvent={flow.openEvent}
-        />
-      ) : (
-        <TimeGrid
-          key={view}
-          model={gridModel}
-          today={today}
-          nowLocal={nowLocal}
-          lanes={MAX_ALL_DAY_LANES}
-          onOpenDay={view === 'week' ? openDay : undefined}
-          onOpenEvent={flow.openEvent}
-          onCreateAt={flow.openNew}
-        />
-      )}
+        {view === 'agenda' ? (
+          <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.openEvent} />
+        ) : view === 'month' ? (
+          <MonthView
+            model={monthModel}
+            today={today}
+            lanes={MAX_LANES}
+            onOpenDay={openDay}
+            onOpenEvent={flow.openEvent}
+          />
+        ) : (
+          <TimeGrid
+            key={view}
+            model={gridModel}
+            today={today}
+            nowLocal={nowLocal}
+            lanes={MAX_ALL_DAY_LANES}
+            onOpenDay={view === 'week' ? openDay : undefined}
+            onOpenEvent={flow.openEvent}
+            onCreateAt={flow.openNew}
+          />
+        )}
       </ViewMotion>
       <button
         type="button"

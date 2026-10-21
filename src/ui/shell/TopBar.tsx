@@ -86,7 +86,12 @@ export function TopBar({
       <h1 className="topbar-title" aria-live="polite">
         {title}
       </h1>
-      <button type="button" className="icon-btn tb-search" aria-label={t('search')} onClick={onSearch}>
+      <button
+        type="button"
+        className="icon-btn tb-search"
+        aria-label={t('search')}
+        onClick={onSearch}
+      >
         <SearchIcon />
       </button>
       <div role="group" aria-label={t('views')} className="view-switch">
