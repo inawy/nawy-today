@@ -62,40 +62,6 @@
   flex-direction: column;
 }
 
-/* Messages that need no decision fade out by themselves instead of taking a row of the page. */
-.toast {
-  position: fixed;
-  inset-inline: 16px;
-  inset-block-end: calc(20px + env(safe-area-inset-bottom));
-  z-index: 25;
-  margin-inline: auto;
-  inline-size: fit-content;
-  max-inline-size: calc(100% - 32px);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 8px 8px 16px;
-  padding-inline: 16px 8px;
-  border-radius: var(--radius);
-  background: var(--text);
-  color: var(--bg);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
-  animation: toast-in var(--dur) var(--ease) both;
-}
-
-.toast .btn {
-  background: transparent;
-  color: inherit;
-  border-color: color-mix(in srgb, currentColor 40%, transparent);
-}
-
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-}
-
 .sidebar-heading {
   font-size: 0.875rem;
   font-weight: 600;
@@ -264,7 +230,7 @@
     padding: 6px 12px;
     padding-block-end: calc(6px + env(safe-area-inset-bottom));
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 6px;
     background: var(--surface);
     border-block-start: 1px solid var(--border);
@@ -276,17 +242,11 @@
     margin: 0;
     border-radius: var(--radius);
     min-block-size: 44px;
+    padding-inline: 4px;
+    min-inline-size: 0;
   }
 
   .main {
     padding-block-end: calc(56px + env(safe-area-inset-bottom));
-  }
-
-  .fab {
-    inset-block-end: calc(72px + env(safe-area-inset-bottom));
-  }
-
-  .toast {
-    inset-block-end: calc(76px + env(safe-area-inset-bottom));
   }
 }

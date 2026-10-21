@@ -278,3 +278,14 @@ button.block {
   border-color: currentColor;
   color: inherit;
 }
+
+/* On a phone the view switcher sits along the bottom edge; the floating things stay above it. */
+@media (max-width: 599px) {
+  .fab {
+    inset-block-end: calc(72px + env(safe-area-inset-bottom));
+  }
+
+  .toast {
+    inset-block-end: calc(76px + env(safe-area-inset-bottom));
+  }
+}

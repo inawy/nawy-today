@@ -24,6 +24,7 @@ import { MonthView } from '@/ui/month/MonthView';
 import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
 import { PlusIcon } from '@/ui/shell/Icons';
 import { Shell } from '@/ui/shell/Shell';
+import { Toast } from '@/ui/editor/Toast';
 import { ViewMotion } from '@/ui/shell/ViewMotion';
 import { AgendaView } from '@/ui/agenda/AgendaView';
 import { DataDialog } from '@/ui/backup/DataDialog';
@@ -127,12 +128,6 @@ function Calendar({
   const [anchor, setAnchor] = useState<PlainDate>(today);
   const motion = useViewMotion(view, anchor);
   const pwa = useServiceWorker(worker);
-  const { offlineReady, dismissOfflineReady } = pwa;
-  useEffect(() => {
-    if (!offlineReady) return;
-    const id = window.setTimeout(dismissOfflineReady, 6000);
-    return () => window.clearTimeout(id);
-  }, [offlineReady, dismissOfflineReady]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [dataOpen, setDataOpen] = useState(false);
@@ -303,12 +298,12 @@ function Calendar({
         </p>
       )}
       {pwa.offlineReady && !pwa.updateReady && (
-        <p role="status" className="toast">
-          <span>{t('offlineReady')}</span>
-          <button type="button" className="btn" onClick={pwa.dismissOfflineReady}>
-            {t('dismiss')}
-          </button>
-        </p>
+        <Toast
+          message={t('offlineReady')}
+          durationMs={12000}
+          onDismiss={pwa.dismissOfflineReady}
+          action={{ label: t('dismiss'), run: pwa.dismissOfflineReady }}
+        />
       )}
       {reminder.show && !flow.dialogOpen && !searchOpen && !dataOpen && (
         <p role="status" className="banner banner-action">
