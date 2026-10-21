@@ -1,4 +1,5 @@
 import type { Calendar } from '@/core/model';
+import type { IsoWeekday, Numerals } from '@/core/time';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
@@ -111,6 +112,37 @@ export function Sidebar({
                 {t(key)}
               </option>
             ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>{t('weekStartLabel')}</span>
+          <select
+            value={settings.weekStart}
+            onChange={(e) => update({ weekStart: Number(e.currentTarget.value) as IsoWeekday })}
+          >
+            <option value={6}>{t('daySaturday')}</option>
+            <option value={7}>{t('daySunday')}</option>
+            <option value={1}>{t('dayMonday')}</option>
+          </select>
+        </label>
+        <label className="field">
+          <span>{t('timeFormat')}</span>
+          <select
+            value={settings.hour12 ? '12' : '24'}
+            onChange={(e) => update({ hour12: e.currentTarget.value === '12' })}
+          >
+            <option value="12">{t('time12')}</option>
+            <option value="24">{t('time24')}</option>
+          </select>
+        </label>
+        <label className="field">
+          <span>{t('numeralsLabel')}</span>
+          <select
+            value={settings.numerals}
+            onChange={(e) => update({ numerals: e.currentTarget.value as Numerals })}
+          >
+            <option value="latn">{t('numeralsLatin')}</option>
+            <option value="arab">{t('numeralsArabic')}</option>
           </select>
         </label>
         {onOpenData && (
