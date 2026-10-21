@@ -6,3 +6,5 @@ export { motionBetween } from './motion';
 export type { ViewMotion } from './motion';
 export { useViewMotion } from './useViewMotion';
 export type { MotionState } from './useViewMotion';
+export { swipeIntent } from './swipe';
+export type { SwipeIntent, SwipeMove } from './swipe';

@@ -8,7 +8,12 @@ import { DataProvider, useCalendarData, useData } from '@/features/data';
 import { useT } from '@/features/i18n';
 import { buildAgendaModel } from '@/features/agenda';
 import { createDataTools, latestSnapshotFile, useBackupReminder } from '@/features/backup';
-import { useInstallPrompt, useServiceWorker } from '@/features/pwa';
+import {
+  installHelpFor,
+  readInstallEnvironment,
+  useInstallPrompt,
+  useServiceWorker,
+} from '@/features/pwa';
 import type { WorkerContainer } from '@/features/pwa';
 import { buildSearchIndex } from '@/features/search';
 import { buildMonthModel, monthOf } from '@/features/month';
@@ -132,6 +137,7 @@ function Calendar({
   const [searchOpen, setSearchOpen] = useState(false);
   const [dataOpen, setDataOpen] = useState(false);
   const installer = useInstallPrompt();
+  const [installHelp] = useState(() => installHelpFor(readInstallEnvironment()));
   const [failed, setFailed] = useState(false);
 
   const reminder = useBackupReminder({
@@ -280,6 +286,7 @@ function Calendar({
       onNext={next}
       onSearch={() => setSearchOpen(true)}
       onInstall={installer.canInstall ? installer.install : undefined}
+      installHelp={installHelp}
       onOpenData={
         tools
           ? () => {
@@ -333,7 +340,11 @@ function Calendar({
           {t('problemSeries', { count: count(problems.length) })}
         </p>
       )}
-      <ViewMotion motion={motion.kind} tick={motion.tick}>
+      <ViewMotion
+        motion={motion.kind}
+        tick={motion.tick}
+        onSwipe={(intent) => (intent === 'next' ? next() : previous())}
+      >
         {view === 'agenda' ? (
           <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.openEvent} />
         ) : view === 'month' ? (

@@ -1,17 +1,37 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode, type TouchEvent } from 'react';
+import { swipeIntent, type SwipeIntent } from '@/features/view';
 
 interface ViewMotionProps {
   readonly motion: 'next' | 'previous' | 'swap' | 'none';
   /** Changes each time the content moves, so the same motion can play twice in a row. */
   readonly tick: number;
+  /** A deliberate sideways swipe on a touch screen. */
+  readonly onSwipe?: ((intent: Exclude<SwipeIntent, null>) => void) | undefined;
   readonly children: ReactNode;
 }
 
 const DISTANCE_PX = 28;
 
 /** Plays a short slide/fade on the content; skipped entirely for people who asked for less motion. */
-export function ViewMotion({ motion, tick, children }: ViewMotionProps) {
+export function ViewMotion({ motion, tick, onSwipe, children }: ViewMotionProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const start = useRef<{ x: number; y: number; at: number } | null>(null);
+  const onTouchStart = (e: TouchEvent): void => {
+    const touch = e.touches.length === 1 ? e.touches[0] : undefined;
+    start.current = touch ? { x: touch.clientX, y: touch.clientY, at: e.timeStamp } : null;
+  };
+  const onTouchEnd = (e: TouchEvent): void => {
+    const from = start.current;
+    const touch = e.changedTouches[0];
+    start.current = null;
+    if (!from || !touch || !onSwipe) return;
+    const rtl = ref.current ? getComputedStyle(ref.current).direction === 'rtl' : false;
+    const intent = swipeIntent(
+      { dx: touch.clientX - from.x, dy: touch.clientY - from.y, ms: e.timeStamp - from.at },
+      rtl,
+    );
+    if (intent) onSwipe(intent);
+  };
   useEffect(() => {
     const el = ref.current;
     if (!el || motion === 'none' || typeof el.animate !== 'function') return;
@@ -30,7 +50,12 @@ export function ViewMotion({ motion, tick, children }: ViewMotionProps) {
     return () => animation.cancel();
   }, [motion, tick]);
   return (
-    <div ref={ref} className="view-anim">
+    <div
+      ref={ref}
+      className="view-anim"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
       {children}
     </div>
   );

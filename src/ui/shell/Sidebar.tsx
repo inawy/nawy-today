@@ -11,6 +11,8 @@ export interface SidebarProps {
   /** Present only when the browser can install the app right now. */
   readonly onInstall?: (() => void) | undefined;
   readonly onOpenData?: (() => void) | undefined;
+  /** Steps for this platform, shown when no install button is possible and the app is not installed yet. */
+  readonly installHelp?: 'ios' | 'android' | 'desktop' | null | undefined;
 }
 
 const THEMES: readonly [ThemePreference, MessageKey][] = [
@@ -19,7 +21,7 @@ const THEMES: readonly [ThemePreference, MessageKey][] = [
   ['dark', 'themeDark'],
 ];
 
-export function Sidebar({ calendars, onToggleCalendar, onInstall, onOpenData }: SidebarProps) {
+export function Sidebar({ calendars, onToggleCalendar, onInstall, onOpenData, installHelp }: SidebarProps) {
   const t = useT();
   const { settings, update, persisted } = useSettings();
 
@@ -94,6 +96,20 @@ export function Sidebar({ calendars, onToggleCalendar, onInstall, onOpenData }: 
           <button type="button" className="btn" onClick={onInstall}>
             {t('installApp')}
           </button>
+        )}
+        {!onInstall && installHelp && (
+          <details className="install-help">
+            <summary>{t('installHow')}</summary>
+            <p>
+              {t(
+                installHelp === 'ios'
+                  ? 'installIos'
+                  : installHelp === 'android'
+                    ? 'installAndroid'
+                    : 'installDesktop',
+              )}
+            </p>
+          </details>
         )}
         {!persisted && (
           <p role="status" className="muted">

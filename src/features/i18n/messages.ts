@@ -41,6 +41,13 @@ const ar = {
   notSaved: 'تعذّر حفظ الإعدادات على هذا المتصفح؛ ستعمل لهذه الجلسة فقط.',
   addEvent: 'إضافة حدث',
   installApp: 'ثبّت التطبيق',
+  installHow: 'طريقة تثبيت التطبيق',
+  installIos:
+    'في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية». ستفتح الأيقونة التطبيق بملء الشاشة.',
+  installAndroid:
+    'في كروم: افتح قائمة النقاط الثلاث ثم «تثبيت التطبيق». إن ظهر لك «إضافة إلى الشاشة الرئيسية» فقط، فمتصفحك لا يعتبر الموقع قابلًا للتثبيت بعد؛ أعد فتح الصفحة مرة وانتظر لحظات ثم جرّب ثانية.',
+  installDesktop:
+    'في كروم أو إيدج: اضغط أيقونة التثبيت في شريط العنوان، أو من القائمة اختر «تثبيت». المتصفحات التي لا تدعم ذلك لن تُظهر الخيار.',
   updateReady: 'نسخة جديدة من التطبيق جاهزة.',
   updateNow: 'حدّث الآن',
   offlineReady: 'التطبيق جاهز للعمل بلا إنترنت.',
@@ -230,6 +237,13 @@ const en: Record<MessageKey, string> = {
   notSaved: "Settings couldn't be saved in this browser; they apply to this session only.",
   addEvent: 'Add event',
   installApp: 'Install app',
+  installHow: 'How to install the app',
+  installIos:
+    'In Safari: tap the Share button, then "Add to Home Screen". The icon opens the app full screen.',
+  installAndroid:
+    'In Chrome: open the three-dot menu, then "Install app". If you only see "Add to Home screen", the browser does not yet treat the site as installable; reload the page, wait a moment and try again.',
+  installDesktop:
+    'In Chrome or Edge: click the install icon in the address bar, or choose "Install" from the menu. Browsers without support will not show the option.',
   updateReady: 'A new version of the app is ready.',
   updateNow: 'Update now',
   offlineReady: 'The app is ready to work offline.',

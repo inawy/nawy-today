@@ -23,6 +23,7 @@ export interface ShellProps {
   readonly onSearch: () => void;
   readonly onInstall?: (() => void) | undefined;
   readonly onOpenData?: (() => void) | undefined;
+  readonly installHelp?: 'ios' | 'android' | 'desktop' | null | undefined;
   readonly children: ReactNode;
 }
 
@@ -45,6 +46,7 @@ export function Shell({
   onSearch,
   onInstall,
   onOpenData,
+  installHelp,
   children,
 }: ShellProps) {
   const t = useT();
@@ -103,6 +105,7 @@ export function Shell({
           onToggleCalendar={onToggleCalendar}
           onInstall={onInstall}
           onOpenData={onOpenData}
+          installHelp={installHelp}
         />
       </aside>
       {open && <div className="backdrop" aria-hidden="true" onClick={close} />}
