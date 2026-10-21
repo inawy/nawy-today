@@ -21,7 +21,13 @@ const THEMES: readonly [ThemePreference, MessageKey][] = [
   ['dark', 'themeDark'],
 ];
 
-export function Sidebar({ calendars, onToggleCalendar, onInstall, onOpenData, installHelp }: SidebarProps) {
+export function Sidebar({
+  calendars,
+  onToggleCalendar,
+  onInstall,
+  onOpenData,
+  installHelp,
+}: SidebarProps) {
   const t = useT();
   const { settings, update, persisted } = useSettings();
 

@@ -50,12 +50,7 @@ export function ViewMotion({ motion, tick, onSwipe, children }: ViewMotionProps)
     return () => animation.cancel();
   }, [motion, tick]);
   return (
-    <div
-      ref={ref}
-      className="view-anim"
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-    >
+    <div ref={ref} className="view-anim" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       {children}
     </div>
   );
