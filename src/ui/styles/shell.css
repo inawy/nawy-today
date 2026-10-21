@@ -1,7 +1,7 @@
 .shell {
   block-size: 100dvh;
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   grid-template-areas:
     'top top'
@@ -109,7 +109,7 @@
 /* Narrow screens: the sidebar becomes a drawer that slides in from the inline start. */
 @media (max-width: 1023px) {
   .shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       'top'
       'main';
@@ -191,8 +191,9 @@
   }
 
   .topbar-title {
-    flex: 1;
+    flex: 1 1 0;
     min-inline-size: 0;
+    overflow: hidden;
     margin-inline-start: 4px;
     font-size: 1.05rem;
     line-height: 1.25;
