@@ -51,6 +51,7 @@ export function CalendarDialog({
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   useVisualViewport();
+  const isCustom = /^#[0-9a-f]{6}$/i.test(color);
   useBackLayer(true, () => {
     onClose();
     return Promise.resolve(true);
@@ -140,6 +141,18 @@ export function CalendarDialog({
                     onClick={() => setColor(id)}
                   />
                 ))}
+                <label
+                  className="swatch swatch-custom"
+                  data-checked={isCustom}
+                  style={isCustom ? { background: color } : undefined}
+                >
+                  <input
+                    type="color"
+                    aria-label={t('colorCustom')}
+                    value={isCustom ? color : '#3b82f6'}
+                    onChange={(e) => setColor(e.currentTarget.value.toLowerCase())}
+                  />
+                </label>
               </div>
             </fieldset>
             {error && (

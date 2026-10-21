@@ -437,3 +437,29 @@ button.block:active {
 .toast-sticky {
   z-index: 35;
 }
+
+/* "Custom colour": a rainbow ring until a colour is picked, then that colour. */
+.swatch-custom {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+}
+
+.swatch-custom[data-checked='true'] {
+  box-shadow: 0 0 0 3px var(--text);
+}
+
+.swatch-custom input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.swatch-custom:focus-within {
+  outline: 2px solid var(--accent-fill);
+  outline-offset: 2px;
+}

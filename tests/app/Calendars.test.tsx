@@ -47,6 +47,19 @@ describe('calendar management', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  it('accepts a custom colour and keeps it on the calendar', async () => {
+    open();
+    fireEvent.click(await screen.findByRole('button', { name: 'Add calendar' }));
+    const dialog = await screen.findByRole('dialog', { name: 'New calendar' });
+    fireEvent.change(within(dialog).getByLabelText('Calendar name'), { target: { value: 'Mine' } });
+    fireEvent.change(within(dialog).getByLabelText('Custom color'), {
+      target: { value: '#12ab34' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+    const dot = (await screen.findByText('Mine')).parentElement?.querySelector('.calendar-dot');
+    expect((dot as HTMLElement).style.background).toMatch(/#12ab34|rgb\(18, 171, 52\)/);
+  });
+
   it('refuses an empty name and says why', async () => {
     open();
     fireEvent.click(await screen.findByRole('button', { name: 'Add calendar' }));
