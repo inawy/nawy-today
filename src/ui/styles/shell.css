@@ -290,3 +290,10 @@
   color: var(--text-muted);
   line-height: 1.6;
 }
+
+.topbar-sub {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}

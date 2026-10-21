@@ -10,6 +10,7 @@ import { TopBar } from './TopBar';
 
 export interface ShellProps {
   readonly title: string;
+  readonly subtitle?: string | undefined;
   readonly view: ViewKind;
   readonly onView: (view: ViewKind) => void;
   /** The drawer (narrow screens) is controlled so shortcuts can pause while it is open. */
@@ -36,6 +37,7 @@ export interface ShellProps {
  */
 export function Shell({
   title,
+  subtitle,
   view,
   onView,
   drawerOpen: open,
@@ -84,6 +86,7 @@ export function Shell({
       </a>
       <TopBar
         title={title}
+        subtitle={subtitle}
         view={view}
         onView={onView}
         menuRef={menuRef}

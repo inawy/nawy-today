@@ -3,6 +3,8 @@ import {
   addMonths,
   formatDate,
   formatDateRange,
+  formatHijriDate,
+  formatHijriSpan,
   formatMonthTitle,
   startOfWeek,
 } from '@/core/time';
@@ -57,5 +59,28 @@ export function viewTitle(
     }
     case 'month':
       return formatMonthTitle(anchor, fmt);
+  }
+}
+
+/** The Hijri counterpart of the title: the date for one day, the month(s) for anything longer. */
+export function hijriSubtitle(
+  view: ViewKind,
+  anchor: PlainDate,
+  weekStart: IsoWeekday,
+  fmt: FormatOptions,
+): string {
+  switch (view) {
+    case 'agenda':
+    case 'day':
+      return formatHijriDate(anchor, fmt);
+    case 'days3':
+    case 'week': {
+      const days = visibleDays(view, anchor, weekStart);
+      return formatHijriSpan(days[0] as PlainDate, days[days.length - 1] as PlainDate, fmt);
+    }
+    case 'month': {
+      const first = `${anchor.slice(0, 8)}01` as PlainDate;
+      return formatHijriSpan(first, addDays(addMonths(first, 1), -1), fmt);
+    }
   }
 }

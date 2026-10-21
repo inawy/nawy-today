@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { shiftAnchor, shortcutFor, viewTitle, visibleDays } from '@/features/view';
+import { hijriSubtitle, shiftAnchor, shortcutFor, viewTitle, visibleDays } from '@/features/view';
 import type { KeyLike } from '@/features/view';
 
 describe('shiftAnchor', () => {
@@ -108,5 +108,16 @@ describe('three-day view', () => {
       kind: 'view',
       view: 'days3',
     });
+  });
+});
+
+describe('hijriSubtitle', () => {
+  const ar = { locale: 'ar' };
+  it('is the full Hijri date for a single day', () => {
+    expect(hijriSubtitle('day', '2026-10-13', 6, ar)).toContain('1448');
+  });
+  it('is the Hijri month(s) for a week or a month', () => {
+    expect(hijriSubtitle('week', '2026-10-13', 6, ar)).toContain('1448');
+    expect(hijriSubtitle('month', '2026-10-13', 6, ar)).toContain('–');
   });
 });

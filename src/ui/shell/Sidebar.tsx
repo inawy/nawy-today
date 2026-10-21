@@ -145,6 +145,14 @@ export function Sidebar({
             <option value="arab">{t('numeralsArabic')}</option>
           </select>
         </label>
+        <label className="ed-check">
+          <input
+            type="checkbox"
+            checked={settings.hijri}
+            onChange={(e) => update({ hijri: e.currentTarget.checked })}
+          />
+          <span>{t('hijriLabel')}</span>
+        </label>
         {onOpenData && (
           <button type="button" className="btn" onClick={onOpenData}>
             {t('dataTitle')}

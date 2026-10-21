@@ -87,6 +87,35 @@ export function formatHijriDate(date: PlainDate, o: FormatOptions): string {
   return f.format(utcMidnight(date));
 }
 
+function hijriFormatter(o: FormatOptions, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  return formatter(o.locale, {
+    calendar: 'islamic-umalqura',
+    numberingSystem: o.numerals ?? 'latn',
+    timeZone: 'UTC',
+    ...options,
+  });
+}
+
+/** Just the Hijri day of the month, e.g. "1" (display only). */
+export function formatHijriDay(date: PlainDate, o: FormatOptions): string {
+  return hijriFormatter(o, { day: 'numeric' }).format(utcMidnight(date));
+}
+
+/**
+ * The Hijri month(s) a stretch of days falls in, e.g. "ربيع الآخر 1448" or, when it crosses a
+ * boundary, "ربيع الآخر – جمادى الأولى 1448" (display only).
+ */
+export function formatHijriSpan(start: PlainDate, end: PlainDate, o: FormatOptions): string {
+  const month = hijriFormatter(o, { month: 'long' });
+  const year = hijriFormatter(o, { year: 'numeric' });
+  const a = month.format(utcMidnight(start));
+  const b = month.format(utcMidnight(end));
+  const ya = year.format(utcMidnight(start));
+  const yb = year.format(utcMidnight(end));
+  if (a === b && ya === yb) return `${a} ${ya}`;
+  return ya === yb ? `${a} – ${b} ${yb}` : `${a} ${ya} – ${b} ${yb}`;
+}
+
 /** Time of day of a wall-clock value, e.g. "9:05 AM" / "09:05" / "9:05 ص". */
 export function formatTime(value: PlainDateTime, o: TimeFormatOptions): string {
   const minutes = minuteOfDay(value);

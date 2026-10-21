@@ -5,6 +5,8 @@ import {
   formatDateRange,
   formatDayOfMonth,
   formatHijriDate,
+  formatHijriDay,
+  formatHijriSpan,
   formatMonthTitle,
   formatTime,
   formatWeekday,
@@ -148,5 +150,22 @@ describe('formatDateRange', () => {
 
   it('a single day is just that day', () => {
     expect(flat(formatDateRange('2026-10-12', '2026-10-12', EN))).toBe('Oct 12, 2026');
+  });
+});
+
+describe('Hijri day and span', () => {
+  it('gives the Hijri day number alone', () => {
+    expect(formatHijriDay('2026-10-13', AR)).toMatch(/^\d+$/);
+  });
+
+  it('names one month and year when the days share them', () => {
+    const one = formatHijriSpan('2026-10-13', '2026-10-13', AR);
+    expect(one).toContain('1448');
+    expect(one).not.toContain('–');
+  });
+
+  it('names both months when the days cross a boundary', () => {
+    // Umm al-Qura months are 29/30 days, so a 40-day stretch must cross one.
+    expect(formatHijriSpan('2026-10-01', '2026-11-10', AR)).toContain('–');
   });
 });

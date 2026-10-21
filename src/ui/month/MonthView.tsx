@@ -1,6 +1,13 @@
 import type { CSSProperties } from 'react';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
-import { formatDate, formatDayOfMonth, formatTime, formatWeekday } from '@/core/time';
+import {
+  formatDate,
+  formatDayOfMonth,
+  formatHijriDate,
+  formatHijriDay,
+  formatTime,
+  formatWeekday,
+} from '@/core/time';
 import type { FormatOptions, PlainDate, TimeFormatOptions } from '@/core/time';
 import type { Occurrence } from '@/core/recurrence';
 import type { MonthBar, MonthModel, WeekModel } from '@/features/month';
@@ -95,13 +102,22 @@ function WeekRow({
             <button
               type="button"
               className="day-btn"
-              aria-label={formatDate(day, fmt, 'full')}
+              aria-label={
+                settings.hijri
+                  ? `${formatDate(day, fmt, 'full')} · ${formatHijriDate(day, fmt)}`
+                  : formatDate(day, fmt, 'full')
+              }
               aria-current={day === today ? 'date' : undefined}
               onClick={() => onOpenDay(day)}
             >
               <time className="day-number" dateTime={day}>
                 {formatDayOfMonth(day, fmt)}
               </time>
+              {settings.hijri && (
+                <span className="hijri-num" aria-hidden="true">
+                  {formatHijriDay(day, fmt)}
+                </span>
+              )}
             </button>
           </div>
         );

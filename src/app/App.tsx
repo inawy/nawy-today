@@ -22,7 +22,14 @@ import { SettingsProvider, useSettings } from '@/features/settings';
 import type { ReadableStorage, WritableStorage } from '@/features/settings';
 import { buildTimeGridModel } from '@/features/timegrid';
 import { useEventFlow } from './useEventFlow';
-import { shiftAnchor, useShortcuts, useViewMotion, viewTitle, visibleDays } from '@/features/view';
+import {
+  hijriSubtitle,
+  shiftAnchor,
+  useShortcuts,
+  useViewMotion,
+  viewTitle,
+  visibleDays,
+} from '@/features/view';
 import type { ShortcutAction, ViewKind } from '@/features/view';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { useBackLayer } from '@/lib/useBackLayer';
@@ -285,6 +292,9 @@ function Calendar({
   return (
     <Shell
       title={viewTitle(view, anchor, settings.weekStart, fmt)}
+      subtitle={
+        settings.hijri ? hijriSubtitle(view, anchor, settings.weekStart, fmt) : undefined
+      }
       view={view}
       onView={setView}
       drawerOpen={drawerOpen}

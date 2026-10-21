@@ -6,6 +6,8 @@ import { ChevronIcon, MenuIcon, SearchIcon } from './Icons';
 
 export interface TopBarProps {
   readonly title: string;
+  /** A small second line (the Hijri date, when asked for). */
+  readonly subtitle?: string | undefined;
   readonly view: ViewKind;
   readonly onView: (view: ViewKind) => void;
   readonly onMenu: () => void;
@@ -42,6 +44,7 @@ const NEXT: Record<ViewKind, MessageKey> = {
 
 export function TopBar({
   title,
+  subtitle,
   view,
   onView,
   onMenu,
@@ -88,6 +91,7 @@ export function TopBar({
       </button>
       <h1 className="topbar-title" aria-live="polite">
         {title}
+        {subtitle && <small className="topbar-sub">{subtitle}</small>}
       </h1>
       <button
         type="button"
