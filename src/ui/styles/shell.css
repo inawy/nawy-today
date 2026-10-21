@@ -79,7 +79,26 @@
   padding: 0;
 }
 
+.calendar-list li {
+  display: flex;
+  align-items: center;
+}
+
+.calendar-add {
+  margin-block-start: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-add svg {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
 .calendar-row {
+  flex: 1;
+  min-inline-size: 0;
   display: flex;
   align-items: center;
   gap: 12px;

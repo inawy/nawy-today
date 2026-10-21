@@ -23,6 +23,8 @@ export interface ShellProps {
   readonly onSearch: () => void;
   readonly onInstall?: (() => void) | undefined;
   readonly onOpenData?: (() => void) | undefined;
+  readonly onNewCalendar?: (() => void) | undefined;
+  readonly onEditCalendar?: ((id: string) => void) | undefined;
   readonly installHelp?: 'ios' | 'android' | 'desktop' | null | undefined;
   readonly children: ReactNode;
 }
@@ -46,6 +48,8 @@ export function Shell({
   onSearch,
   onInstall,
   onOpenData,
+  onNewCalendar,
+  onEditCalendar,
   installHelp,
   children,
 }: ShellProps) {
@@ -105,6 +109,8 @@ export function Shell({
           onToggleCalendar={onToggleCalendar}
           onInstall={onInstall}
           onOpenData={onOpenData}
+          onNewCalendar={onNewCalendar}
+          onEditCalendar={onEditCalendar}
           installHelp={installHelp}
         />
       </aside>

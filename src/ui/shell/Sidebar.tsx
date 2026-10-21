@@ -4,6 +4,7 @@ import type { MessageKey } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
 import type { Locale, ThemePreference } from '@/features/settings';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
+import { EditIcon, PlusIcon } from './Icons';
 
 export interface SidebarProps {
   readonly calendars: readonly Calendar[];
@@ -11,6 +12,8 @@ export interface SidebarProps {
   /** Present only when the browser can install the app right now. */
   readonly onInstall?: (() => void) | undefined;
   readonly onOpenData?: (() => void) | undefined;
+  readonly onNewCalendar?: (() => void) | undefined;
+  readonly onEditCalendar?: ((id: string) => void) | undefined;
   /** Steps for this platform, shown when no install button is possible and the app is not installed yet. */
   readonly installHelp?: 'ios' | 'android' | 'desktop' | null | undefined;
 }
@@ -26,6 +29,8 @@ export function Sidebar({
   onToggleCalendar,
   onInstall,
   onOpenData,
+  onNewCalendar,
+  onEditCalendar,
   installHelp,
 }: SidebarProps) {
   const t = useT();
@@ -56,9 +61,24 @@ export function Sidebar({
                   />
                   <span className="calendar-name">{c.name}</span>
                 </label>
+                {onEditCalendar && (
+                  <button
+                    type="button"
+                    className="icon-btn calendar-edit"
+                    aria-label={t('calendarEditNamed', { name: c.name })}
+                    onClick={() => onEditCalendar(c.id)}
+                  >
+                    <EditIcon />
+                  </button>
+                )}
               </li>
             ))}
           </ul>
+        )}
+        {onNewCalendar && (
+          <button type="button" className="btn calendar-add" onClick={onNewCalendar}>
+            <PlusIcon /> {t('calendarAdd')}
+          </button>
         )}
       </section>
 

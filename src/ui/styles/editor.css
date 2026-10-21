@@ -409,3 +409,26 @@ button.block:active {
     min-inline-size: 0;
   }
 }
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.swatch {
+  inline-size: 44px;
+  block-size: 44px;
+  border: 3px solid var(--surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--border);
+  cursor: pointer;
+}
+
+.swatch[aria-checked='true'] {
+  box-shadow: 0 0 0 3px var(--text);
+}
+
+.calendar-edit {
+  margin-inline-start: auto;
+}

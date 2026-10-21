@@ -9,6 +9,14 @@ export interface CalendarData {
   /** Raw stored events: validate before use (the month model does). */
   readonly events: readonly CalEvent[];
   readonly toggleCalendar: (id: string, visible: boolean) => Promise<boolean>;
+  /** Creates a calendar (no `id`) or changes name/colour of one. */
+  readonly saveCalendar: (input: {
+    readonly id?: string;
+    readonly name: string;
+    readonly color: string;
+  }) => Promise<boolean>;
+  /** Deletes a calendar together with its events (tombstones, D-008). */
+  readonly removeCalendar: (id: string) => Promise<boolean>;
 }
 
 const EMPTY: readonly never[] = [];
@@ -53,11 +61,50 @@ export function useCalendarData(): CalendarData {
     [store],
   );
 
+  const saveCalendar = useCallback(
+    async (input: { id?: string; name: string; color: string }): Promise<boolean> => {
+      if (!store) return false;
+      try {
+        if (input.id === undefined) {
+          await store.createCalendar({ name: input.name, color: input.color });
+          return true;
+        }
+        const result = await store.updateCalendar(input.id, {
+          name: input.name,
+          color: input.color,
+        });
+        return result.status === 'ok';
+      } catch {
+        return false;
+      }
+    },
+    [store],
+  );
+
+  const removeCalendar = useCallback(
+    async (id: string): Promise<boolean> => {
+      if (!store) return false;
+      try {
+        return await store.deleteCalendar(id);
+      } catch {
+        return false;
+      }
+    },
+    [store],
+  );
+
   const status =
     data.status === 'error' || failed
       ? 'error'
       : data.status === 'ready' && calendars && events
         ? 'ready'
         : 'loading';
-  return { status, calendars: calendars ?? EMPTY, events: events ?? EMPTY, toggleCalendar };
+  return {
+    status,
+    calendars: calendars ?? EMPTY,
+    events: events ?? EMPTY,
+    toggleCalendar,
+    saveCalendar,
+    removeCalendar,
+  };
 }

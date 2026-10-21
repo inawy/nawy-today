@@ -4,6 +4,7 @@ import type { FormatOptions, PlainDate } from '@/core/time';
 import type { NawyDb, SnapshotDb } from '@/data';
 import type { FileToSave } from '@/features/backup';
 import { useNowLocal } from '@/features/clock/useNowLocal';
+import { suggestColor } from '@/features/calendars';
 import { DataProvider, useCalendarData, useData } from '@/features/data';
 import { useT } from '@/features/i18n';
 import { buildAgendaModel } from '@/features/agenda';
@@ -33,6 +34,8 @@ import { Toast } from '@/ui/editor/Toast';
 import { ViewMotion } from '@/ui/shell/ViewMotion';
 import { AgendaView } from '@/ui/agenda/AgendaView';
 import { DataDialog } from '@/ui/backup/DataDialog';
+import { CalendarDialog } from '@/ui/calendars/CalendarDialog';
+import { CALENDAR_COLOR_IDS } from '@/ui/theme/tokens';
 import { SearchPanel } from '@/ui/search/SearchPanel';
 import { TimeGrid } from '@/ui/timegrid/TimeGrid';
 
@@ -134,6 +137,8 @@ function Calendar({
   const motion = useViewMotion(view, anchor);
   const pwa = useServiceWorker(worker);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // `'new'`, the id of the calendar being edited, or nothing.
+  const [calendarDialog, setCalendarDialog] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [dataOpen, setDataOpen] = useState(false);
   const installer = useInstallPrompt();
@@ -240,7 +245,10 @@ function Calendar({
     },
     [goToday, previous, next, flow, anchor],
   );
-  useShortcuts(!drawerOpen && !flow.dialogOpen && !searchOpen && !dataOpen, onShortcut);
+  useShortcuts(
+    !drawerOpen && !flow.dialogOpen && !searchOpen && !dataOpen && calendarDialog === null,
+    onShortcut,
+  );
 
   // One history entry for "some dialog is open" (so search → editor never pops and re-pushes).
   useBackLayer(flow.dialogOpen || searchOpen || dataOpen, async () => {
@@ -289,6 +297,14 @@ function Calendar({
       onSearch={() => setSearchOpen(true)}
       onInstall={installer.canInstall ? installer.install : undefined}
       installHelp={installHelp}
+      onNewCalendar={() => {
+        setDrawerOpen(false);
+        setCalendarDialog('new');
+      }}
+      onEditCalendar={(id) => {
+        setDrawerOpen(false);
+        setCalendarDialog(id);
+      }}
       onOpenData={
         tools
           ? () => {
@@ -380,6 +396,19 @@ function Calendar({
         <PlusIcon />
       </button>
       {flow.overlay}
+      {calendarDialog !== null && (
+        <CalendarDialog
+          calendar={calendarData.calendars.find((c) => c.id === calendarDialog)}
+          suggestedColor={suggestColor(
+            calendarData.calendars.map((c) => c.color),
+            CALENDAR_COLOR_IDS,
+          )}
+          canDelete={calendarData.calendars.length > 1}
+          onSave={calendarData.saveCalendar}
+          onDelete={calendarData.removeCalendar}
+          onClose={() => setCalendarDialog(null)}
+        />
+      )}
       {dataOpen && tools && data.status === 'ready' && (
         <DataDialog
           tools={tools}
