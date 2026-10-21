@@ -289,3 +289,123 @@ button.block {
     inset-block-end: calc(76px + env(safe-area-inset-bottom));
   }
 }
+
+/* Modern touch feel: no grey tap flash, instant taps, a little press feedback. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+select,
+summary,
+label {
+  touch-action: manipulation;
+}
+
+.btn,
+.icon-btn,
+.view-btn,
+.fab,
+.ed-day,
+button.bar,
+button.block {
+  transition:
+    transform 90ms var(--ease),
+    background-color var(--dur) var(--ease);
+}
+
+.btn:active,
+.icon-btn:active,
+.view-btn:active,
+.ed-day:active {
+  transform: scale(0.96);
+}
+
+.fab:active {
+  transform: scale(0.92);
+}
+
+button.bar:active,
+button.block:active {
+  transform: scale(0.985);
+}
+
+/* Dialogs arrive instead of popping in. */
+.modal-backdrop {
+  animation: fade-in 160ms var(--ease) both;
+}
+
+.modal {
+  animation: modal-in 200ms var(--ease) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes toast-rise {
+  from {
+    opacity: 0;
+    translate: calc(-50% * var(--dir)) 12px;
+  }
+}
+
+.toast {
+  animation: toast-rise 200ms var(--ease) both;
+}
+
+/* Phone first: the editor is a sheet from the bottom edge, fields use the full width. */
+@media (max-width: 599px) {
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    inline-size: 100%;
+    max-block-size: 94%;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    animation: sheet-in 260ms var(--ease) both;
+  }
+
+  .modal.scope {
+    inline-size: 100%;
+    padding-block-end: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .ed-foot {
+    padding-block-end: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .ed-foot .btn {
+    flex: 1;
+  }
+
+  .ed-group > legend {
+    float: none;
+    inline-size: 100%;
+  }
+
+  .ed-group > input[type='date'],
+  .ed-group > input[type='time'],
+  .ed-group > .ed-field {
+    flex: 1 1 8rem;
+    min-inline-size: 0;
+  }
+}
