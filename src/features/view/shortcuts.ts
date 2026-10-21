@@ -17,6 +17,7 @@ const BY_CODE: Record<string, ShortcutAction> = {
   Slash: { kind: 'search' },
   KeyA: { kind: 'view', view: 'agenda' },
   KeyD: { kind: 'view', view: 'day' },
+  KeyX: { kind: 'view', view: 'days3' },
   KeyW: { kind: 'view', view: 'week' },
   KeyM: { kind: 'view', view: 'month' },
 };

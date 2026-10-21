@@ -189,7 +189,9 @@ function Calendar({
         calendars: calendarData.calendars,
         events: calendarData.events,
         days:
-          view === 'day' || view === 'week' ? visibleDays(view, anchor, settings.weekStart) : [],
+          view === 'day' || view === 'days3' || view === 'week'
+            ? visibleDays(view, anchor, settings.weekStart)
+            : [],
         maxAllDayLanes: MAX_ALL_DAY_LANES,
       }),
     [calendarData.calendars, calendarData.events, view, anchor, settings.weekStart],
@@ -362,7 +364,7 @@ function Calendar({
             today={today}
             nowLocal={nowLocal}
             lanes={MAX_ALL_DAY_LANES}
-            onOpenDay={view === 'week' ? openDay : undefined}
+            onOpenDay={view === 'week' || view === 'days3' ? openDay : undefined}
             onOpenEvent={flow.openEvent}
             onCreateAt={flow.openNew}
           />

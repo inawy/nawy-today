@@ -113,6 +113,7 @@ await session('phone-ar', { viewport: { width: 390, height: 844 }, locale: 'ar-S
   await page.getByRole('button', { name: 'شهر' }).click(); await shot('month');
   await page.getByRole('button', { name: 'إضافة حدث' }).click(); await shot('editor');
   await page.getByRole('button', { name: 'إلغاء' }).click();
+  await page.getByRole('button', { name: '3 أيام' }).click(); await shot('days3');
   await page.getByRole('button', { name: 'أسبوع' }).click(); await shot('week');
   await page.getByRole('button', { name: 'يوم' }).click(); await shot('day');
 });

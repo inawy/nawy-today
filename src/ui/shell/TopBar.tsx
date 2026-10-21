@@ -20,6 +20,7 @@ export interface TopBarProps {
 const VIEWS: readonly [ViewKind, MessageKey][] = [
   ['agenda', 'viewAgenda'],
   ['day', 'viewDay'],
+  ['days3', 'viewDays3'],
   ['week', 'viewWeek'],
   ['month', 'viewMonth'],
 ];
@@ -27,12 +28,14 @@ const VIEWS: readonly [ViewKind, MessageKey][] = [
 const PREVIOUS: Record<ViewKind, MessageKey> = {
   agenda: 'previousDay',
   day: 'previousDay',
+  days3: 'previousDays3',
   week: 'previousWeek',
   month: 'previousMonth',
 };
 const NEXT: Record<ViewKind, MessageKey> = {
   agenda: 'nextDay',
   day: 'nextDay',
+  days3: 'nextDays3',
   week: 'nextWeek',
   month: 'nextMonth',
 };

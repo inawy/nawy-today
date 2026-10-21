@@ -86,3 +86,27 @@ describe('shortcutFor', () => {
     expect(shortcutFor(key('KeyT', { target: { tagName: 'BUTTON' } }))).toEqual({ kind: 'today' });
   });
 });
+
+describe('three-day view', () => {
+  it('shows the anchor and the two days after it', () => {
+    expect(visibleDays('days3', '2026-10-30', 6)).toEqual([
+      '2026-10-30',
+      '2026-10-31',
+      '2026-11-01',
+    ]);
+  });
+
+  it('moves three days at a time', () => {
+    expect(shiftAnchor('days3', '2026-10-30', 1)).toBe('2026-11-02');
+    expect(shiftAnchor('days3', '2026-10-30', -1)).toBe('2026-10-27');
+  });
+
+  it('is named by its range and has a shortcut', () => {
+    const title = viewTitle('days3', '2026-10-13', 1, { locale: 'en' });
+    expect(title).toMatch(/Oct 13/);
+    expect(shortcutFor({ code: 'KeyX', ctrlKey: false, metaKey: false, altKey: false })).toEqual({
+      kind: 'view',
+      view: 'days3',
+    });
+  });
+});
