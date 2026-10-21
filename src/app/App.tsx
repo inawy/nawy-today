@@ -304,7 +304,7 @@ function Calendar({
           </button>
         </p>
       )}
-      {pwa.offlineReady && !pwa.updateReady && (
+      {pwa.offlineReady && !pwa.updateReady && !flow.dialogOpen && !searchOpen && (
         <Toast
           message={t('offlineReady')}
           durationMs={12000}
