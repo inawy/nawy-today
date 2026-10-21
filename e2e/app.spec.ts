@@ -180,7 +180,13 @@ test.describe('on a phone', () => {
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
-    expect(overflow).toBeLessThanOrEqual(0);
+    const offenders = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>('body *')]
+        .filter((el) => el.getBoundingClientRect().right > document.documentElement.clientWidth + 0.5)
+        .slice(0, 8)
+        .map((el) => `${el.tagName}.${el.className} right=${Math.round(el.getBoundingClientRect().right)}`),
+    );
+    expect(overflow, `wider than the screen: ${offenders.join(' | ')}`).toBeLessThanOrEqual(0);
 
     await addEvent(page, 'On my phone');
     await expect(page.getByRole('button', { name: /On my phone/ })).toBeVisible();
