@@ -432,3 +432,8 @@ button.block:active {
 .calendar-edit {
   margin-inline-start: auto;
 }
+
+/* A new version waiting is the one notice that stays until it is dealt with. */
+.toast-sticky {
+  z-index: 35;
+}

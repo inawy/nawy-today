@@ -315,9 +315,9 @@ function Calendar({
       }
     >
       {pwa.updateReady && !flow.dialogOpen && !searchOpen && (
-        <p role="status" className="banner banner-action">
+        <p role="status" className="toast toast-sticky">
           <span>{t('updateReady')}</span>
-          <button type="button" className="btn" onClick={pwa.applyUpdate}>
+          <button type="button" className="btn toast-action" onClick={pwa.applyUpdate}>
             {t('updateNow')}
           </button>
         </p>
