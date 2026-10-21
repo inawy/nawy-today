@@ -45,6 +45,11 @@ export function TimeGrid({
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
   const timeFmt: TimeFormatOptions = { ...fmt, hour12: settings.hour12 };
   const count = model.days.length;
+  // The all-day strip is only as tall as its busiest day (plus the "+N" row when something is cut).
+  const anyHidden = model.allDay.hidden.some((n) => n > 0);
+  const allDayRows = anyHidden
+    ? lanes
+    : Math.max(1, ...model.allDay.bars.map((bar) => bar.lane + 1));
 
   // Open near the working day: an hour before "now" when today is shown, otherwise 07:00.
   const [firstHour] = useState(() =>
@@ -58,7 +63,7 @@ export function TimeGrid({
   return (
     <div
       className="tg"
-      style={{ '--cols': count, '--hour-h': `${HOUR_PX}px`, '--lanes': lanes } as Vars}
+      style={{ '--cols': count, '--hour-h': `${HOUR_PX}px`, '--lanes': allDayRows } as Vars}
     >
       <div className="tg-row tg-head">
         <div className="tg-gutter" />
@@ -112,7 +117,7 @@ export function TimeGrid({
               <span
                 key={`more-${model.days[i]?.date ?? i}`}
                 className="more"
-                style={{ gridColumn: i + 1, gridRow: lanes } as Vars}
+                style={{ gridColumn: i + 1, gridRow: allDayRows } as Vars}
               >
                 {t('moreEvents', {
                   count: new Intl.NumberFormat(fmt.locale, {
