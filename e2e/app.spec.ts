@@ -182,9 +182,14 @@ test.describe('on a phone', () => {
     );
     const offenders = await page.evaluate(() =>
       [...document.querySelectorAll<HTMLElement>('body *')]
-        .filter((el) => el.getBoundingClientRect().right > document.documentElement.clientWidth + 0.5)
+        .filter(
+          (el) => el.getBoundingClientRect().right > document.documentElement.clientWidth + 0.5,
+        )
         .slice(0, 8)
-        .map((el) => `${el.tagName}.${el.className} right=${Math.round(el.getBoundingClientRect().right)}`),
+        .map(
+          (el) =>
+            `${el.tagName}.${el.className} right=${Math.round(el.getBoundingClientRect().right)}`,
+        ),
     );
     expect(overflow, `wider than the screen: ${offenders.join(' | ')}`).toBeLessThanOrEqual(0);
 
