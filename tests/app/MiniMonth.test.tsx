@@ -25,7 +25,9 @@ describe('the small month in the sidebar', () => {
     expect(mini).toBeTruthy();
     fireEvent.click(within(mini as HTMLElement).getByRole('button', { name: /^21, / }));
     expect(
-      screen.getAllByRole('button', { name: /^21, / }).some((b) => b.dataset['selected'] === 'true'),
+      screen
+        .getAllByRole('button', { name: /^21, / })
+        .some((b) => b.dataset['selected'] === 'true'),
     ).toBe(true);
   });
 
