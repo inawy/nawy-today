@@ -3,6 +3,7 @@ import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { formatTime } from '@/core/time';
 import type { FormatOptions, PlainDateTime, TimeFormatOptions } from '@/core/time';
 import type { Occurrence } from '@/core/recurrence';
+import { minuteOfNow, nextItemKey, progressOf, untilLabel } from '@/features/agenda';
 import type { AgendaItem, AgendaModel } from '@/features/agenda';
 import { useT } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
@@ -27,6 +28,8 @@ export function AgendaView({ model, nowLocal, onOpenEvent }: AgendaViewProps) {
     return <p className="agenda-empty muted">{t('agendaEmpty')}</p>;
   }
 
+  const nowMin = minuteOfNow(nowLocal);
+  const nextKey = nextItemKey(model);
   const rows: ReactNode[] = [];
   model.items.forEach((item, i) => {
     if (model.nowIndex === i)
@@ -34,7 +37,18 @@ export function AgendaView({ model, nowLocal, onOpenEvent }: AgendaViewProps) {
     rows.push(
       <li key={item.key}>
         <ErrorBoundary fallback={() => <p className="agenda-failed muted">{t('eventFailed')}</p>}>
-          <Row item={item} timeFmt={timeFmt} onOpen={onOpenEvent} />
+          <Row
+            item={item}
+            timeFmt={timeFmt}
+            onOpen={onOpenEvent}
+            progress={progressOf(item, nowMin)}
+            until={
+              item.key === nextKey
+                ? untilLabel(item.startMin - nowMin, settings.locale, settings.numerals)
+                : ''
+            }
+            isNext={item.key === nextKey}
+          />
         </ErrorBoundary>
       </li>,
     );
@@ -69,31 +83,42 @@ function Row({
   item,
   timeFmt,
   onOpen,
+  progress,
+  until,
+  isNext,
 }: {
   readonly item: AgendaItem;
   readonly timeFmt: TimeFormatOptions;
   readonly onOpen: (occurrence: Occurrence) => void;
+  /** 0–1 through an event that is running now. */
+  readonly progress: number;
+  /** "in 40 minutes", for the next event only. */
+  readonly until: string;
+  readonly isNext: boolean;
 }) {
   const t = useT();
   const { event, start, end } = item.occurrence;
   const title = event.title.trim() === '' ? t('untitled') : event.title;
   const color = calendarColorVars(item.calendarColor);
   const sameDay = start.slice(0, 10) === end.slice(0, 10);
-  const when = item.allDay
-    ? t('allDay')
-    : sameDay && end > start
-      ? `${formatTime(start, timeFmt)} – ${formatTime(end, timeFmt)}`
-      : formatTime(start, timeFmt);
+  const hasEnd = !item.allDay && sameDay && end > start;
   return (
     <button
       type="button"
       className="agenda-item"
       data-status={item.status}
-      style={{ '--bar': color.bar, '--bar-bg': color.bg } as Vars}
+      data-next={isNext ? 'true' : undefined}
+      style={{ '--bar': color.bar, '--bar-bg': color.bg, '--progress': progress } as Vars}
       onClick={() => onOpen(item.occurrence)}
     >
-      <span className="agenda-when">{when}</span>
+      <span className="agenda-when">
+        <span className="agenda-start">
+          {item.allDay ? t('allDay') : formatTime(start, timeFmt)}
+        </span>
+        {hasEnd && <span className="agenda-end">{formatTime(end, timeFmt)}</span>}
+      </span>
       <span className="agenda-title">{title}</span>
+      {until !== '' && <span className="agenda-until">{until}</span>}
       {event.location !== undefined && event.location !== '' && (
         <span className="agenda-where muted">{event.location}</span>
       )}
