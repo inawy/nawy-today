@@ -20,7 +20,7 @@ export function untilLabel(
   numerals: 'latn' | 'arab' = 'latn',
 ): string {
   if (minutes <= 0) return '';
-  const f = new Intl.RelativeTimeFormat(locale, { numeric: 'always', numberingSystem: numerals });
+  const f = new Intl.RelativeTimeFormat(`${locale}-u-nu-${numerals}`, { numeric: 'always' });
   return minutes < 60 ? f.format(minutes, 'minute') : f.format(Math.floor(minutes / 60), 'hour');
 }
 
