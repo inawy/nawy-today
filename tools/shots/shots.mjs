@@ -108,6 +108,8 @@ await session('desktop-en-dark', { viewport: { width: 1280, height: 800 }, local
 
 await session('phone-ar', { viewport: { width: 390, height: 844 }, locale: 'ar-SA', hasTouch: true, isMobile: true, deviceScaleFactor: 2 }, async (page, shot) => {
   await shot('agenda');
+  await page.getByRole('button', { name: /اجتماع الفريق/ }).first().click(); await shot('card');
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'القائمة' }).click(); await shot('drawer');
   await page.getByRole('button', { name: 'إغلاق القائمة' }).click();
   await page.getByRole('button', { name: 'شهر' }).click(); await shot('month');
