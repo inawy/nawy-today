@@ -79,6 +79,7 @@ export function useEventFlow({
   calendars,
   events,
   fmt,
+  hour12,
   weekStart,
 }: EventFlowInput): EventFlow {
   const t = useT();
