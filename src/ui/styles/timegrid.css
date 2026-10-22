@@ -193,3 +193,17 @@ button.tg-headcell:hover {
   border-radius: 50%;
   background: var(--now);
 }
+
+/* Picking a block up to move it. */
+.block {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.block[data-dragging='true'] {
+  z-index: 30;
+  opacity: 0.9;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.3);
+  cursor: grabbing;
+  transition: none;
+}

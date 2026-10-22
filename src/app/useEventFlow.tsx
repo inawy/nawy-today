@@ -10,6 +10,7 @@ import {
   draftFromEvent,
   describeWhen,
   draftToFields,
+  moveDraft,
   execute,
   isSeries,
   planDelete,
@@ -64,6 +65,8 @@ export interface EventFlow {
   readonly showEvent: (occurrence: Occurrence) => void;
   /** Goes straight to the editor (used by search). */
   readonly openEvent: (occurrence: Occurrence) => void;
+  /** Moves an occurrence by whole days / minutes (a drag). Asks the scope for repeating events. */
+  readonly moveEvent: (occurrence: Occurrence, delta: { days: number; minutes: number }) => void;
   /** The editor, the scope question and the toast. Render it once, anywhere. */
   readonly overlay: ReactNode;
   /** True while a dialog is open: global shortcuts must pause. */
@@ -159,6 +162,45 @@ export function useEventFlow({
       setEditing({ mode: 'edit', draft, target, id: counter.current });
     },
     [events, tz],
+  );
+
+  const moveEvent = useCallback(
+    (occurrence: Occurrence, delta: { days: number; minutes: number }): void => {
+      if (!store) return;
+      void (async () => {
+        const target = resolveTarget(events, occurrence);
+        const draft = draftFromEvent(
+          occurrence.event,
+          { start: occurrence.start, end: occurrence.end },
+          tz,
+          target.master.rrule,
+        );
+        const moved = moveDraft(draft, delta.days, delta.minutes);
+        const fields = moved && draftToFields(moved);
+        if (!fields || !fields.ok) {
+          notify(t('actionFailed'));
+          return;
+        }
+        let scope: Scope = 'all';
+        if (isSeries(target)) {
+          const allowThis = !ruleChanged(target.master.rrule, fields.fields.rrule);
+          const whole = planEdit(target, 'all', fields.fields, newId);
+          const warnReset = whole.ok && whole.ops.some((op) => op.kind === 'delete');
+          const picked = await askScope('edit', allowThis, warnReset);
+          if (picked === null) return;
+          scope = picked;
+        }
+        const plan = planEdit(target, scope, fields.fields, newId);
+        if (!plan.ok) {
+          notify(t(plan.error === 'start-not-in-rule' ? 'errStartNotInRule' : 'actionFailed'));
+          return;
+        }
+        const outcome = await execute(store, plan.ops);
+        if (outcome.status === 'ok') notify(t('eventMoved'), outcome.undo);
+        else notify(t(outcome.status === 'conflict' ? 'saveConflict' : 'actionFailed'));
+      })();
+    },
+    [store, events, tz, askScope, notify, t],
   );
 
   const showEvent = useCallback((occurrence: Occurrence) => setViewing(occurrence), []);
@@ -352,6 +394,7 @@ export function useEventFlow({
     openNew,
     showEvent,
     openEvent,
+    moveEvent,
     overlay,
     dialogOpen: editing !== null || ask !== null || viewing !== null,
     back,

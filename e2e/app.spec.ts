@@ -18,6 +18,30 @@ test.describe('the whole cycle in a real browser', () => {
     await expect(page.getByRole('button', { name: /Dentist/ }).first()).toBeVisible();
   });
 
+  test('dragging a block in the day view moves it, and undo puts it back', async ({ page }) => {
+    await page.goto('/');
+    await addEvent(page, 'Drag me');
+    await page.getByRole('button', { name: 'Day' }).click();
+    const block = page.locator('.block', { hasText: 'Drag me' });
+    await expect(block.locator('.block-time')).toContainText('9:00');
+    await block.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    const box = await block.boundingBox();
+    if (!box) throw new Error('the block has no box');
+    const x = box.x + box.width / 2;
+    const y = box.y + 10;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y + 48, { steps: 6 });
+    await page.mouse.move(x, y + 96, { steps: 6 });
+    await page.mouse.up();
+    await expect(block.locator('.block-time')).toContainText('11:00');
+    // Dropping is not a click: the card must not open.
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(block.locator('.block-time')).toContainText('9:00');
+  });
+
   test('editing and deleting work, and undo brings the event back', async ({ page }) => {
     await page.goto('/');
     await addEvent(page, 'Lunch');

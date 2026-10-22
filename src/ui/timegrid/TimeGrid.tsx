@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, RefObject } from 'react';
 import { nowPosition } from '@/core/layout';
 import type { Occurrence } from '@/core/recurrence';
 import { formatDate, formatDayOfMonth, formatTime, formatWeekday } from '@/core/time';
 import type { FormatOptions, PlainDate, PlainDateTime, TimeFormatOptions } from '@/core/time';
 import { useT } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
-import type { AllDayBar, TimeGridModel, TimedBlock } from '@/features/timegrid';
+import type { AllDayBar, DragDelta, TimeGridModel, TimedBlock } from '@/features/timegrid';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
+import { useBlockDrag } from './useBlockDrag';
 
 /** Height of one hour in the grid, in CSS pixels. */
 export const HOUR_PX = 48;
@@ -25,6 +26,8 @@ export interface TimeGridProps {
   readonly onOpenEvent: (occurrence: Occurrence) => void;
   /** Clicking an empty spot of a day starts a new event there (`time` is `HH:mm`, on the half hour). */
   readonly onCreateAt: (date: PlainDate, time: string) => void;
+  /** A block was dragged somewhere else: move this occurrence by that many days/minutes. */
+  readonly onMoveEvent?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
 }
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
@@ -39,6 +42,7 @@ export function TimeGrid({
   onOpenDay,
   onOpenEvent,
   onCreateAt,
+  onMoveEvent,
 }: TimeGridProps) {
   const t = useT();
   const { settings } = useSettings();
@@ -56,6 +60,7 @@ export function TimeGrid({
     model.days.some((d) => d.date === today) ? Math.max(0, Number(nowLocal.slice(11, 13)) - 1) : 7,
   );
   const scrollRef = useRef<HTMLDivElement>(null);
+  const cellsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = firstHour * HOUR_PX;
   }, [firstHour]);
@@ -144,7 +149,7 @@ export function TimeGrid({
               </span>
             ))}
           </div>
-          <div className="tg-cells tg-cols">
+          <div className="tg-cells tg-cols" ref={cellsRef}>
             {model.days.map((d) => {
               const now = nowPosition(nowLocal, d.date);
               return (
@@ -169,7 +174,14 @@ export function TimeGrid({
                 >
                   {d.blocks.map((block) => (
                     <ErrorBoundary key={block.key} fallback={() => <FailedBlock block={block} />}>
-                      <Block block={block} timeFmt={timeFmt} onOpen={onOpenEvent} />
+                      <Block
+                        block={block}
+                        timeFmt={timeFmt}
+                        onOpen={onOpenEvent}
+                        gridRef={cellsRef}
+                        columns={count}
+                        onMove={onMoveEvent}
+                      />
                     </ErrorBoundary>
                   ))}
                   {now !== null && (
@@ -206,10 +218,16 @@ function Block({
   block,
   timeFmt,
   onOpen,
+  gridRef,
+  columns,
+  onMove,
 }: {
   readonly block: TimedBlock;
   readonly timeFmt: TimeFormatOptions;
   readonly onOpen: (occurrence: Occurrence) => void;
+  readonly gridRef: RefObject<HTMLElement | null>;
+  readonly columns: number;
+  readonly onMove?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
 }) {
   const t = useT();
   const { event, start, end } = block.occurrence;
@@ -218,15 +236,29 @@ function Block({
   const range = sameDay
     ? `${formatTime(start, timeFmt)} – ${formatTime(end, timeFmt)}`
     : formatTime(start, timeFmt);
+  const drag = useBlockDrag({
+    hourPx: HOUR_PX,
+    columns,
+    gridRef,
+    onMove: (delta) => onMove?.(block.occurrence, delta),
+  });
+  const style: Vars = {
+    ...blockStyle(block),
+    ...(drag.offset && { transform: `translate(${drag.offset.x}px, ${drag.offset.y}px)` }),
+  };
   return (
     <button
       type="button"
       className="block"
-      style={blockStyle(block)}
+      style={style}
+      data-dragging={drag.offset ? 'true' : undefined}
       data-open-start={block.startsBefore ? 'true' : undefined}
       data-open-end={block.endsAfter ? 'true' : undefined}
       title={`${title} · ${range}`}
-      onClick={() => onOpen(block.occurrence)}
+      onClick={() => {
+        if (!drag.consumeClick()) onOpen(block.occurrence);
+      }}
+      {...(onMove ? drag.handlers : {})}
     >
       <span className="block-title">{title}</span>
       <span className="block-time">{range}</span>
