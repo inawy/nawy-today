@@ -180,6 +180,7 @@ function Calendar({
     calendars: calendarData.calendars,
     events: calendarData.events,
     fmt,
+    hour12: settings.hour12,
     weekStart: settings.weekStart,
   });
 
@@ -381,14 +382,14 @@ function Calendar({
         onSwipe={(intent) => (intent === 'next' ? next() : previous())}
       >
         {view === 'agenda' ? (
-          <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.openEvent} />
+          <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.showEvent} />
         ) : view === 'month' ? (
           <MonthView
             model={monthModel}
             today={today}
             lanes={MAX_LANES}
             onOpenDay={openDay}
-            onOpenEvent={flow.openEvent}
+            onOpenEvent={flow.showEvent}
           />
         ) : (
           <TimeGrid
@@ -398,7 +399,7 @@ function Calendar({
             nowLocal={nowLocal}
             lanes={MAX_ALL_DAY_LANES}
             onOpenDay={view === 'week' || view === 'days3' ? openDay : undefined}
-            onOpenEvent={flow.openEvent}
+            onOpenEvent={flow.showEvent}
             onCreateAt={flow.openNew}
           />
         )}

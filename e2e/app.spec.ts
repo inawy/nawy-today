@@ -22,6 +22,10 @@ test.describe('the whole cycle in a real browser', () => {
     await page.goto('/');
     await addEvent(page, 'Lunch');
     await page.getByRole('button', { name: /Lunch/ }).first().click();
+    await page
+      .getByRole('dialog', { name: 'Lunch' })
+      .getByRole('button', { name: 'Edit event' })
+      .click();
     const dialog = page.getByRole('dialog', { name: 'Edit event' });
     await dialog.getByLabel('Title').fill('Late lunch');
     await dialog.getByRole('button', { name: 'Save' }).click();
@@ -32,7 +36,7 @@ test.describe('the whole cycle in a real browser', () => {
       .first()
       .click();
     await page
-      .getByRole('dialog', { name: 'Edit event' })
+      .getByRole('dialog', { name: 'Late lunch' })
       .getByRole('button', { name: 'Delete' })
       .click();
     await expect(page.getByRole('button', { name: /Late lunch/ })).toHaveCount(0);
@@ -197,7 +201,7 @@ test.describe('on a phone', () => {
     await expect(page.getByRole('button', { name: /On my phone/ })).toBeVisible();
 
     await page.getByRole('button', { name: /On my phone/ }).click();
-    const dialog = page.getByRole('dialog', { name: 'Edit event' });
+    const dialog = page.getByRole('dialog', { name: 'On my phone' });
     await expect(dialog).toBeVisible();
     await page.goBack();
     await expect(dialog).toBeHidden();

@@ -463,3 +463,59 @@ button.block:active {
   outline: 2px solid var(--accent-fill);
   outline-offset: 2px;
 }
+
+/* The event card. */
+.modal.details {
+  inline-size: min(440px, 100%);
+}
+
+.details .ed-head {
+  gap: 12px;
+  padding-block-start: 16px;
+}
+
+.details-bar {
+  flex: none;
+  inline-size: 6px;
+  align-self: stretch;
+  border-radius: 3px;
+}
+
+.details-title {
+  flex: 1;
+  min-inline-size: 0;
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.details-body {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 8px 16px 12px;
+  overflow-y: auto;
+}
+
+.details-body dt {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.details-body dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.details-notes {
+  white-space: pre-wrap;
+}
+
+.details-chip {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

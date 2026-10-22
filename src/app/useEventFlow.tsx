@@ -3,11 +3,12 @@ import type { ReactNode } from 'react';
 import type { CalEvent, Calendar } from '@/core/model';
 import type { Occurrence } from '@/core/recurrence';
 import { localTimeZone } from '@/core/time';
-import type { FormatOptions, IsoWeekday, PlainDate } from '@/core/time';
+import type { FormatOptions, IsoWeekday, PlainDate, TimeFormatOptions } from '@/core/time';
 import type { EventOp, Store, UndoToken } from '@/data';
 import {
   draftForNew,
   draftFromEvent,
+  describeWhen,
   draftToFields,
   execute,
   isSeries,
@@ -20,6 +21,7 @@ import {
 import type { Draft, Scope, Target } from '@/features/events';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
+import { EventDetails } from '@/ui/editor/EventDetails';
 import { EventEditor } from '@/ui/editor/EventEditor';
 import type { SaveOutcome } from '@/ui/editor/EventEditor';
 import { ScopeDialog } from '@/ui/editor/ScopeDialog';
@@ -51,12 +53,16 @@ export interface EventFlowInput {
   readonly calendars: readonly Calendar[];
   readonly events: readonly CalEvent[];
   readonly fmt: FormatOptions;
+  readonly hour12: boolean;
   readonly weekStart: IsoWeekday;
 }
 
 export interface EventFlow {
   /** Starts a new event on `date` (at `time` when given, otherwise 09:00). */
   readonly openNew: (date: PlainDate, time?: string) => void;
+  /** Opens the event's card (what it is, with Edit and Delete). */
+  readonly showEvent: (occurrence: Occurrence) => void;
+  /** Goes straight to the editor (used by search). */
   readonly openEvent: (occurrence: Occurrence) => void;
   /** The editor, the scope question and the toast. Render it once, anywhere. */
   readonly overlay: ReactNode;
@@ -78,11 +84,14 @@ export function useEventFlow({
   const t = useT();
   const [editing, setEditing] = useState<Editing | null>(null);
   const [ask, setAsk] = useState<ScopeAsk | null>(null);
+  const [viewing, setViewing] = useState<Occurrence | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const counter = useRef(0);
   const closeEditorRef = useRef<(() => Promise<boolean>) | null>(null);
   const askRef = useRef<ScopeAsk | null>(null);
   askRef.current = ask;
+  const viewingRef = useRef<Occurrence | null>(null);
+  viewingRef.current = viewing;
   const registerClose = useCallback((close: (() => Promise<boolean>) | null) => {
     closeEditorRef.current = close;
   }, []);
@@ -145,10 +154,13 @@ export function useEventFlow({
         target.master.rrule,
       );
       counter.current += 1;
+      setViewing(null);
       setEditing({ mode: 'edit', draft, target, id: counter.current });
     },
     [events, tz],
   );
+
+  const showEvent = useCallback((occurrence: Occurrence) => setViewing(occurrence), []);
 
   const save = useCallback(
     async (draft: Draft): Promise<SaveOutcome> => {
@@ -199,28 +211,35 @@ export function useEventFlow({
     [store, editing, askScope, notify, t],
   );
 
+  const removeTarget = useCallback(
+    async (target: Target): Promise<boolean> => {
+      if (!store) return false;
+      let scope: Scope = 'all';
+      if (isSeries(target)) {
+        const picked = await askScope('delete', true, false);
+        if (picked === null) return false;
+        scope = picked;
+      }
+      const plan = planDelete(target, scope);
+      if (!plan.ok) {
+        notify(t('actionFailed'));
+        return false;
+      }
+      const outcome = await execute(store, plan.ops);
+      if (outcome.status === 'ok') {
+        notify(t('eventDeleted'), outcome.undo);
+        return true;
+      }
+      notify(t('actionFailed')); // nothing was deleted
+      return false;
+    },
+    [store, askScope, notify, t],
+  );
+
   const remove = useCallback(async (): Promise<void> => {
-    if (!store || !editing || editing.mode !== 'edit') return;
-    const { target } = editing;
-    let scope: Scope = 'all';
-    if (isSeries(target)) {
-      const picked = await askScope('delete', true, false);
-      if (picked === null) return;
-      scope = picked;
-    }
-    const plan = planDelete(target, scope);
-    if (!plan.ok) {
-      notify(t('actionFailed'));
-      return;
-    }
-    const outcome = await execute(store, plan.ops);
-    if (outcome.status === 'ok') {
-      setEditing(null);
-      notify(t('eventDeleted'), outcome.undo);
-    } else {
-      notify(t('actionFailed')); // the editor stays open: nothing was deleted
-    }
-  }, [store, editing, askScope, notify, t]);
+    if (!editing || editing.mode !== 'edit') return;
+    if (await removeTarget(editing.target)) setEditing(null);
+  }, [editing, removeTarget]);
 
   const undo = useCallback(
     async (token: UndoToken): Promise<void> => {
@@ -241,11 +260,48 @@ export function useEventFlow({
       setAsk(null);
       return false;
     }
+    if (viewingRef.current) {
+      setViewing(null);
+      return true;
+    }
     return (await closeEditorRef.current?.()) ?? true;
   }, []);
 
+  const card = viewing
+    ? (() => {
+        const calendar = calendars.find((c) => c.id === viewing.event.calendarId);
+        const timeFmt: TimeFormatOptions = { ...fmt, hour12 };
+        return (
+          <EventDetails
+            key={viewing.key}
+            event={viewing.event}
+            calendar={calendar}
+            when={describeWhen(
+              {
+                start: viewing.start,
+                end: viewing.end,
+                allDay: viewing.event.allDay,
+                tzid: viewing.event.tzid,
+              },
+              timeFmt,
+              tz,
+            )}
+            recurring={viewing.recurring}
+            onEdit={() => openEvent(viewing)}
+            onDelete={() => {
+              void removeTarget(resolveTarget(events, viewing)).then((done) => {
+                if (done) setViewing(null);
+              });
+            }}
+            onClose={() => setViewing(null)}
+          />
+        );
+      })()
+    : null;
+
   const overlay = (
     <>
+      {card}
       {editing && (
         <EventEditor
           key={editing.id}
@@ -291,5 +347,12 @@ export function useEventFlow({
     </>
   );
 
-  return { openNew, openEvent, overlay, dialogOpen: editing !== null || ask !== null, back };
+  return {
+    openNew,
+    showEvent,
+    openEvent,
+    overlay,
+    dialogOpen: editing !== null || ask !== null || viewing !== null,
+    back,
+  };
 }

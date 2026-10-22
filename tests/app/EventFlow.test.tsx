@@ -87,12 +87,14 @@ describe('edit and delete', () => {
     });
     open();
     fireEvent.click(await screen.findByRole('button', { name: /Team sync/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     type('Title', 'Team sync 2');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
     await screen.findByRole('button', { name: /Team sync 2/ });
 
     fireEvent.click(screen.getByRole('button', { name: /Team sync 2/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const again = await screen.findByRole('dialog', { name: 'Edit event' });
     fireEvent.click(within(again).getByRole('button', { name: 'Delete' }));
     await waitFor(() => expect(bars(/Team sync/)).toHaveLength(0));
@@ -109,6 +111,7 @@ describe('edit and delete', () => {
     });
     open();
     fireEvent.click(await screen.findByRole('button', { name: /Team sync/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     fireEvent.change(within(dialog).getByLabelText('Ends · Time'), { target: { value: '07:00' } });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
@@ -133,6 +136,7 @@ describe('repeating events', () => {
     await screen.findAllByRole('button', { name: /Standup/ });
     expect(bars(/Standup/)).toHaveLength(5);
     fireEvent.click(bars(/Standup/)[2] as HTMLElement);
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     type('Title', 'Standup (moved)');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
@@ -148,6 +152,7 @@ describe('repeating events', () => {
     open();
     await screen.findAllByRole('button', { name: /Standup/ });
     fireEvent.click(bars(/Standup/)[0] as HTMLElement);
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     type('Title', 'Daily');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
@@ -163,6 +168,7 @@ describe('repeating events', () => {
     open();
     await screen.findAllByRole('button', { name: /Standup/ });
     fireEvent.click(bars(/Standup/)[1] as HTMLElement);
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     type('Title', 'Nope');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
@@ -180,6 +186,7 @@ describe('repeating events', () => {
     open();
     await screen.findAllByRole('button', { name: /Standup/ });
     fireEvent.click(bars(/Standup/)[2] as HTMLElement);
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }));
     const ask = await screen.findByRole('dialog', { name: 'Delete repeating event' });
@@ -208,6 +215,7 @@ describe('when saving fails', () => {
     };
     open(create);
     fireEvent.click(await screen.findByRole('button', { name: /Team sync/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     type('Title', 'Renamed');
     failing = true;

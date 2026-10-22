@@ -92,6 +92,7 @@ describe('Today (agenda) view', () => {
     await seed();
     open();
     fireEvent.click(await screen.findByRole('button', { name: /Team sync/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     await screen.findByRole('dialog', { name: 'Edit event' });
     fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Renamed by back' } });
     window.history.back();
@@ -104,6 +105,7 @@ describe('Today (agenda) view', () => {
     await seed();
     open();
     fireEvent.click(await screen.findByRole('button', { name: /Team sync/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit event' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit event' });
     fireEvent.change(within(dialog).getByLabelText('Ends · Time'), { target: { value: '07:00' } });
     window.history.back();
