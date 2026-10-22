@@ -133,6 +133,11 @@ button.more {
   text-decoration: underline;
 }
 
+/* Dots only exist for phones (the media query below turns them on). */
+.dots {
+  display: none;
+}
+
 /* Phones: a month bar is far smaller than a finger, so the whole day cell is the tap target and
    opens that day's list (where events are big enough to tap). */
 @media (max-width: 599px) {
@@ -146,10 +151,28 @@ button.more {
     inset: 0;
   }
 
-  button.bar {
+  /* A month on a phone is an overview: dots say "something is on", the day says what. */
+  .bar,
+  .more {
+    display: none;
+  }
+
+  .dots {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-block-start: 6px;
     pointer-events: none;
   }
+
+  .dot {
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 50%;
+  }
 }
+
 
 /* On a phone a bar is only a few characters wide: the title says more than the time does. */
 @media (max-width: 599px) {

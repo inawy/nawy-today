@@ -123,6 +123,7 @@ function WeekRow({
                 </span>
               )}
             </button>
+            <Dots week={week} col={col} />
           </div>
         );
       })}
@@ -147,6 +148,25 @@ function WeekRow({
         </ErrorBoundary>
       ))}
     </div>
+  );
+}
+
+const MAX_DOTS = 3;
+
+/** On a phone a day shows up to three dots, one per event in its calendar's colour (see CSS). */
+function Dots({ week, col }: { readonly week: WeekModel; readonly col: number }) {
+  const colors = week.bars
+    .filter((bar) => bar.startCol <= col && col <= bar.endCol)
+    .map((bar) => calendarColorVars(bar.calendarColor).bar);
+  const hidden = week.hidden[col] ?? 0;
+  const all = [...colors, ...Array.from({ length: hidden }, () => 'var(--text-muted)')];
+  if (all.length === 0) return null;
+  return (
+    <span className="dots" aria-hidden="true">
+      {all.slice(0, MAX_DOTS).map((color, i) => (
+        <span key={i} className="dot" style={{ background: color }} />
+      ))}
+    </span>
   );
 }
 
