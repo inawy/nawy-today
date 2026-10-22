@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import {
+  addDays,
   dateParts,
   firstOfMonth,
   formatDate,
@@ -34,6 +36,37 @@ export function MiniMonth({ anchor, today, weekStart, fmt, onPick }: MiniMonthPr
   const shown = shiftMonth(monthOf(anchor), delta);
   const weeks = monthGrid(shown.year, shown.month, weekStart);
   const first = firstOfMonth(shown.year, shown.month);
+  const days = weeks.flat();
+  const buttons = useRef(new Map<string, HTMLButtonElement>());
+  // One tab stop for the whole grid (arrow keys move inside it), so a keyboard user does not have
+  // to tab through 42 days to reach the calendar.
+  const stop = days.includes(anchor) ? anchor : first;
+
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+    const from = (event.target as HTMLElement).dataset['day'];
+    if (!from) return;
+    const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
+    const step =
+      event.code === 'ArrowRight'
+        ? rtl
+          ? -1
+          : 1
+        : event.code === 'ArrowLeft'
+          ? rtl
+            ? 1
+            : -1
+          : event.code === 'ArrowDown'
+            ? 7
+            : event.code === 'ArrowUp'
+              ? -7
+              : 0;
+    if (step === 0) return;
+    const target = addDays(from as PlainDate, step);
+    const button = buttons.current.get(target);
+    if (!button) return;
+    event.preventDefault();
+    button.focus();
+  };
 
   return (
     <section className="mini" aria-label={formatMonthTitle(first, fmt)}>
@@ -56,7 +89,7 @@ export function MiniMonth({ anchor, today, weekStart, fmt, onPick }: MiniMonthPr
           <ChevronIcon />
         </button>
       </div>
-      <div className="mini-grid">
+      <div className="mini-grid" onKeyDown={onKeyDown}>
         {(weeks[0] ?? []).map((d) => (
           <span key={d} className="mini-dow" aria-hidden="true">
             {formatWeekday(d, fmt, 'narrow')}
@@ -65,8 +98,14 @@ export function MiniMonth({ anchor, today, weekStart, fmt, onPick }: MiniMonthPr
         {weeks.flat().map((day) => (
           <button
             key={day}
+            ref={(el) => {
+              if (el) buttons.current.set(day, el);
+              else buttons.current.delete(day);
+            }}
             type="button"
             className="mini-day"
+            data-day={day}
+            tabIndex={day === stop ? 0 : -1}
             data-outside={dateParts(day).month === shown.month ? undefined : 'true'}
             data-today={day === today ? 'true' : undefined}
             data-selected={day === anchor ? 'true' : undefined}
