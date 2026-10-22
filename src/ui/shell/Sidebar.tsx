@@ -5,7 +5,9 @@ import type { MessageKey } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
 import type { Locale, ThemePreference } from '@/features/settings';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
+import type { FormatOptions, PlainDate } from '@/core/time';
 import { EditIcon, PlusIcon } from './Icons';
+import { MiniMonth } from './MiniMonth';
 
 export interface SidebarProps {
   readonly calendars: readonly Calendar[];
@@ -13,6 +15,15 @@ export interface SidebarProps {
   /** Present only when the browser can install the app right now. */
   readonly onInstall?: (() => void) | undefined;
   readonly onOpenData?: (() => void) | undefined;
+  /** Lets the person jump to a date from a small month. */
+  readonly mini?:
+    | {
+        readonly anchor: PlainDate;
+        readonly today: PlainDate;
+        readonly fmt: FormatOptions;
+        readonly onPick: (date: PlainDate) => void;
+      }
+    | undefined;
   readonly onNewCalendar?: (() => void) | undefined;
   readonly onEditCalendar?: ((id: string) => void) | undefined;
   /** Steps for this platform, shown when no install button is possible and the app is not installed yet. */
@@ -30,6 +41,7 @@ export function Sidebar({
   onToggleCalendar,
   onInstall,
   onOpenData,
+  mini,
   onNewCalendar,
   onEditCalendar,
   installHelp,
@@ -39,6 +51,7 @@ export function Sidebar({
 
   return (
     <div className="sidebar-body">
+      {mini && <MiniMonth {...mini} weekStart={settings.weekStart} />}
       <section aria-labelledby="calendars-heading">
         <h2 id="calendars-heading" className="sidebar-heading">
           {t('calendars')}

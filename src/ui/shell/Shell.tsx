@@ -6,6 +6,7 @@ import type { ViewKind } from '@/features/view';
 import { trapTab } from '@/lib/focusTrap';
 import { CloseIcon } from './Icons';
 import { Sidebar } from './Sidebar';
+import type { SidebarProps } from './Sidebar';
 import { TopBar } from './TopBar';
 
 export interface ShellProps {
@@ -24,6 +25,7 @@ export interface ShellProps {
   readonly onSearch: () => void;
   readonly onInstall?: (() => void) | undefined;
   readonly onOpenData?: (() => void) | undefined;
+  readonly mini?: SidebarProps['mini'];
   readonly onNewCalendar?: (() => void) | undefined;
   readonly onEditCalendar?: ((id: string) => void) | undefined;
   readonly installHelp?: 'ios' | 'android' | 'desktop' | null | undefined;
@@ -50,6 +52,7 @@ export function Shell({
   onSearch,
   onInstall,
   onOpenData,
+  mini,
   onNewCalendar,
   onEditCalendar,
   installHelp,
@@ -112,6 +115,7 @@ export function Shell({
           onToggleCalendar={onToggleCalendar}
           onInstall={onInstall}
           onOpenData={onOpenData}
+          mini={mini}
           onNewCalendar={onNewCalendar}
           onEditCalendar={onEditCalendar}
           installHelp={installHelp}

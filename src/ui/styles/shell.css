@@ -297,3 +297,63 @@
   font-weight: 400;
   color: var(--text-muted);
 }
+
+/* The small month in the sidebar. */
+.mini {
+  margin-block-end: 20px;
+}
+
+.mini-head {
+  display: flex;
+  align-items: center;
+}
+
+.mini-title {
+  flex: 1;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  justify-items: center;
+}
+
+.mini-dow {
+  min-block-size: 28px;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.mini-day {
+  inline-size: 100%;
+  max-inline-size: 44px;
+  min-block-size: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.mini-day:hover {
+  background: var(--hover, color-mix(in srgb, var(--text) 8%, transparent));
+}
+
+.mini-day[data-outside='true'] {
+  color: var(--text-muted);
+}
+
+.mini-day[data-selected='true'] {
+  box-shadow: inset 0 0 0 2px var(--accent-fill);
+}
+
+.mini-day[data-today='true'] {
+  background: var(--accent-fill);
+  color: var(--on-accent-fill);
+  font-weight: 600;
+}

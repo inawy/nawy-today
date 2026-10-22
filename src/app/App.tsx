@@ -305,6 +305,15 @@ function Calendar({
       onSearch={() => setSearchOpen(true)}
       onInstall={installer.canInstall ? installer.install : undefined}
       installHelp={installHelp}
+      mini={{
+        anchor,
+        today,
+        fmt,
+        onPick: (date) => {
+          setAnchor(date);
+          setDrawerOpen(false);
+        },
+      }}
       onNewCalendar={() => {
         setDrawerOpen(false);
         setCalendarDialog('new');
