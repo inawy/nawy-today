@@ -34,7 +34,7 @@ describe('the small month in the sidebar', () => {
   it('browses other months without moving the main view', async () => {
     open();
     const mini = (await screen.findAllByRole('region', { name: 'October 2026' }))[0] as HTMLElement;
-    fireEvent.click(within(mini).getByRole('button', { name: 'Next month' }));
+    fireEvent.click(within(mini).getByRole('button', { name: 'Show next month' }));
     expect(screen.getByRole('region', { name: 'November 2026' })).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('October 2026');
   });

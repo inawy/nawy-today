@@ -42,7 +42,7 @@ export function MiniMonth({ anchor, today, weekStart, fmt, onPick }: MiniMonthPr
         <button
           type="button"
           className="icon-btn flip-ltr"
-          aria-label={t('previousMonth')}
+          aria-label={t('miniPrevious')}
           onClick={() => setDelta(delta - 1)}
         >
           <ChevronIcon />
@@ -50,7 +50,7 @@ export function MiniMonth({ anchor, today, weekStart, fmt, onPick }: MiniMonthPr
         <button
           type="button"
           className="icon-btn flip-rtl"
-          aria-label={t('nextMonth')}
+          aria-label={t('miniNext')}
           onClick={() => setDelta(delta + 1)}
         >
           <ChevronIcon />
