@@ -21,7 +21,7 @@ test.describe('the whole cycle in a real browser', () => {
   test('dragging a block in the day view moves it, and undo puts it back', async ({ page }) => {
     await page.goto('/');
     await addEvent(page, 'Drag me');
-    await page.getByRole('button', { name: 'Day' }).click();
+    await page.getByRole('button', { name: 'Day', exact: true }).click();
     const block = page.locator('.block', { hasText: 'Drag me' });
     await expect(block.locator('.block-time')).toContainText('9:00');
     await block.evaluate((el) => el.scrollIntoView({ block: 'center' }));
