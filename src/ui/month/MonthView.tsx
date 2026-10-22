@@ -51,6 +51,7 @@ export function MonthView({ model, today, lanes, onOpenDay, onOpenEvent }: Month
           lanes={lanes}
           fmt={fmt}
           timeFmt={timeFmt}
+          hijri={settings.hijri}
           onOpenDay={onOpenDay}
           onOpenEvent={onOpenEvent}
           moreLabel={(count) => t('moreEvents', { count: formatCount(count, fmt) })}
@@ -71,6 +72,8 @@ interface WeekRowProps {
   readonly lanes: number;
   readonly fmt: FormatOptions;
   readonly timeFmt: TimeFormatOptions;
+  /** Show the Hijri day under each day number (display only). */
+  readonly hijri: boolean;
   readonly onOpenDay: (date: PlainDate) => void;
   readonly onOpenEvent: (occurrence: Occurrence) => void;
   readonly moreLabel: (count: number) => string;
@@ -83,6 +86,7 @@ function WeekRow({
   lanes,
   fmt,
   timeFmt,
+  hijri,
   onOpenDay,
   onOpenEvent,
   moreLabel,
@@ -103,7 +107,7 @@ function WeekRow({
               type="button"
               className="day-btn"
               aria-label={
-                settings.hijri
+                hijri
                   ? `${formatDate(day, fmt, 'full')} · ${formatHijriDate(day, fmt)}`
                   : formatDate(day, fmt, 'full')
               }
@@ -113,7 +117,7 @@ function WeekRow({
               <time className="day-number" dateTime={day}>
                 {formatDayOfMonth(day, fmt)}
               </time>
-              {settings.hijri && (
+              {hijri && (
                 <span className="hijri-num" aria-hidden="true">
                   {formatHijriDay(day, fmt)}
                 </span>
