@@ -401,7 +401,7 @@ function Calendar({
             onOpenDay={view === 'week' || view === 'days3' ? openDay : undefined}
             onOpenEvent={flow.showEvent}
             onCreateAt={flow.openNew}
-          onMoveEvent={flow.moveEvent}
+            onMoveEvent={flow.moveEvent}
           />
         )}
       </ViewMotion>
