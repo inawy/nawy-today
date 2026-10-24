@@ -217,6 +217,7 @@
     font-size: 1.05rem;
     line-height: 1.25;
     white-space: normal;
+    text-wrap: balance;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
