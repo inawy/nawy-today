@@ -13,8 +13,9 @@ for (const m of html.matchAll(/<script\b([^>]*)>/g)) {
 }
 if (/<style\b/i.test(html)) fail.push('inline <style> element in index.html');
 if (/(?:src|href)="https?:\/\//.test(html)) fail.push('external resource referenced in index.html');
-if (html.includes('%BRAND_ACCENT%')) fail.push('brand placeholder not replaced');
-if (!html.includes(`content="${brand.accent}"`)) fail.push('theme-color is not the brand accent');
+if (/%[A-Z_]+%/.test(html)) fail.push('a placeholder was not replaced');
+if (!/name="theme-color"\s+content="#FFFFFF"/.test(html)) fail.push('light theme-color is not the top bar colour');
+if (!/name="theme-color"\s+content="#151A22"/.test(html)) fail.push('dark theme-color is not the top bar colour');
 
 const css = readdirSync('dist/assets')
   .filter((f) => f.endsWith('.css'))
@@ -42,7 +43,7 @@ if (!existsSync('dist/manifest.webmanifest')) {
   fail.push('dist/manifest.webmanifest is missing');
 } else {
   const manifest = JSON.parse(readFileSync('dist/manifest.webmanifest', 'utf8'));
-  if (manifest.theme_color !== brand.accent) fail.push('manifest theme_color is not the brand accent');
+  if (manifest.theme_color !== '#FFFFFF') fail.push('manifest theme_color is not the top bar colour');
   if (manifest.start_url !== './' || manifest.scope !== './') fail.push('manifest is not relative');
   if (!manifest.icons?.some((i) => i.purpose === 'maskable')) fail.push('manifest has no maskable icon');
   for (const icon of manifest.icons ?? []) {

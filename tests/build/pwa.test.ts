@@ -22,7 +22,7 @@ describe('manifest', () => {
       display: 'standalone',
       lang: 'ar',
       dir: 'rtl',
-      theme_color: brand.accent,
+      theme_color: '#FFFFFF',
     });
   });
 

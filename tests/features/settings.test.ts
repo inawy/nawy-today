@@ -117,4 +117,23 @@ describe('applyToDocument', () => {
     applyToDocument(root, { ...defaultSettings('ar'), theme: 'auto' });
     expect(root.hasAttribute('data-theme')).toBe(false);
   });
+
+  it('points the status bar colour at the chosen theme, and back to the OS scheme for auto', () => {
+    const doc = document.implementation.createHTMLDocument('t');
+    for (const scheme of ['light', 'dark']) {
+      const meta = doc.createElement('meta');
+      meta.name = 'theme-color';
+      meta.setAttribute('media', `(prefers-color-scheme: ${scheme})`);
+      meta.dataset['scheme'] = scheme;
+      doc.head.append(meta);
+    }
+    const media = (): string[] =>
+      [...doc.querySelectorAll('meta')].map((m) => m.getAttribute('media') ?? '');
+    applyToDocument(doc.documentElement, { ...defaultSettings('ar'), theme: 'dark' });
+    expect(media()).toEqual(['not all', 'all']);
+    applyToDocument(doc.documentElement, { ...defaultSettings('ar'), theme: 'light' });
+    expect(media()).toEqual(['all', 'not all']);
+    applyToDocument(doc.documentElement, { ...defaultSettings('ar'), theme: 'auto' });
+    expect(media()).toEqual(['(prefers-color-scheme: light)', '(prefers-color-scheme: dark)']);
+  });
 });

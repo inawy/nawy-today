@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import { LIGHT } from '../../src/ui/theme/tokens';
 import type { Plugin } from 'vite';
 import type { BrandFile } from './nawy-plugins';
 
@@ -36,7 +37,7 @@ export function buildManifest(brand: BrandFile): Record<string, unknown> {
     categories: ['productivity', 'lifestyle'],
     prefer_related_applications: false,
     background_color: '#ffffff',
-    theme_color: brand.accent,
+    theme_color: LIGHT.surface, // the top bar's colour; the page's meta tags follow light/dark
     icons,
   };
 }

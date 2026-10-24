@@ -95,4 +95,21 @@ export function applyToDocument(root: HTMLElement, settings: Settings): void {
   root.dir = settings.locale === 'ar' ? 'rtl' : 'ltr';
   if (settings.theme === 'auto') root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', settings.theme);
+  syncThemeColor(root, settings.theme);
+}
+
+/**
+ * The browser's status bar colour. The page ships a light and a dark `theme-color` meta, each
+ * limited to the OS scheme. An explicit theme makes the matching one apply regardless of the OS
+ * and switches the other off; `auto` restores the OS-scheme behaviour.
+ */
+function syncThemeColor(root: HTMLElement, theme: Settings['theme']): void {
+  for (const meta of root.ownerDocument.querySelectorAll<HTMLMetaElement>(
+    'meta[name="theme-color"][data-scheme]',
+  )) {
+    const own = meta.dataset['scheme'];
+    meta.dataset['media'] ??= meta.getAttribute('media') ?? 'all';
+    if (theme === 'auto') meta.setAttribute('media', meta.dataset['media']);
+    else meta.setAttribute('media', own === theme ? 'all' : 'not all');
+  }
 }

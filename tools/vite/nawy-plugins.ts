@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
 import { fileURLToPath } from 'node:url';
-import { themeCss } from '../../src/ui/theme/tokens';
+import { LIGHT, darkTokens, themeCss } from '../../src/ui/theme/tokens';
 import type { Brand } from '../../src/ui/theme/tokens';
 import { pwaPlugin } from './pwa';
 
@@ -52,7 +52,11 @@ export function nawyPlugins(brandPath: string): Plugin[] {
       transformIndexHtml: {
         order: 'post',
         handler(html, ctx) {
-          let out = html.replaceAll('%BRAND_ACCENT%', brand.accent);
+          // The status bar takes the top bar's colour (`--surface`) in each theme.
+          let out = html
+            .replaceAll('%BRAND_ACCENT%', brand.accent)
+            .replaceAll('%THEME_LIGHT%', LIGHT.surface)
+            .replaceAll('%THEME_DARK%', darkTokens(brand).surface);
           // Dev server needs inline HMR scripts, so the policy is applied to builds only.
           if (ctx.bundle) {
             out = out.replace(

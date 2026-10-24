@@ -43,11 +43,13 @@ describe('plugins', () => {
     expect(theme.resolveId('other.css')).toBeUndefined();
   });
 
-  const page = '<html><head><meta name="theme-color" content="%BRAND_ACCENT%" /></head></html>';
+  const page =
+    '<html><head><meta name="theme-color" content="%THEME_LIGHT%" /><meta name="theme-color" content="%THEME_DARK%" /></head></html>';
 
   it('injects the brand into the page, and the CSP in builds only', () => {
     const dev = html.transformIndexHtml.handler(page, {});
-    expect(dev).toContain('content="#3D7BFF"');
+    expect(dev).toContain('content="#FFFFFF"');
+    expect(dev).toContain('content="#151A22"');
     expect(dev).not.toContain('Content-Security-Policy');
     const build = html.transformIndexHtml.handler(page, { bundle: {} });
     expect(build).toContain('http-equiv="Content-Security-Policy"');
