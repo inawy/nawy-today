@@ -114,21 +114,6 @@ button.block {
   overflow-y: auto;
 }
 
-.ed-title {
-  inline-size: 100%;
-  min-block-size: 44px;
-  padding-inline: 4px;
-  border: 0;
-  border-block-end: 2px solid var(--border);
-  background: transparent;
-  font-size: 1.25rem;
-}
-
-.ed-title:focus-visible {
-  outline: none;
-  border-block-end-color: var(--accent-fill);
-}
-
 .ed-group {
   display: flex;
   flex-wrap: wrap;
@@ -145,6 +130,14 @@ button.block {
   inline-size: 5.5rem;
   padding: 0;
   color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Date and time share a row evenly; selects and text fields fill their row. */
+.ed-group > input,
+.ed-group > select {
+  flex: 1 1 8rem;
+  min-inline-size: 0;
 }
 
 .ed-field {
@@ -155,6 +148,21 @@ button.block {
 .ed-field > span {
   color: var(--text-muted);
   font-size: 0.875rem;
+}
+
+.ed-body .ed-title {
+  padding-inline: 4px;
+  border: 0;
+  border-block-end: 2px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.ed-body .ed-title:focus-visible {
+  outline: none;
+  border-block-end-color: var(--accent-fill);
 }
 
 .ed-body input:not([type='checkbox']):not([type='radio']),
@@ -230,7 +238,8 @@ button.block {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px 16px;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  border-block-start: 1px solid var(--border);
 }
 
 .ed-spacer {
