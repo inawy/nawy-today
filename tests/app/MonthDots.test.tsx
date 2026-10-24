@@ -28,7 +28,8 @@ describe('month dots (the phone overview)', () => {
         }}
       />,
     );
-    await screen.findByText('A');
+    // Which three of the five fit under the day number is the layout's choice, not the test's.
+    await screen.findAllByText(/^[A-E]$/);
     const withDots = [...document.querySelectorAll('.dots')];
     expect(withDots).toHaveLength(1);
     const dots = withDots[0] as HTMLElement;
