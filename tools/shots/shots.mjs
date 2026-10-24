@@ -112,12 +112,12 @@ await session('phone-ar', { viewport: { width: 390, height: 844 }, locale: 'ar-S
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'القائمة' }).click(); await shot('drawer');
   await page.getByRole('button', { name: 'إغلاق القائمة' }).click();
-  await page.getByRole('button', { name: 'شهر' }).click(); await shot('month');
+  await page.getByRole('button', { name: 'شهر', exact: true }).click(); await shot('month');
   await page.getByRole('button', { name: 'إضافة حدث' }).click(); await shot('editor');
-  await page.getByRole('button', { name: 'إلغاء' }).click();
-  await page.getByRole('button', { name: '3 أيام' }).click(); await shot('days3');
-  await page.getByRole('button', { name: 'أسبوع' }).click(); await shot('week');
-  await page.getByRole('button', { name: 'يوم' }).click(); await shot('day');
+  await page.getByRole('button', { name: 'إلغاء', exact: true }).click();
+  await page.getByRole('button', { name: '3 أيام', exact: true }).click(); await shot('days3');
+  await page.getByRole('button', { name: 'أسبوع', exact: true }).click(); await shot('week');
+  await page.getByRole('button', { name: 'يوم', exact: true }).click(); await shot('day');
 });
 
 await browser.close();
