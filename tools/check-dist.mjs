@@ -39,6 +39,9 @@ for (const m of html.matchAll(/(?:href|src)="(\/[^"]*)"/g)) {
 if (!/<link rel="manifest" href="\.\/manifest\.webmanifest"/.test(html)) {
   fail.push('index.html does not link the manifest');
 }
+for (const f of ['plex-arabic-Regular.woff', 'plex-arabic-Bold.woff', 'OFL-IBM-Plex-Sans-Arabic.txt']) {
+  if (!existsSync(`dist/fonts/${f}`)) fail.push(`font file missing from dist: ${f}`);
+}
 if (!existsSync('dist/manifest.webmanifest')) {
   fail.push('dist/manifest.webmanifest is missing');
 } else {

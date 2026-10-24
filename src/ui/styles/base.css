@@ -5,6 +5,24 @@
   box-sizing: border-box;
 }
 
+/* IBM Plex Sans Arabic (SIL OFL, see public/fonts), shipped with the app: no network, works offline.
+   `swap` shows the system font at once and switches when the file is ready. */
+@font-face {
+  font-family: 'Nawy Sans';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/plex-arabic-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Nawy Sans';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/plex-arabic-Bold.woff') format('woff');
+}
+
 :root {
   --dir: 1;
   --radius: 8px;
@@ -12,6 +30,7 @@
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --dur: 150ms;
   font-family:
+    'Nawy Sans',
     system-ui,
     -apple-system,
     'Segoe UI',
