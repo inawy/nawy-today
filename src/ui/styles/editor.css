@@ -165,9 +165,7 @@ button.block {
   border-block-end-color: var(--accent-fill);
 }
 
-.ed-body input:not([type='checkbox']):not([type='radio']),
-.ed-body select,
-.ed-body textarea {
+.ed-body :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
   min-block-size: 44px;
   padding-inline: 8px;
   border: 1px solid var(--border);
