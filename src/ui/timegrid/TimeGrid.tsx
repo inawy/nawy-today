@@ -13,6 +13,8 @@ import { useBlockDrag } from './useBlockDrag';
 
 /** Height of one hour in the grid, in CSS pixels. */
 export const HOUR_PX = 48;
+/** Below this height a block cannot stack title over time, so they share one line. */
+const SHORT_BLOCK_PX = 40;
 
 export interface TimeGridProps {
   readonly model: TimeGridModel;
@@ -251,6 +253,7 @@ function Block({
       type="button"
       className="block"
       style={style}
+      data-short={block.height * 24 * HOUR_PX < SHORT_BLOCK_PX ? 'true' : undefined}
       data-dragging={drag.offset ? 'true' : undefined}
       data-open-start={block.startsBefore ? 'true' : undefined}
       data-open-end={block.endsAfter ? 'true' : undefined}

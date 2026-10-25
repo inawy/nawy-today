@@ -54,6 +54,22 @@ const view = (
     </SettingsProvider>,
   );
 
+describe('TimeGrid short blocks', () => {
+  it('marks events under 40px (about 50 minutes) so title and time share a line', () => {
+    const { container } = view(
+      model([
+        makeEvent({ id: 'short', title: 'Short', start: '2026-10-13T09:00', end: '2026-10-13T09:30' }),
+        makeEvent({ id: 'long', title: 'Long', start: '2026-10-13T11:00', end: '2026-10-13T13:00' }),
+      ]),
+    );
+    const blocks = [...container.querySelectorAll('.block')];
+    const flag = (name: string) =>
+      blocks.find((b) => b.textContent?.startsWith(name))?.getAttribute('data-short');
+    expect(flag('Short')).toBe('true');
+    expect(flag('Long')).toBeNull();
+  });
+});
+
 describe('TimeGrid', () => {
   it('draws a column and a header per day, and 23 hour labels', () => {
     const { container } = view(model([]));
