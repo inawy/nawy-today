@@ -15,6 +15,7 @@ export interface SidebarProps {
   /** Present only when the browser can install the app right now. */
   readonly onInstall?: (() => void) | undefined;
   readonly onOpenData?: (() => void) | undefined;
+  readonly onOpenShortcuts?: (() => void) | undefined;
   /** Lets the person jump to a date from a small month. */
   readonly mini?:
     | {
@@ -41,6 +42,7 @@ export function Sidebar({
   onToggleCalendar,
   onInstall,
   onOpenData,
+  onOpenShortcuts,
   mini,
   onNewCalendar,
   onEditCalendar,
@@ -169,6 +171,11 @@ export function Sidebar({
         {onOpenData && (
           <button type="button" className="btn" onClick={onOpenData}>
             {t('dataTitle')}
+          </button>
+        )}
+        {onOpenShortcuts && (
+          <button type="button" className="btn shortcuts-btn" onClick={onOpenShortcuts}>
+            {t('shortcutsOpen')}
           </button>
         )}
         {onInstall && (

@@ -7,6 +7,7 @@ export type ShortcutAction =
   | { kind: 'next' }
   | { kind: 'create' }
   | { kind: 'search' }
+  | { kind: 'help' }
   | { kind: 'view'; view: ViewKind };
 
 const BY_CODE: Record<string, ShortcutAction> = {
@@ -27,6 +28,7 @@ export interface KeyLike {
   readonly ctrlKey: boolean;
   readonly metaKey: boolean;
   readonly altKey: boolean;
+  readonly shiftKey?: boolean;
   readonly defaultPrevented?: boolean;
   /** A DOM event target (or a stand-in with `tagName` / `isContentEditable` in tests). */
   readonly target?: unknown;
@@ -44,6 +46,8 @@ export function shortcutFor(event: KeyLike): ShortcutAction | undefined {
   const target = (event.target ?? {}) as { tagName?: unknown; isContentEditable?: unknown };
   if (target.isContentEditable === true) return undefined;
   if (typeof target.tagName === 'string' && TYPING.has(target.tagName)) return undefined;
+  // "?" is Shift + the slash key: the same physical key as search, so Shift tells them apart.
+  if (event.code === 'Slash' && event.shiftKey === true) return { kind: 'help' };
   return BY_CODE[event.code];
 }
 

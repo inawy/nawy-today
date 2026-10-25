@@ -41,6 +41,7 @@ import { Toast } from '@/ui/editor/Toast';
 import { ViewMotion } from '@/ui/shell/ViewMotion';
 import { AgendaView } from '@/ui/agenda/AgendaView';
 import { DataDialog } from '@/ui/backup/DataDialog';
+import { ShortcutsDialog } from '@/ui/help/ShortcutsDialog';
 import { CalendarDialog } from '@/ui/calendars/CalendarDialog';
 import { CALENDAR_COLOR_IDS } from '@/ui/theme/tokens';
 import { SearchPanel } from '@/ui/search/SearchPanel';
@@ -148,6 +149,7 @@ function Calendar({
   const [calendarDialog, setCalendarDialog] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [dataOpen, setDataOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const installer = useInstallPrompt();
   const [installHelp] = useState(() => installHelpFor(readInstallEnvironment()));
   const [failed, setFailed] = useState(false);
@@ -249,19 +251,26 @@ function Calendar({
       else if (action.kind === 'next') next();
       else if (action.kind === 'create') flow.openNew(anchor);
       else if (action.kind === 'search') setSearchOpen(true);
+      else if (action.kind === 'help') setShortcutsOpen(true);
       else setView(action.view);
     },
     [goToday, previous, next, flow, anchor],
   );
   useShortcuts(
-    !drawerOpen && !flow.dialogOpen && !searchOpen && !dataOpen && calendarDialog === null,
+    !drawerOpen &&
+      !flow.dialogOpen &&
+      !searchOpen &&
+      !dataOpen &&
+      !shortcutsOpen &&
+      calendarDialog === null,
     onShortcut,
   );
 
   // One history entry for "some dialog is open" (so search → editor never pops and re-pushes).
-  useBackLayer(flow.dialogOpen || searchOpen || dataOpen, async () => {
+  useBackLayer(flow.dialogOpen || searchOpen || dataOpen || shortcutsOpen, async () => {
     if (flow.dialogOpen) return flow.back();
-    if (dataOpen) setDataOpen(false);
+    if (shortcutsOpen) setShortcutsOpen(false);
+    else if (dataOpen) setDataOpen(false);
     else setSearchOpen(false);
     return true;
   });
@@ -322,6 +331,10 @@ function Calendar({
       onEditCalendar={(id) => {
         setDrawerOpen(false);
         setCalendarDialog(id);
+      }}
+      onOpenShortcuts={() => {
+        setDrawerOpen(false);
+        setShortcutsOpen(true);
       }}
       onOpenData={
         tools
@@ -429,6 +442,7 @@ function Calendar({
           onClose={() => setCalendarDialog(null)}
         />
       )}
+      {shortcutsOpen && <ShortcutsDialog onClose={() => setShortcutsOpen(false)} />}
       {dataOpen && tools && data.status === 'ready' && (
         <DataDialog
           tools={tools}

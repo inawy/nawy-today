@@ -66,6 +66,12 @@ describe('shortcutFor', () => {
     expect(shortcutFor(key('KeyM'))).toEqual({ kind: 'view', view: 'month' });
   });
 
+  it('opens the help with Shift + the slash key, and search with the slash key alone', () => {
+    expect(shortcutFor(key('Slash'))).toEqual({ kind: 'search' });
+    expect(shortcutFor(key('Slash', { shiftKey: true }))).toEqual({ kind: 'help' });
+    expect(shortcutFor(key('Slash', { shiftKey: true, target: { tagName: 'INPUT' } }))).toBeUndefined();
+  });
+
   it('ignores other keys', () => {
     expect(shortcutFor(key('KeyZ'))).toBeUndefined();
     expect(shortcutFor(key('ArrowLeft'))).toBeUndefined();

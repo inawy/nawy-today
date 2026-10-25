@@ -286,6 +286,62 @@ button.block {
   color: inherit;
 }
 
+/* The keyboard shortcuts list (D-047). */
+.modal.shortcuts {
+  inline-size: min(520px, 100%);
+}
+
+.shortcut-group {
+  margin-block: 8px 4px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.shortcut-list {
+  display: grid;
+  margin: 0;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-block-size: 36px;
+  border-block-end: 1px solid var(--border);
+}
+
+.shortcut-row dt {
+  min-inline-size: 0;
+}
+
+.shortcut-row dd {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  direction: ltr;
+}
+
+.shortcut-row kbd {
+  min-inline-size: 28px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface2);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* A phone has no keyboard to speak of: the entry in the menu is not offered. */
+@media (pointer: coarse) {
+  .shortcuts-btn {
+    display: none;
+  }
+}
+
 /* On a phone the view switcher sits along the bottom edge; the floating things stay above it. */
 @media (max-width: 599px) {
   .fab {

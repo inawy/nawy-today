@@ -1,6 +1,8 @@
 export { hijriSubtitle, shiftAnchor, viewTitle, visibleDays } from './nav';
 export type { ViewKind } from './nav';
 export { shortcutFor, useShortcuts } from './shortcuts';
+export { SHORTCUT_GROUPS } from './help';
+export type { ShortcutGroup, ShortcutRow } from './help';
 export type { KeyLike, ShortcutAction } from './shortcuts';
 export { motionBetween } from './motion';
 export type { ViewMotion } from './motion';
