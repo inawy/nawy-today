@@ -14,7 +14,16 @@ import {
   takeSnapshot,
 } from '@/data';
 import type { ImportPlan, NawyDb, ReplaceSummary, SnapshotDb, SnapshotInfo } from '@/data';
-import { backupFileName, readBackupText } from './files';
+import {
+  eventsToIcs,
+  icsFileName,
+  icsToEnvelope,
+  importCalendarId,
+  importCalendarName,
+} from '@/features/ics';
+import type { IcsImportReport } from '@/features/ics';
+import { parseIcs } from '@/core/ics';
+import { MAX_BACKUP_BYTES, backupFileName, readBackupText } from './files';
 import type { ReadFailure } from './files';
 
 // Everything the "Data" screen does, as plain functions over the two databases (D-028). The
@@ -32,11 +41,16 @@ export interface Inspection {
   readonly envelope: Envelope;
   readonly merge: ImportPlan;
   readonly replace: ReplaceSummary;
+  /** Set for an .ics file: it can only be merged (never replace), and these things were left out. */
+  readonly ics?: { readonly calendarName: string; readonly report: IcsImportReport };
 }
 
 export type InspectOutcome =
   | { readonly ok: true; readonly inspection: Inspection }
-  | { readonly ok: false; readonly failure: ReadFailure | 'snapshot-missing' };
+  | {
+      readonly ok: false;
+      readonly failure: ReadFailure | 'snapshot-missing' | 'not-ics' | 'no-events';
+    };
 
 export interface Counts {
   readonly added: number;
@@ -99,6 +113,9 @@ export interface DataToolsDeps {
 
 export interface DataTools {
   exportFile(): Promise<FileToSave>;
+  /** The events as an .ics file. Not a backup: it does not reset the backup reminder. */
+  exportIcs(): Promise<FileToSave>;
+  inspectIcs(name: string, text: string, byteLength?: number): Promise<InspectOutcome>;
   inspectFile(name: string, text: string, byteLength?: number): Promise<InspectOutcome>;
   inspectSnapshot(id: number): Promise<InspectOutcome>;
   apply(inspection: Inspection, mode: Mode): Promise<Applied>;
@@ -127,6 +144,32 @@ export function createDataTools(deps: DataToolsDeps): DataTools {
       return { name: backupFileName(at, timeZone), text };
     },
 
+    async exportIcs() {
+      const at = now();
+      const { calendars, events } = await exportEnvelope(db, at);
+      return { name: icsFileName(at, timeZone), text: eventsToIcs(calendars, events) };
+    },
+
+    async inspectIcs(name, text, byteLength) {
+      if ((byteLength ?? text.length) > MAX_BACKUP_BYTES) return { ok: false, failure: 'too-big' };
+      // The receiving calendar's id: never one the person deleted, or the events would vanish.
+      const calendarName = importCalendarName(parseIcs(text, { zone: timeZone }).name, name);
+      let calendarId = importCalendarId(calendarName);
+      for (let n = 2; (await db.calendars.get(calendarId))?.deletedAt !== undefined; n++) {
+        calendarId = `${importCalendarId(calendarName)}-${n}`;
+      }
+      const result = icsToEnvelope(text, { fileName: name, zone: timeZone, now: now(), calendarId });
+      if (!result.ok) return { ok: false, failure: result.failure };
+      const inspection = await inspect({ kind: 'file', name }, result.envelope);
+      return {
+        ok: true,
+        inspection: {
+          ...inspection,
+          ics: { calendarName: result.calendarName, report: result.report },
+        },
+      };
+    },
+
     async inspectFile(name, text, byteLength) {
       const read = readBackupText(text, byteLength);
       if (!read.ok) return { ok: false, failure: read.failure };
@@ -147,7 +190,9 @@ export function createDataTools(deps: DataToolsDeps): DataTools {
       };
     },
 
-    async apply(inspection, mode) {
+    async apply(inspection, requested) {
+      // An .ics file only ever adds to what is here: "replace" would wipe the device (D-044).
+      const mode: Mode = inspection.ics ? 'merge' : requested;
       const reason = inspection.source.kind === 'snapshot' ? 'before-restore' : 'before-import';
       if (mode === 'merge') {
         const r = await importWithSafetySnapshot(db, snapshotDb, inspection.envelope, now);

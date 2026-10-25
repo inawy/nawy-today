@@ -13,6 +13,7 @@ import type {
   PersistenceResult,
   SnapshotInfo,
 } from '@/features/backup';
+import type { IcsImportReport } from '@/features/ics';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
@@ -72,6 +73,7 @@ export function DataDialog({
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const icsRef = useRef<HTMLInputElement>(null);
   const [view, setView] = useState<View>({ kind: 'home' });
   const [snapshots, setSnapshots] = useState<SnapshotInfo[] | 'loading' | 'unavailable'>('loading');
   const [message, setMessage] = useState<MessageKey | undefined>();
@@ -119,13 +121,20 @@ export function DataDialog({
     }, 'exportFailed');
 
   const openInspection = (outcome: Awaited<ReturnType<DataTools['inspectFile']>>, mode: Mode) => {
-    if (outcome.ok) setView({ kind: 'preview', inspection: outcome.inspection, mode });
-    else
-      setMessage(
-        outcome.failure === 'snapshot-missing'
-          ? 'importMissing'
-          : failureMessageKey(outcome.failure),
-      );
+    if (outcome.ok) {
+      setView({ kind: 'preview', inspection: outcome.inspection, mode });
+      return;
+    }
+    switch (outcome.failure) {
+      case 'snapshot-missing':
+        return setMessage('importMissing');
+      case 'not-ics':
+        return setMessage('importNotIcs');
+      case 'no-events':
+        return setMessage('importNoEvents');
+      default:
+        return setMessage(failureMessageKey(outcome.failure));
+    }
   };
 
   const onFile = (file: File | undefined) => {
@@ -133,6 +142,19 @@ export function DataDialog({
     void run(async () => {
       const text = await readText(file);
       openInspection(await tools.inspectFile(file.name, text, file.size), 'merge');
+    }, 'importInvalid');
+  };
+
+  const exportIcs = () =>
+    run(async () => {
+      save(await tools.exportIcs());
+    }, 'exportFailed');
+
+  const onIcsFile = (file: File | undefined) => {
+    if (!file) return;
+    void run(async () => {
+      const text = await readText(file);
+      openInspection(await tools.inspectIcs(file.name, text, file.size), 'merge');
     }, 'importInvalid');
   };
 
@@ -239,6 +261,37 @@ export function DataDialog({
                 >
                   {t('importChoose')}
                 </button>
+              </section>
+
+              <section aria-labelledby={`${titleId}-ics`} className="data-section">
+                <h3 id={`${titleId}-ics`}>{t('icsTitle')}</h3>
+                <p className="muted">{t('icsHelp')}</p>
+                <input
+                  ref={icsRef}
+                  type="file"
+                  accept=".ics,text/calendar"
+                  className="sr-only"
+                  tabIndex={-1}
+                  aria-label={t('icsImportChoose')}
+                  data-testid="import-ics"
+                  onChange={(e) => {
+                    onIcsFile(e.currentTarget.files?.[0]);
+                    e.currentTarget.value = '';
+                  }}
+                />
+                <div className="data-actions">
+                  <button type="button" className="btn" disabled={busy} onClick={exportIcs}>
+                    {t('icsExportButton')}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    disabled={busy}
+                    onClick={() => icsRef.current?.click()}
+                  >
+                    {t('icsImportChoose')}
+                  </button>
+                </div>
               </section>
 
               <section aria-labelledby={`${titleId}-snaps`} className="data-section">
@@ -389,7 +442,15 @@ function Preview({
       <h3>{t('previewTitle')}</h3>
       <p className="muted">{t('previewSource', { source: sourceText })}</p>
 
-      <fieldset className="data-modes">
+      {inspection.ics && (
+        <>
+          <p>{t('icsInto', { name: inspection.ics.calendarName })}</p>
+          <IcsSkipped report={inspection.ics.report} num={num} />
+        </>
+      )}
+
+      {/* An .ics file can only be added to what is here, so there is no choice to show. */}
+      <fieldset className="data-modes" hidden={inspection.ics !== undefined}>
         <label className="data-mode">
           <input
             type="radio"
@@ -442,5 +503,37 @@ function Preview({
         </button>
       </div>
     </section>
+  );
+}
+
+function IcsSkipped({
+  report,
+  num,
+}: {
+  readonly report: IcsImportReport;
+  readonly num: (n: number) => string;
+}) {
+  const t = useT();
+  const items: [MessageKey, number][] = [
+    ['icsSkipUnreadable', report.unreadable],
+    ['icsSkipInvalid', report.invalid],
+    ['icsSkipCancelled', report.cancelled],
+    ['icsSkipOrphan', report.orphanOverrides],
+    ['icsSkipRule', report.ruleDropped],
+    ['icsSkipZone', report.unknownZone],
+    ['icsSkipAlarms', report.alarms],
+    ['icsSkipOther', report.otherComponents],
+  ];
+  const shown = items.filter(([, n]) => n > 0);
+  if (shown.length === 0) return null;
+  return (
+    <div>
+      <p className="muted">{t('icsSkipTitle')}</p>
+      <ul className="muted">
+        {shown.map(([key, n]) => (
+          <li key={key}>{t(key, { count: num(n) })}</li>
+        ))}
+      </ul>
+    </div>
   );
 }

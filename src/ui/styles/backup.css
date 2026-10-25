@@ -107,3 +107,7 @@
   justify-items: center;
   max-inline-size: 420px;
 }
+
+.data-modes[hidden] {
+  display: none;
+}
