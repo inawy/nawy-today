@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MIN_RESIZE_MINUTES, draftForNew, moveDraft, resizeDraft } from '@/features/events';
 import type { Draft } from '@/features/events';
-import { dragDelta } from '@/features/timegrid';
+import { dragDelta, keyAction } from '@/features/timegrid';
 
 const timed = (over: Partial<Draft> = {}): Draft => ({
   ...draftForNew({ date: '2026-10-20', time: '09:00', calendarId: 'cal', tzid: 'Asia/Riyadh' }),
@@ -111,5 +111,36 @@ describe('dragDelta', () => {
   it('mirrors days for right-to-left pages', () => {
     expect(dragDelta({ ...base, rtl: true, dx: 120, dy: 0 }).days).toBe(-1);
     expect(dragDelta({ ...base, rtl: true, dx: -120, dy: 0 }).days).toBe(1);
+  });
+});
+
+describe('keyAction', () => {
+  const mods = { shift: true, ctrl: false, alt: false, meta: false };
+
+  it('moves a step earlier or later with Shift + up/down', () => {
+    expect(keyAction('ArrowUp', mods, false)).toEqual({ kind: 'move', days: 0, minutes: -15 });
+    expect(keyAction('ArrowDown', mods, true)).toEqual({ kind: 'move', days: 0, minutes: 15 });
+  });
+
+  it('moves a day the way the arrow points on screen, in both directions of writing', () => {
+    expect(keyAction('ArrowRight', mods, false)).toEqual({ kind: 'move', days: 1, minutes: 0 });
+    expect(keyAction('ArrowLeft', mods, false)).toEqual({ kind: 'move', days: -1, minutes: 0 });
+    // Right-to-left: days run from the right, so → goes back in time.
+    expect(keyAction('ArrowRight', mods, true)).toEqual({ kind: 'move', days: -1, minutes: 0 });
+    expect(keyAction('ArrowLeft', mods, true)).toEqual({ kind: 'move', days: 1, minutes: 0 });
+  });
+
+  it('resizes only the end with Ctrl + Shift + up/down', () => {
+    const ctrl = { ...mods, ctrl: true };
+    expect(keyAction('ArrowDown', ctrl, false)).toEqual({ kind: 'resize', minutes: 15 });
+    expect(keyAction('ArrowUp', ctrl, false)).toEqual({ kind: 'resize', minutes: -15 });
+    expect(keyAction('ArrowLeft', ctrl, false)).toBeUndefined();
+  });
+
+  it('ignores plain arrows, other keys and Alt/Meta combinations', () => {
+    expect(keyAction('ArrowDown', { ...mods, shift: false }, false)).toBeUndefined();
+    expect(keyAction('KeyA', mods, false)).toBeUndefined();
+    expect(keyAction('ArrowDown', { ...mods, alt: true }, false)).toBeUndefined();
+    expect(keyAction('ArrowDown', { ...mods, meta: true }, false)).toBeUndefined();
   });
 });

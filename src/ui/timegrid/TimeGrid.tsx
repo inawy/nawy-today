@@ -6,6 +6,7 @@ import { formatDate, formatDayOfMonth, formatTime, formatWeekday } from '@/core/
 import type { FormatOptions, PlainDate, PlainDateTime, TimeFormatOptions } from '@/core/time';
 import { useT } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
+import { keyAction } from '@/features/timegrid';
 import type { AllDayBar, DragDelta, TimeGridModel, TimedBlock } from '@/features/timegrid';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
@@ -69,6 +70,27 @@ export function TimeGrid({
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = firstHour * HOUR_PX;
   }, [firstHour]);
+
+  // A block moved with the keyboard is a new element (another day, or another occurrence key), so
+  // focus would drop to the page. For a short while after the key press, give it back to the block
+  // of the same event as soon as focus is lost.
+  const refocus = useRef<{ id: string; until: number } | null>(null);
+  useEffect(() => {
+    const pending = refocus.current;
+    if (!pending) return;
+    if (performance.now() > pending.until) {
+      refocus.current = null;
+      return;
+    }
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    const blocks = cellsRef.current?.querySelectorAll<HTMLElement>('.block[data-event-id]');
+    const el = [...(blocks ?? [])].find((b) => b.dataset['eventId'] === pending.id);
+    if (el) {
+      el.focus();
+      refocus.current = null;
+    }
+  });
 
   return (
     <div
@@ -187,6 +209,9 @@ export function TimeGrid({
                         columns={count}
                         onMove={onMoveEvent}
                         onResize={onResizeEvent}
+                        onKeyboardEdit={(id) => {
+                          refocus.current = { id, until: performance.now() + 3000 };
+                        }}
                       />
                     </ErrorBoundary>
                   ))}
@@ -228,6 +253,7 @@ function Block({
   columns,
   onMove,
   onResize,
+  onKeyboardEdit,
 }: {
   readonly block: TimedBlock;
   readonly timeFmt: TimeFormatOptions;
@@ -236,6 +262,8 @@ function Block({
   readonly columns: number;
   readonly onMove?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
   readonly onResize?: ((occurrence: Occurrence, minutes: number) => void) | undefined;
+  /** A key press moved or resized this event: the grid keeps focus on it afterwards. */
+  readonly onKeyboardEdit: (eventId: string) => void;
 }) {
   const t = useT();
   const { event, start, end } = block.occurrence;
@@ -276,6 +304,30 @@ function Block({
       data-open-start={block.startsBefore ? 'true' : undefined}
       data-open-end={block.endsAfter ? 'true' : undefined}
       title={`${title} · ${range}`}
+      data-event-id={event.id}
+      aria-keyshortcuts={
+        onMove
+          ? 'Shift+ArrowUp Shift+ArrowDown Shift+ArrowLeft Shift+ArrowRight Control+Shift+ArrowUp Control+Shift+ArrowDown'
+          : undefined
+      }
+      onKeyDown={(e) => {
+        if (!onMove || e.target !== e.currentTarget) return;
+        const rtl = getComputedStyle(e.currentTarget).direction === 'rtl';
+        const action = keyAction(
+          e.code,
+          { shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey },
+          rtl,
+        );
+        if (!action) return;
+        if (action.kind === 'resize' && (!onResize || block.endsAfter)) return;
+        e.preventDefault();
+        onKeyboardEdit(event.id);
+        if (action.kind === 'move') {
+          onMove(block.occurrence, { days: action.days, minutes: action.minutes });
+        } else {
+          onResize?.(block.occurrence, action.minutes);
+        }
+      }}
       onClick={() => {
         const afterMove = drag.consumeClick();
         const afterResize = resize.consumeClick();

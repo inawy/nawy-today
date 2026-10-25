@@ -97,6 +97,55 @@ describe('TimeGrid resize edge', () => {
   });
 });
 
+describe('TimeGrid keyboard editing', () => {
+  const press = (el: Element, init: KeyboardEventInit) =>
+    fireEvent.keyDown(el, { bubbles: true, ...init });
+  const setup = () => {
+    const onMove = vi.fn();
+    const onResize = vi.fn();
+    const r = render(
+      <SettingsProvider storage={storage('en')} languages={['en']}>
+        <TimeGrid
+          model={model([makeEvent({ id: 'a', title: 'A' })])}
+          today="2026-10-13"
+          nowLocal="2026-10-13T12:00"
+          lanes={3}
+          onOpenEvent={() => undefined}
+          onCreateAt={() => undefined}
+          onMoveEvent={onMove}
+          onResizeEvent={onResize}
+        />
+      </SettingsProvider>,
+    );
+    const block = r.container.querySelector('.block') as HTMLElement;
+    return { block, onMove, onResize };
+  };
+
+  it('moves a focused block with Shift + arrows', () => {
+    const { block, onMove, onResize } = setup();
+    press(block, { code: 'ArrowDown', shiftKey: true });
+    expect(onMove).toHaveBeenLastCalledWith(expect.anything(), { days: 0, minutes: 15 });
+    press(block, { code: 'ArrowRight', shiftKey: true });
+    expect(onMove).toHaveBeenLastCalledWith(expect.anything(), { days: 1, minutes: 0 });
+    expect(onResize).not.toHaveBeenCalled();
+  });
+
+  it('changes only the end with Ctrl + Shift + up/down', () => {
+    const { block, onMove, onResize } = setup();
+    press(block, { code: 'ArrowDown', shiftKey: true, ctrlKey: true });
+    expect(onResize).toHaveBeenCalledWith(expect.anything(), 15);
+    expect(onMove).not.toHaveBeenCalled();
+  });
+
+  it('does nothing for a plain arrow, and announces its keys', () => {
+    const { block, onMove, onResize } = setup();
+    press(block, { code: 'ArrowDown' });
+    expect(onMove).not.toHaveBeenCalled();
+    expect(onResize).not.toHaveBeenCalled();
+    expect(block.getAttribute('aria-keyshortcuts')).toContain('Shift+ArrowDown');
+  });
+});
+
 describe('TimeGrid short blocks', () => {
   it('marks events under 40px (about 50 minutes) so title and time share a line', () => {
     const { container } = view(
