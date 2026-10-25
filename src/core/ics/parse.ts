@@ -220,7 +220,7 @@ function readEvent(
   const durLine = first('DURATION');
   if (endLine) {
     const e = parseWhen(endLine, zone, counters);
-    if (e) end = allDay ? datePart(e.value) : e.allDay ? combine(e.value, '00:00') : e.value;
+    if (e) end = allDay ? e.value.slice(0, 10) : e.allDay ? combine(e.value, '00:00') : e.value;
   } else if (durLine) {
     const d = parseDuration(durLine.value);
     if (d) {
