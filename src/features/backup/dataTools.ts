@@ -158,7 +158,12 @@ export function createDataTools(deps: DataToolsDeps): DataTools {
       for (let n = 2; (await db.calendars.get(calendarId))?.deletedAt !== undefined; n++) {
         calendarId = `${importCalendarId(calendarName)}-${n}`;
       }
-      const result = icsToEnvelope(text, { fileName: name, zone: timeZone, now: now(), calendarId });
+      const result = icsToEnvelope(text, {
+        fileName: name,
+        zone: timeZone,
+        now: now(),
+        calendarId,
+      });
       if (!result.ok) return { ok: false, failure: result.failure };
       const inspection = await inspect({ kind: 'file', name }, result.envelope);
       return {

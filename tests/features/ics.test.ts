@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { eventsToIcs, icsFileName, icsToEnvelope, importCalendarName } from '@/features/ics';
 import { makeCalendar, makeEvent } from '../helpers/factories';
 
-const options = { fileName: 'work.ics', zone: 'Asia/Riyadh', now: 5_000_000, calendarId: 'ics-cal' };
+const options = {
+  fileName: 'work.ics',
+  zone: 'Asia/Riyadh',
+  now: 5_000_000,
+  calendarId: 'ics-cal',
+};
 const file = (...events: string[][]) =>
   [
     'BEGIN:VCALENDAR',
@@ -90,6 +95,8 @@ describe('names', () => {
   });
 
   it('dates the export file by the person’s own calendar', () => {
-    expect(icsFileName(Date.UTC(2026, 9, 25, 22, 0), 'Asia/Riyadh')).toBe('nawy-today-2026-10-26.ics');
+    expect(icsFileName(Date.UTC(2026, 9, 25, 22, 0), 'Asia/Riyadh')).toBe(
+      'nawy-today-2026-10-26.ics',
+    );
   });
 });

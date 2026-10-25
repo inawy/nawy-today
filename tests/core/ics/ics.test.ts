@@ -80,7 +80,9 @@ describe('parseIcs', () => {
 
   it('adds a DURATION to a timed event', () => {
     const r = parseIcs(
-      file(event('UID:d', 'DTSTART;TZID=Asia/Riyadh:20261025T090000', 'DURATION:PT1H30M', 'SUMMARY:x')),
+      file(
+        event('UID:d', 'DTSTART;TZID=Asia/Riyadh:20261025T090000', 'DURATION:PT1H30M', 'SUMMARY:x'),
+      ),
       { zone: ZONE },
     );
     expect(r.events[0]?.end).toBe('2026-10-25T10:30');
@@ -108,8 +110,14 @@ describe('parseIcs', () => {
       { zone: ZONE },
     );
     expect(r.events).toHaveLength(2);
-    expect(r.events[0]).toMatchObject({ rrule: 'FREQ=WEEKLY;COUNT=4', exdates: ['2026-11-01T09:00'] });
-    expect(r.events[1]).toMatchObject({ originalStart: '2026-11-08T09:00', start: '2026-11-08T11:00' });
+    expect(r.events[0]).toMatchObject({
+      rrule: 'FREQ=WEEKLY;COUNT=4',
+      exdates: ['2026-11-01T09:00'],
+    });
+    expect(r.events[1]).toMatchObject({
+      originalStart: '2026-11-08T09:00',
+      start: '2026-11-08T11:00',
+    });
   });
 
   it('moves a UTC UNTIL into the event’s zone', () => {
@@ -200,7 +208,12 @@ describe('serializeIcs', () => {
       calendars,
       events: [
         makeEvent({ id: 'gone', calendarId: 'c', title: '', deletedAt: 5 }),
-        makeEvent({ id: 'o', calendarId: 'c', seriesId: 'missing', originalStart: '2026-10-13T09:00' }),
+        makeEvent({
+          id: 'o',
+          calendarId: 'c',
+          seriesId: 'missing',
+          originalStart: '2026-10-13T09:00',
+        }),
         makeEvent({ id: 'x', calendarId: 'unknown' }),
       ],
     });

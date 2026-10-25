@@ -467,7 +467,8 @@ const en: Record<MessageKey, string> = {
   icsImportChoose: 'Import an ICS file',
   importNotIcs: 'That is not a valid ICS calendar file.',
   importNoEvents: 'The file has no events that can be imported.',
-  icsInto: 'The events will be added to a new calendar named "{name}". Nothing you have is deleted.',
+  icsInto:
+    'The events will be added to a new calendar named "{name}". Nothing you have is deleted.',
   icsSkipTitle: 'Not imported:',
   icsSkipUnreadable: '{count} event(s) with no readable start time',
   icsSkipInvalid: '{count} invalid event(s) (dates or lengths not accepted)',
