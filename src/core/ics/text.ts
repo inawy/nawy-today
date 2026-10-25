@@ -9,7 +9,7 @@ export interface ContentLine {
 /** Joins folded lines (a line starting with a space or tab continues the previous one). */
 export function unfold(text: string): string[] {
   const out: string[] = [];
-  for (const raw of text.replace(/^﻿/, '').split(/\r\n|\n|\r/)) {
+  for (const raw of text.replace(/^\uFEFF/, '').split(/\r\n|\n|\r/)) {
     if ((raw.startsWith(' ') || raw.startsWith('\t')) && out.length > 0) {
       out[out.length - 1] += raw.slice(1);
     } else {
@@ -61,13 +61,13 @@ export function parseContentLine(line: string): ContentLine | undefined {
 }
 
 export function unescapeText(value: string): string {
-  return value.replace(/\\([\;,nN])/g, (_m, c: string) => (c === 'n' || c === 'N' ? '\n' : c));
+  return value.replace(/\\([\\;,nN])/g, (_m, c: string) => (c === 'n' || c === 'N' ? '\n' : c));
 }
 
 export function escapeText(value: string): string {
   return value
     .replace(/\\/g, '\\\\')
-    .replace(/;/g, '\;')
+    .replace(/;/g, '\\;')
     .replace(/,/g, '\\,')
     .replace(/\r\n|\r|\n/g, '\\n');
 }

@@ -27,7 +27,7 @@ describe('ics text', () => {
 
   it('escapes and unescapes text values', () => {
     const text = 'a, b; c\\d\nsecond line';
-    expect(escapeText(text)).toBe('a\\, b\; c\\\\d\\nsecond line');
+    expect(escapeText(text)).toBe('a\\, b\\; c\\\\d\\nsecond line');
     expect(unescapeText(escapeText(text))).toBe(text);
   });
 

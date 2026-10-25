@@ -187,7 +187,7 @@ describe('serializeIcs', () => {
     expect(text).toContain('DTSTAMP:19700101T000000Z');
     expect(text).toContain('DTSTART;TZID=Asia/Riyadh:20261013T090000');
     expect(text).toContain('DTEND;TZID=Asia/Riyadh:20261013T100000');
-    expect(text).toContain('SUMMARY:Lunch\; with Ali');
+    expect(text).toContain('SUMMARY:Lunch\\; with Ali');
     expect(text).toContain('DESCRIPTION:a\\nb');
     expect(text).toContain('CATEGORIES:Home\\, sweet');
     expect(text).toContain('DTSTART;VALUE=DATE:20261013');
