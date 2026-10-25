@@ -58,8 +58,18 @@ describe('TimeGrid short blocks', () => {
   it('marks events under 40px (about 50 minutes) so title and time share a line', () => {
     const { container } = view(
       model([
-        makeEvent({ id: 'short', title: 'Short', start: '2026-10-13T09:00', end: '2026-10-13T09:30' }),
-        makeEvent({ id: 'long', title: 'Long', start: '2026-10-13T11:00', end: '2026-10-13T13:00' }),
+        makeEvent({
+          id: 'short',
+          title: 'Short',
+          start: '2026-10-13T09:00',
+          end: '2026-10-13T09:30',
+        }),
+        makeEvent({
+          id: 'long',
+          title: 'Long',
+          start: '2026-10-13T11:00',
+          end: '2026-10-13T13:00',
+        }),
       ]),
     );
     const blocks = [...container.querySelectorAll('.block')];
