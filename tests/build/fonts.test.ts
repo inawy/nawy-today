@@ -18,6 +18,14 @@ describe('bundled Arabic font', () => {
     expect(existsSync('public/fonts/OFL-IBM-Plex-Sans-Arabic.txt')).toBe(true);
   });
 
+  it('uses real woff2 files, each under 70 KB', () => {
+    for (const f of files) {
+      const bytes = readFileSync(`public/${f}`);
+      expect(bytes.subarray(0, 4).toString('latin1'), f).toBe('wOF2');
+      expect(bytes.length, f).toBeLessThan(70_000);
+    }
+  });
+
   it('puts the bundled font first and keeps system fallbacks', () => {
     const stack = /:root \{[^}]*?font-family:([^;]+);/s.exec(css)?.[1] ?? '';
     expect(stack.trim().startsWith("'Nawy Sans'")).toBe(true);

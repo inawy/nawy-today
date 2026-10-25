@@ -12,7 +12,7 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  src: url('/fonts/plex-arabic-Regular.woff') format('woff');
+  src: url('/fonts/plex-arabic-Regular.woff2') format('woff2');
 }
 
 @font-face {
@@ -20,7 +20,7 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  src: url('/fonts/plex-arabic-Bold.woff') format('woff');
+  src: url('/fonts/plex-arabic-Bold.woff2') format('woff2');
 }
 
 :root {
