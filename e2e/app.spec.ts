@@ -67,6 +67,39 @@ test.describe('the whole cycle in a real browser', () => {
     await expect(block.locator('.block-time')).toContainText(/9:00.*10:00/);
   });
 
+  test('dragging an all-day item moves it by whole days, and undo puts it back', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Add event' }).click();
+    const dialog = page.getByRole('dialog', { name: 'New event' });
+    await dialog.getByLabel('Title').fill('Holiday');
+    await dialog.getByLabel('All day').check();
+    await dialog.getByRole('button', { name: 'Save' }).click();
+    await expect(dialog).toBeHidden();
+    await page.getByRole('button', { name: 'Week', exact: true }).click();
+    const bar = page.locator('.tg-allday .bar', { hasText: 'Holiday' });
+    const column = async () => Number(((await bar.evaluate((el) => el.style.gridColumn)) ?? '').split(' ')[0]);
+    const before = await column();
+    const box = await bar.boundingBox();
+    if (!box) throw new Error('the item has no box');
+    const cell = box.width; // a one-day item is one column wide
+    // Toward the middle of the week, so the item stays in view whichever day today is.
+    const step = before <= 3 ? cell : -cell;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + step / 2, y, { steps: 5 });
+    await page.mouse.move(x + step, y, { steps: 5 });
+    await page.mouse.up();
+    await expect.poll(column).toBe(before + (before <= 3 ? 1 : -1));
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect.poll(column).toBe(before);
+  });
+
   test('editing and deleting work, and undo brings the event back', async ({ page }) => {
     await page.goto('/');
     await addEvent(page, 'Lunch');

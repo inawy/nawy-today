@@ -270,3 +270,17 @@ button.tg-headcell:hover {
     opacity: 0.3;
   }
 }
+
+/* An all-day item picked up to move it by whole days (D-048). */
+.tg-allday .bar {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.tg-allday .bar[data-dragging='true'] {
+  z-index: 30;
+  opacity: 0.9;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.3);
+  cursor: grabbing;
+  transition: none;
+}

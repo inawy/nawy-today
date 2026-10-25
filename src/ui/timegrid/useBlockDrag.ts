@@ -13,8 +13,11 @@ interface Options {
   /** The grid body: its width gives the column width, its ancestor scrolls. */
   readonly gridRef: RefObject<HTMLElement | null>;
   readonly onMove: (delta: DragDelta) => void;
-  /** `y` keeps the drag vertical only (resizing by the bottom edge); days never change. */
-  readonly axis?: 'both' | 'y';
+  /**
+   * `y` keeps the drag vertical only (resizing by the bottom edge: days never change); `x` keeps
+   * it horizontal only (all-day items: whole days, no time).
+   */
+  readonly axis?: 'both' | 'x' | 'y';
 }
 
 export interface BlockDrag {
@@ -73,7 +76,7 @@ export function useBlockDrag({
         const scrolled = (scroller?.scrollTop ?? 0) - startScroll;
         return dragDelta({
           dx: axis === 'y' ? 0 : x - startX,
-          dy: y - startY + scrolled,
+          dy: axis === 'x' ? 0 : y - startY + scrolled,
           columnWidth,
           hourPx,
           rtl,
@@ -129,7 +132,7 @@ export function useBlockDrag({
         setDelta(last);
         setOffset({
           x: axis === 'y' ? 0 : dx,
-          y: dy + ((scroller?.scrollTop ?? 0) - startScroll),
+          y: axis === 'x' ? 0 : dy + ((scroller?.scrollTop ?? 0) - startScroll),
         });
       }
 

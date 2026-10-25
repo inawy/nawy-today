@@ -146,6 +146,42 @@ describe('TimeGrid keyboard editing', () => {
   });
 });
 
+describe('TimeGrid all-day items', () => {
+  const setup = () => {
+    const onMove = vi.fn();
+    const r = render(
+      <SettingsProvider storage={storage('en')} languages={['en']}>
+        <TimeGrid
+          model={model([makeAllDayEvent({ id: 'h', title: 'Holiday' })])}
+          today="2026-10-13"
+          nowLocal="2026-10-13T12:00"
+          lanes={3}
+          onOpenEvent={() => undefined}
+          onCreateAt={() => undefined}
+          onMoveEvent={onMove}
+        />
+      </SettingsProvider>,
+    );
+    return { bar: r.container.querySelector('.tg-allday .bar') as HTMLElement, onMove };
+  };
+
+  it('moves by whole days with Shift + left/right, never by minutes', () => {
+    const { bar, onMove } = setup();
+    fireEvent.keyDown(bar, { code: 'ArrowRight', shiftKey: true });
+    expect(onMove).toHaveBeenLastCalledWith(expect.anything(), { days: 1, minutes: 0 });
+    fireEvent.keyDown(bar, { code: 'ArrowLeft', shiftKey: true });
+    expect(onMove).toHaveBeenLastCalledWith(expect.anything(), { days: -1, minutes: 0 });
+    fireEvent.keyDown(bar, { code: 'ArrowDown', shiftKey: true });
+    fireEvent.keyDown(bar, { code: 'ArrowRight' });
+    expect(onMove).toHaveBeenCalledTimes(2);
+  });
+
+  it('announces only the keys it answers to', () => {
+    const { bar } = setup();
+    expect(bar.getAttribute('aria-keyshortcuts')).toBe('Shift+ArrowLeft Shift+ArrowRight');
+  });
+});
+
 describe('TimeGrid short blocks', () => {
   it('marks events under 40px (about 50 minutes) so title and time share a line', () => {
     const { container } = view(

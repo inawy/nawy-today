@@ -67,6 +67,8 @@ export function TimeGrid({
   );
   const scrollRef = useRef<HTMLDivElement>(null);
   const cellsRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const allDayRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = firstHour * HOUR_PX;
   }, [firstHour]);
@@ -84,7 +86,7 @@ export function TimeGrid({
     }
     const active = document.activeElement;
     if (active && active !== document.body) return;
-    const blocks = cellsRef.current?.querySelectorAll<HTMLElement>('.block[data-event-id]');
+    const blocks = rootRef.current?.querySelectorAll<HTMLElement>('[data-event-id]');
     const el = [...(blocks ?? [])].find((b) => b.dataset['eventId'] === pending.id);
     if (el) {
       el.focus();
@@ -95,6 +97,7 @@ export function TimeGrid({
   return (
     <div
       className="tg"
+      ref={rootRef}
       style={{ '--cols': count, '--hour-h': `${HOUR_PX}px`, '--lanes': allDayRows } as Vars}
     >
       <div className="tg-row tg-head">
@@ -140,7 +143,7 @@ export function TimeGrid({
 
       <div className="tg-row tg-allday">
         <div className="tg-gutter tg-allday-label">{t('allDay')}</div>
-        <div className="tg-allday-grid">
+        <div className="tg-allday-grid" ref={allDayRef}>
           {model.days.map((d, i) => (
             <div key={d.date} className="tg-allday-cell" style={{ gridColumn: i + 1 } as Vars} />
           ))}
@@ -161,7 +164,16 @@ export function TimeGrid({
           )}
           {model.allDay.bars.map((bar) => (
             <ErrorBoundary key={bar.occurrence.key} fallback={() => <FailedAllDay bar={bar} />}>
-              <AllDayItem bar={bar} onOpen={onOpenEvent} />
+              <AllDayItem
+                bar={bar}
+                onOpen={onOpenEvent}
+                gridRef={allDayRef}
+                columns={count}
+                onMove={onMoveEvent}
+                onKeyboardEdit={(id) => {
+                  refocus.current = { id, until: performance.now() + 3000 };
+                }}
+              />
             </ErrorBoundary>
           ))}
         </div>
@@ -373,22 +385,61 @@ function allDayStyle(bar: AllDayBar): Vars {
 function AllDayItem({
   bar,
   onOpen,
+  gridRef,
+  columns,
+  onMove,
+  onKeyboardEdit,
 }: {
   readonly bar: AllDayBar;
   readonly onOpen: (occurrence: Occurrence) => void;
+  readonly gridRef: RefObject<HTMLElement | null>;
+  readonly columns: number;
+  readonly onMove?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
+  readonly onKeyboardEdit: (eventId: string) => void;
 }) {
   const t = useT();
   const title =
     bar.occurrence.event.title.trim() === '' ? t('untitled') : bar.occurrence.event.title;
+  // An all-day item moves by whole days only (D-048).
+  const drag = useBlockDrag({
+    hourPx: HOUR_PX,
+    columns,
+    gridRef,
+    axis: 'x',
+    onMove: (delta) => onMove?.(bar.occurrence, { days: delta.days, minutes: 0 }),
+  });
+  const style: Vars = {
+    ...allDayStyle(bar),
+    ...(drag.offset && { transform: `translateX(${drag.offset.x}px)` }),
+  };
   return (
     <button
       type="button"
       className="bar"
-      style={allDayStyle(bar)}
+      style={style}
+      data-dragging={drag.offset ? 'true' : undefined}
       data-open-start={bar.continuesBefore ? 'true' : undefined}
       data-open-end={bar.continuesAfter ? 'true' : undefined}
+      data-event-id={bar.occurrence.event.id}
+      aria-keyshortcuts={onMove ? 'Shift+ArrowLeft Shift+ArrowRight' : undefined}
       title={title}
-      onClick={() => onOpen(bar.occurrence)}
+      onKeyDown={(e) => {
+        if (!onMove || e.target !== e.currentTarget) return;
+        const rtl = getComputedStyle(e.currentTarget).direction === 'rtl';
+        const action = keyAction(
+          e.code,
+          { shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey },
+          rtl,
+        );
+        if (action?.kind !== 'move' || action.days === 0) return;
+        e.preventDefault();
+        onKeyboardEdit(bar.occurrence.event.id);
+        onMove(bar.occurrence, { days: action.days, minutes: 0 });
+      }}
+      onClick={() => {
+        if (!drag.consumeClick()) onOpen(bar.occurrence);
+      }}
+      {...(onMove ? drag.handlers : {})}
     >
       <span className="bar-title">{title}</span>
     </button>
