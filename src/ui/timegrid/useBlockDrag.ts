@@ -13,6 +13,8 @@ interface Options {
   /** The grid body: its width gives the column width, its ancestor scrolls. */
   readonly gridRef: RefObject<HTMLElement | null>;
   readonly onMove: (delta: DragDelta) => void;
+  /** `y` keeps the drag vertical only (resizing by the bottom edge); days never change. */
+  readonly axis?: 'both' | 'y';
 }
 
 export interface BlockDrag {
@@ -33,7 +35,13 @@ const ZERO: DragDelta = { days: 0, minutes: 0 };
  * still works), shows it following the pointer caught to the grid, and drops it on release.
  * Escape puts it back. Nothing is written until the drop.
  */
-export function useBlockDrag({ hourPx, columns, gridRef, onMove }: Options): BlockDrag {
+export function useBlockDrag({
+  hourPx,
+  columns,
+  gridRef,
+  onMove,
+  axis = 'both',
+}: Options): BlockDrag {
   const [offset, setOffset] = useState<{ x: number; y: number } | undefined>(undefined);
   const [delta, setDelta] = useState<DragDelta>(ZERO);
   const swallow = useRef(false);
@@ -64,7 +72,7 @@ export function useBlockDrag({ hourPx, columns, gridRef, onMove }: Options): Blo
       const measure = (x: number, y: number): DragDelta => {
         const scrolled = (scroller?.scrollTop ?? 0) - startScroll;
         return dragDelta({
-          dx: x - startX,
+          dx: axis === 'y' ? 0 : x - startX,
           dy: y - startY + scrolled,
           columnWidth,
           hourPx,
@@ -120,7 +128,7 @@ export function useBlockDrag({ hourPx, columns, gridRef, onMove }: Options): Blo
         last = measure(ev.clientX, ev.clientY);
         setDelta(last);
         setOffset({
-          x: dx,
+          x: axis === 'y' ? 0 : dx,
           y: dy + ((scroller?.scrollTop ?? 0) - startScroll),
         });
       }
@@ -158,7 +166,7 @@ export function useBlockDrag({ hourPx, columns, gridRef, onMove }: Options): Blo
       if (touch) timer = window.setTimeout(begin, HOLD_MS);
       cleanup.current = finish;
     },
-    [columns, gridRef, hourPx],
+    [axis, columns, gridRef, hourPx],
   );
 
   const consumeClick = useCallback((): boolean => {

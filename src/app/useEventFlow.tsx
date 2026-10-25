@@ -11,6 +11,7 @@ import {
   describeWhen,
   draftToFields,
   moveDraft,
+  resizeDraft,
   execute,
   isSeries,
   planDelete,
@@ -67,6 +68,8 @@ export interface EventFlow {
   readonly openEvent: (occurrence: Occurrence) => void;
   /** Moves an occurrence by whole days / minutes (a drag). Asks the scope for repeating events. */
   readonly moveEvent: (occurrence: Occurrence, delta: { days: number; minutes: number }) => void;
+  /** Moves an occurrence's end by minutes (dragging the bottom edge). */
+  readonly resizeEvent: (occurrence: Occurrence, minutes: number) => void;
   /** The editor, the scope question and the toast. Render it once, anywhere. */
   readonly overlay: ReactNode;
   /** True while a dialog is open: global shortcuts must pause. */
@@ -164,8 +167,13 @@ export function useEventFlow({
     [events, tz],
   );
 
-  const moveEvent = useCallback(
-    (occurrence: Occurrence, delta: { days: number; minutes: number }): void => {
+  /** Changes one occurrence's draft (a drag) and writes it, asking the scope for repeating events. */
+  const changeOccurrence = useCallback(
+    (
+      occurrence: Occurrence,
+      change: (draft: Draft) => Draft | undefined,
+      done: 'eventMoved' | 'eventResized',
+    ): void => {
       if (!store) return;
       void (async () => {
         const target = resolveTarget(events, occurrence);
@@ -175,8 +183,8 @@ export function useEventFlow({
           tz,
           target.master.rrule,
         );
-        const moved = moveDraft(draft, delta.days, delta.minutes);
-        const fields = moved && draftToFields(moved);
+        const changed = change(draft);
+        const fields = changed && draftToFields(changed);
         if (!fields || !fields.ok) {
           notify(t('actionFailed'));
           return;
@@ -196,11 +204,23 @@ export function useEventFlow({
           return;
         }
         const outcome = await execute(store, plan.ops);
-        if (outcome.status === 'ok') notify(t('eventMoved'), outcome.undo);
+        if (outcome.status === 'ok') notify(t(done), outcome.undo);
         else notify(t(outcome.status === 'conflict' ? 'saveConflict' : 'actionFailed'));
       })();
     },
     [store, events, tz, askScope, notify, t],
+  );
+
+  const moveEvent = useCallback(
+    (occurrence: Occurrence, delta: { days: number; minutes: number }): void =>
+      changeOccurrence(occurrence, (d) => moveDraft(d, delta.days, delta.minutes), 'eventMoved'),
+    [changeOccurrence],
+  );
+
+  const resizeEvent = useCallback(
+    (occurrence: Occurrence, minutes: number): void =>
+      changeOccurrence(occurrence, (d) => resizeDraft(d, minutes), 'eventResized'),
+    [changeOccurrence],
   );
 
   const showEvent = useCallback((occurrence: Occurrence) => setViewing(occurrence), []);
@@ -395,6 +415,7 @@ export function useEventFlow({
     showEvent,
     openEvent,
     moveEvent,
+    resizeEvent,
     overlay,
     dialogOpen: editing !== null || ask !== null || viewing !== null,
     back,

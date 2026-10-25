@@ -30,6 +30,8 @@ export interface TimeGridProps {
   readonly onCreateAt: (date: PlainDate, time: string) => void;
   /** A block was dragged somewhere else: move this occurrence by that many days/minutes. */
   readonly onMoveEvent?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
+  /** The bottom edge of a block was dragged: move this occurrence's end by that many minutes. */
+  readonly onResizeEvent?: ((occurrence: Occurrence, minutes: number) => void) | undefined;
 }
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
@@ -45,6 +47,7 @@ export function TimeGrid({
   onOpenEvent,
   onCreateAt,
   onMoveEvent,
+  onResizeEvent,
 }: TimeGridProps) {
   const t = useT();
   const { settings } = useSettings();
@@ -183,6 +186,7 @@ export function TimeGrid({
                         gridRef={cellsRef}
                         columns={count}
                         onMove={onMoveEvent}
+                        onResize={onResizeEvent}
                       />
                     </ErrorBoundary>
                   ))}
@@ -223,6 +227,7 @@ function Block({
   gridRef,
   columns,
   onMove,
+  onResize,
 }: {
   readonly block: TimedBlock;
   readonly timeFmt: TimeFormatOptions;
@@ -230,6 +235,7 @@ function Block({
   readonly gridRef: RefObject<HTMLElement | null>;
   readonly columns: number;
   readonly onMove?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
+  readonly onResize?: ((occurrence: Occurrence, minutes: number) => void) | undefined;
 }) {
   const t = useT();
   const { event, start, end } = block.occurrence;
@@ -244,9 +250,21 @@ function Block({
     gridRef,
     onMove: (delta) => onMove?.(block.occurrence, delta),
   });
+  const resize = useBlockDrag({
+    hourPx: HOUR_PX,
+    columns,
+    gridRef,
+    axis: 'y',
+    onMove: (delta) => onResize?.(block.occurrence, delta.minutes),
+  });
+  // While the bottom edge is dragged the block grows or shrinks, caught to the step, never under
+  // one step tall. The edge handle is hidden where the real end is on another day.
+  const basePx = block.height * 24 * HOUR_PX;
+  const resizedPx = Math.max(HOUR_PX / 4, basePx + (resize.delta.minutes / 60) * HOUR_PX);
   const style: Vars = {
     ...blockStyle(block),
     ...(drag.offset && { transform: `translate(${drag.offset.x}px, ${drag.offset.y}px)` }),
+    ...(resize.offset && { blockSize: `${resizedPx}px` }),
   };
   return (
     <button
@@ -254,17 +272,29 @@ function Block({
       className="block"
       style={style}
       data-short={block.height * 24 * HOUR_PX < SHORT_BLOCK_PX ? 'true' : undefined}
-      data-dragging={drag.offset ? 'true' : undefined}
+      data-dragging={drag.offset || resize.offset ? 'true' : undefined}
       data-open-start={block.startsBefore ? 'true' : undefined}
       data-open-end={block.endsAfter ? 'true' : undefined}
       title={`${title} · ${range}`}
       onClick={() => {
-        if (!drag.consumeClick()) onOpen(block.occurrence);
+        const afterMove = drag.consumeClick();
+        const afterResize = resize.consumeClick();
+        if (!afterMove && !afterResize) onOpen(block.occurrence);
       }}
       {...(onMove ? drag.handlers : {})}
     >
       <span className="block-title">{title}</span>
       <span className="block-time">{range}</span>
+      {onResize && !block.endsAfter && (
+        <span
+          className="block-resize"
+          aria-hidden="true"
+          onPointerDown={(e) => {
+            e.stopPropagation(); // not a move of the whole block
+            resize.handlers.onPointerDown(e);
+          }}
+        />
+      )}
     </button>
   );
 }

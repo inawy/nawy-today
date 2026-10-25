@@ -54,6 +54,49 @@ const view = (
     </SettingsProvider>,
   );
 
+describe('TimeGrid resize edge', () => {
+  const onResize = vi.fn();
+  const withHandle = (events: unknown[], props: object = {}) =>
+    render(
+      <SettingsProvider storage={storage('en')} languages={['en']}>
+        <TimeGrid
+          model={model(events)}
+          today="2026-10-13"
+          nowLocal="2026-10-13T12:00"
+          lanes={3}
+          onOpenEvent={() => undefined}
+          onCreateAt={() => undefined}
+          {...props}
+        />
+      </SettingsProvider>,
+    );
+
+  it('gives a block a bottom edge only when resizing is available', () => {
+    const events = [makeEvent({ id: 'a', title: 'A' })];
+    const without = withHandle(events);
+    expect(without.container.querySelector('.block-resize')).toBeNull();
+    cleanup();
+    const withIt = withHandle(events, { onResizeEvent: onResize });
+    expect(withIt.container.querySelectorAll('.block-resize')).toHaveLength(1);
+  });
+
+  it('has no edge where the real end is on a later day', () => {
+    const { container } = withHandle(
+      [
+        makeEvent({
+          id: 'night',
+          title: 'Night',
+          start: '2026-10-13T22:00',
+          end: '2026-10-14T02:00',
+        }),
+      ],
+      { onResizeEvent: onResize },
+    );
+    // The part on the 13th ends at midnight (no edge); the part on the 14th has one.
+    expect(container.querySelectorAll('.block-resize')).toHaveLength(1);
+  });
+});
+
 describe('TimeGrid short blocks', () => {
   it('marks events under 40px (about 50 minutes) so title and time share a line', () => {
     const { container } = view(

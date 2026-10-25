@@ -224,3 +224,49 @@ button.tg-headcell:hover {
   cursor: grabbing;
   transition: none;
 }
+
+/* The bottom edge of a block: drag it to change the length (D-045). It sits inside the block so it
+   never covers the grid below; on touch it is taller because fingers are. */
+.block-resize {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 10px;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.block-resize::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 3px;
+  inset-inline: calc(50% - 10px);
+  block-size: 3px;
+  border-radius: 2px;
+  background: currentcolor;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.block:hover .block-resize::after,
+.block[data-dragging='true'] .block-resize::after {
+  opacity: 0.45;
+}
+
+.block[data-short='true'] .block-resize {
+  block-size: 6px;
+}
+
+.block[data-short='true'] .block-resize::after {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .block-resize {
+    block-size: 16px;
+  }
+
+  .block:not([data-short='true']) .block-resize::after {
+    opacity: 0.3;
+  }
+}

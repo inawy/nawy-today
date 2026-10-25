@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { draftForNew, moveDraft } from '@/features/events';
+import { MIN_RESIZE_MINUTES, draftForNew, moveDraft, resizeDraft } from '@/features/events';
 import type { Draft } from '@/features/events';
 import { dragDelta } from '@/features/timegrid';
 
@@ -11,6 +11,38 @@ const timed = (over: Partial<Draft> = {}): Draft => ({
   endDate: '2026-10-20',
   endTime: '10:00',
   ...over,
+});
+
+describe('resizeDraft', () => {
+  it('moves only the end, longer or shorter, and keeps the start', () => {
+    expect(resizeDraft(timed(), 45)).toMatchObject({
+      startDate: '2026-10-20',
+      startTime: '09:00',
+      endTime: '10:45',
+    });
+    expect(resizeDraft(timed(), -30)).toMatchObject({ startTime: '09:00', endTime: '09:30' });
+  });
+
+  it('never makes the event shorter than one step', () => {
+    expect(resizeDraft(timed(), -600)).toMatchObject({
+      startTime: '09:00',
+      endTime: '09:15',
+    });
+    expect(MIN_RESIZE_MINUTES).toBe(15);
+  });
+
+  it('may carry the end across midnight', () => {
+    expect(resizeDraft(timed({ startTime: '22:30', endTime: '23:30' }), 90)).toMatchObject({
+      startDate: '2026-10-20',
+      endDate: '2026-10-21',
+      endTime: '01:00',
+    });
+  });
+
+  it('leaves all-day events and unreadable times alone', () => {
+    expect(resizeDraft(timed({ allDay: true }), 30)).toBeUndefined();
+    expect(resizeDraft(timed({ endTime: 'xx' }), 30)).toBeUndefined();
+  });
 });
 
 describe('moveDraft', () => {

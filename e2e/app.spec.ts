@@ -42,6 +42,31 @@ test.describe('the whole cycle in a real browser', () => {
     await expect(block.locator('.block-time')).toContainText('9:00');
   });
 
+  test('dragging the bottom edge changes the length only, and undo puts it back', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await addEvent(page, 'Stretch me');
+    await page.getByRole('button', { name: 'Day', exact: true }).click();
+    const block = page.locator('.block', { hasText: 'Stretch me' });
+    await expect(block.locator('.block-time')).toContainText(/9:00.*10:00/);
+    await block.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    const handle = await block.locator('.block-resize').boundingBox();
+    if (!handle) throw new Error('the block has no resize edge');
+    const x = handle.x + handle.width / 2;
+    const y = handle.y + handle.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y + 24, { steps: 6 });
+    await page.mouse.move(x, y + 48, { steps: 6 });
+    await page.mouse.up();
+    await expect(block.locator('.block-time')).toContainText(/9:00.*11:00/);
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(block.locator('.block-time')).toContainText(/9:00.*10:00/);
+  });
+
   test('editing and deleting work, and undo brings the event back', async ({ page }) => {
     await page.goto('/');
     await addEvent(page, 'Lunch');

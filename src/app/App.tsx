@@ -402,6 +402,7 @@ function Calendar({
             onOpenEvent={flow.showEvent}
             onCreateAt={flow.openNew}
             onMoveEvent={flow.moveEvent}
+            onResizeEvent={flow.resizeEvent}
           />
         )}
       </ViewMotion>

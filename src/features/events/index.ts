@@ -15,4 +15,4 @@ export type { Plan, PlanError, Scope, Target } from './plan';
 export { resolveTarget } from './target';
 export { describeWhen } from './when';
 export type { WhenInput } from './when';
-export { moveDraft } from './move';
+export { MIN_RESIZE_MINUTES, moveDraft, resizeDraft } from './move';
