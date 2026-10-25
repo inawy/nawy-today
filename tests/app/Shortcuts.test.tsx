@@ -29,7 +29,9 @@ describe('keyboard shortcuts help', () => {
     await screen.findByRole('button', { name: 'Add event' });
     fireEvent.keyDown(window, { code: 'Slash', shiftKey: true });
     const dialog = await screen.findByRole('dialog', { name: 'Keyboard shortcuts' });
-    expect(within(dialog).getByText('Move the selected event 15 minutes (reach it with Tab)')).toBeTruthy();
+    expect(
+      within(dialog).getByText('Move the selected event 15 minutes (reach it with Tab)'),
+    ).toBeTruthy();
     expect(within(dialog).getAllByText('Shift').length).toBeGreaterThan(0);
     // Shortcuts pause while it is open: "C" must not start a new event.
     fireEvent.keyDown(window, { code: 'KeyC' });
