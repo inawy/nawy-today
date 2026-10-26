@@ -337,6 +337,8 @@ test.describe('on a phone', () => {
         selects: [...document.querySelectorAll('.sidebar-settings select')].map(box),
       };
     });
+    // A phone has no keyboard to speak of: its menu does not offer the shortcuts list.
+    await expect(page.getByRole('button', { name: 'Keyboard shortcuts' })).toBeHidden();
     expect(boxes.side).not.toBeNull();
     expect(boxes.buttons.length).toBeGreaterThan(0);
     const widths = [...boxes.buttons, ...boxes.selects].map((b) => Math.round(b.width));

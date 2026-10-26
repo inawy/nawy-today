@@ -358,7 +358,7 @@ button.block {
 
 /* A phone has no keyboard to speak of: the entry in the menu is not offered. */
 @media (pointer: coarse) {
-  .shortcuts-btn {
+  .sidebar-settings > .shortcuts-btn {
     display: none;
   }
 }
