@@ -10,6 +10,11 @@ export interface DragInput {
   readonly rtl: boolean;
   /** Time is caught to this many minutes. */
   readonly stepMinutes: number;
+  /**
+   * Set for the month grid: height of one week row. Vertical movement then means whole weeks
+   * (7 days each) and never minutes.
+   */
+  readonly rowHeight?: number;
 }
 
 export interface DragDelta {
@@ -19,9 +24,14 @@ export interface DragDelta {
 
 /** Turns pointer movement into "this many days and minutes", caught to the step. */
 export function dragDelta(input: DragInput): DragDelta {
-  const { dx, dy, columnWidth, hourPx, rtl, stepMinutes } = input;
+  const { dx, dy, columnWidth, hourPx, rtl, stepMinutes, rowHeight } = input;
   const columns = columnWidth > 0 ? Math.round(dx / columnWidth) : 0;
-  const days = (rtl ? -columns : columns) || 0; // `|| 0` turns -0 into 0
+  const sideways = (rtl ? -columns : columns) || 0; // `|| 0` turns -0 into 0
+  if (rowHeight !== undefined) {
+    const weeks = rowHeight > 0 ? Math.round(dy / rowHeight) : 0;
+    return { days: sideways + weeks * 7 || 0, minutes: 0 };
+  }
+  const days = sideways;
   const raw = (dy / hourPx) * 60;
   const minutes = Math.round(raw / stepMinutes) * stepMinutes || 0;
   return { days, minutes };

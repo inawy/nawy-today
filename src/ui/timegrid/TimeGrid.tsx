@@ -8,6 +8,7 @@ import { useT } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
 import { keyAction } from '@/features/timegrid';
 import type { AllDayBar, DragDelta, TimeGridModel, TimedBlock } from '@/features/timegrid';
+import { useRefocus } from '@/lib/useRefocus';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
 import { useBlockDrag } from './useBlockDrag';
@@ -67,32 +68,12 @@ export function TimeGrid({
   );
   const scrollRef = useRef<HTMLDivElement>(null);
   const cellsRef = useRef<HTMLDivElement>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
   const allDayRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = firstHour * HOUR_PX;
   }, [firstHour]);
 
-  // A block moved with the keyboard is a new element (another day, or another occurrence key), so
-  // focus would drop to the page. For a short while after the key press, give it back to the block
-  // of the same event as soon as focus is lost.
-  const refocus = useRef<{ id: string; until: number } | null>(null);
-  useEffect(() => {
-    const pending = refocus.current;
-    if (!pending) return;
-    if (performance.now() > pending.until) {
-      refocus.current = null;
-      return;
-    }
-    const active = document.activeElement;
-    if (active && active !== document.body) return;
-    const blocks = rootRef.current?.querySelectorAll<HTMLElement>('[data-event-id]');
-    const el = [...(blocks ?? [])].find((b) => b.dataset['eventId'] === pending.id);
-    if (el) {
-      el.focus();
-      refocus.current = null;
-    }
-  });
+  const { rootRef, remember } = useRefocus();
 
   return (
     <div
@@ -170,9 +151,7 @@ export function TimeGrid({
                 gridRef={allDayRef}
                 columns={count}
                 onMove={onMoveEvent}
-                onKeyboardEdit={(id) => {
-                  refocus.current = { id, until: performance.now() + 3000 };
-                }}
+                onKeyboardEdit={remember}
               />
             </ErrorBoundary>
           ))}
@@ -221,9 +200,7 @@ export function TimeGrid({
                         columns={count}
                         onMove={onMoveEvent}
                         onResize={onResizeEvent}
-                        onKeyboardEdit={(id) => {
-                          refocus.current = { id, until: performance.now() + 3000 };
-                        }}
+                        onKeyboardEdit={remember}
                       />
                     </ErrorBoundary>
                   ))}

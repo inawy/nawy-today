@@ -9,6 +9,7 @@ import { makeCalendar, makeEvent } from '../helpers/factories';
 afterEach(() => {
   cleanup();
   opened.length = 0;
+  moved.length = 0;
 });
 
 const storage = (locale: 'ar' | 'en', extra: object = {}) => ({
@@ -29,6 +30,7 @@ function model(events: unknown[], maxLanes = 3): MonthModel {
 
 const opened: string[] = [];
 const openedEvents: string[] = [];
+const moved: [string, number, number][] = [];
 const view = (m: MonthModel, locale: 'ar' | 'en' = 'en', extra: object = {}) =>
   render(
     <SettingsProvider storage={storage(locale, extra)} languages={[locale]}>
@@ -38,6 +40,7 @@ const view = (m: MonthModel, locale: 'ar' | 'en' = 'en', extra: object = {}) =>
         lanes={3}
         onOpenDay={(d) => opened.push(d)}
         onOpenEvent={(o) => openedEvents.push(o.event.id)}
+        onMoveEvent={(o, delta) => moved.push([o.event.id, delta.days, delta.minutes])}
       />
     </SettingsProvider>,
   );
@@ -122,5 +125,32 @@ describe('MonthView', () => {
     view(model([makeEvent({ id: 'ev-9', title: 'Standup' })]));
     fireEvent.click(screen.getByRole('button', { name: /Standup/ }));
     expect(openedEvents).toEqual(['ev-9']);
+  });
+});
+
+describe('MonthView keyboard moves', () => {
+  const withEvent = () => {
+    const r = view(model([makeEvent({ id: 'm1', title: 'Meet', start: '2026-10-13T09:00' })]));
+    return r.container.querySelector('.bar') as HTMLElement;
+  };
+
+  it('moves by a day with Shift + left/right and by a week with Shift + up/down', () => {
+    const bar = withEvent();
+    fireEvent.keyDown(bar, { code: 'ArrowRight', shiftKey: true });
+    fireEvent.keyDown(bar, { code: 'ArrowDown', shiftKey: true });
+    fireEvent.keyDown(bar, { code: 'ArrowUp', shiftKey: true });
+    expect(moved).toEqual([
+      ['m1', 1, 0],
+      ['m1', 7, 0],
+      ['m1', -7, 0],
+    ]);
+  });
+
+  it('does nothing for a plain arrow or Ctrl + Shift (that resizes in the time grid)', () => {
+    const bar = withEvent();
+    fireEvent.keyDown(bar, { code: 'ArrowDown' });
+    fireEvent.keyDown(bar, { code: 'ArrowDown', shiftKey: true, ctrlKey: true });
+    expect(moved).toEqual([]);
+    expect(bar.getAttribute('aria-keyshortcuts')).toContain('Shift+ArrowDown');
   });
 });

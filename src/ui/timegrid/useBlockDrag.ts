@@ -18,6 +18,8 @@ interface Options {
    * it horizontal only (all-day items: whole days, no time).
    */
   readonly axis?: 'both' | 'x' | 'y';
+  /** The month grid: up and down move whole weeks, and the grid is one week row (D-049). */
+  readonly weeks?: boolean;
 }
 
 export interface BlockDrag {
@@ -44,6 +46,7 @@ export function useBlockDrag({
   gridRef,
   onMove,
   axis = 'both',
+  weeks = false,
 }: Options): BlockDrag {
   const [offset, setOffset] = useState<{ x: number; y: number } | undefined>(undefined);
   const [delta, setDelta] = useState<DragDelta>(ZERO);
@@ -65,7 +68,8 @@ export function useBlockDrag({
       const startY = e.clientY;
       const pointerId = e.pointerId;
       const rtl = getComputedStyle(grid).direction === 'rtl';
-      const columnWidth = grid.getBoundingClientRect().width / Math.max(1, columns);
+      const box = grid.getBoundingClientRect();
+      const columnWidth = box.width / Math.max(1, columns);
       const scroller = grid.closest<HTMLElement>('.tg-scroll');
       const startScroll = scroller?.scrollTop ?? 0;
       let active = false;
@@ -81,6 +85,7 @@ export function useBlockDrag({
           hourPx,
           rtl,
           stepMinutes: STEP_MINUTES,
+          ...(weeks && { rowHeight: box.height }),
         });
       };
 
@@ -169,7 +174,7 @@ export function useBlockDrag({
       if (touch) timer = window.setTimeout(begin, HOLD_MS);
       cleanup.current = finish;
     },
-    [axis, columns, gridRef, hourPx],
+    [axis, columns, gridRef, hourPx, weeks],
   );
 
   const consumeClick = useCallback((): boolean => {

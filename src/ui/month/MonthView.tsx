@@ -1,5 +1,7 @@
-import type { CSSProperties } from 'react';
+import { useRef } from 'react';
+import type { CSSProperties, RefObject } from 'react';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
+import { useRefocus } from '@/lib/useRefocus';
 import {
   formatDate,
   formatDayOfMonth,
@@ -13,7 +15,10 @@ import type { Occurrence } from '@/core/recurrence';
 import type { MonthBar, MonthModel, WeekModel } from '@/features/month';
 import { useT } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
+import { keyAction } from '@/features/timegrid';
+import type { DragDelta } from '@/features/timegrid';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
+import { useBlockDrag } from '../timegrid/useBlockDrag';
 
 export interface MonthViewProps {
   readonly model: MonthModel;
@@ -24,19 +29,29 @@ export interface MonthViewProps {
   readonly onOpenDay: (date: PlainDate) => void;
   /** Opens an event for editing. */
   readonly onOpenEvent: (occurrence: Occurrence) => void;
+  /** An item was dragged (or moved with Shift + arrows) by whole days: weeks count as 7 days. */
+  readonly onMoveEvent?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
 }
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
-export function MonthView({ model, today, lanes, onOpenDay, onOpenEvent }: MonthViewProps) {
+export function MonthView({
+  model,
+  today,
+  lanes,
+  onOpenDay,
+  onOpenEvent,
+  onMoveEvent,
+}: MonthViewProps) {
   const t = useT();
   const { settings } = useSettings();
   const fmt: FormatOptions = { locale: settings.locale, numerals: settings.numerals };
   const timeFmt: TimeFormatOptions = { ...fmt, hour12: settings.hour12 };
   const header = model.weeks[0]?.days ?? [];
+  const { rootRef, remember } = useRefocus();
 
   return (
-    <div className="month" style={{ '--lanes': lanes } as Vars}>
+    <div className="month" ref={rootRef} style={{ '--lanes': lanes } as Vars}>
       <div className="month-weekdays" aria-hidden="true">
         {header.map((d) => (
           <span key={d}>{formatWeekday(d, fmt, 'short')}</span>
@@ -54,6 +69,8 @@ export function MonthView({ model, today, lanes, onOpenDay, onOpenEvent }: Month
           hijri={settings.hijri}
           onOpenDay={onOpenDay}
           onOpenEvent={onOpenEvent}
+          onMoveEvent={onMoveEvent}
+          onKeyboardEdit={remember}
           moreLabel={(count) => t('moreEvents', { count: formatCount(count, fmt) })}
         />
       ))}
@@ -76,6 +93,8 @@ interface WeekRowProps {
   readonly hijri: boolean;
   readonly onOpenDay: (date: PlainDate) => void;
   readonly onOpenEvent: (occurrence: Occurrence) => void;
+  readonly onMoveEvent?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
+  readonly onKeyboardEdit: (eventId: string) => void;
   readonly moreLabel: (count: number) => string;
 }
 
@@ -89,10 +108,13 @@ function WeekRow({
   hijri,
   onOpenDay,
   onOpenEvent,
+  onMoveEvent,
+  onKeyboardEdit,
   moreLabel,
 }: WeekRowProps) {
+  const rowRef = useRef<HTMLDivElement>(null);
   return (
-    <div className="week">
+    <div className="week" ref={rowRef}>
       {week.days.map((day, col) => {
         const inMonth = Number(day.slice(5, 7)) === month;
         return (
@@ -144,7 +166,14 @@ function WeekRow({
       })}
       {week.bars.map((bar) => (
         <ErrorBoundary key={bar.occurrence.key} fallback={() => <FailedBar bar={bar} />}>
-          <EventBar bar={bar} timeFmt={timeFmt} onOpen={onOpenEvent} />
+          <EventBar
+            bar={bar}
+            timeFmt={timeFmt}
+            onOpen={onOpenEvent}
+            rowRef={rowRef}
+            onMove={onMoveEvent}
+            onKeyboardEdit={onKeyboardEdit}
+          />
         </ErrorBoundary>
       ))}
     </div>
@@ -184,23 +213,64 @@ function EventBar({
   bar,
   timeFmt,
   onOpen,
+  rowRef,
+  onMove,
+  onKeyboardEdit,
 }: {
   readonly bar: MonthBar;
   readonly timeFmt: TimeFormatOptions;
   readonly onOpen: (occurrence: Occurrence) => void;
+  readonly rowRef: RefObject<HTMLElement | null>;
+  readonly onMove?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
+  readonly onKeyboardEdit: (eventId: string) => void;
 }) {
   const t = useT();
   const { event, start } = bar.occurrence;
   const title = event.title.trim() === '' ? t('untitled') : event.title;
+  // Sideways moves days, up and down move whole weeks; times of day never change (D-049).
+  const drag = useBlockDrag({
+    hourPx: 1,
+    columns: 7,
+    gridRef: rowRef,
+    weeks: true,
+    onMove: (delta) => onMove?.(bar.occurrence, { days: delta.days, minutes: 0 }),
+  });
+  const style: Vars = {
+    ...barStyle(bar),
+    ...(drag.offset && { transform: `translate(${drag.offset.x}px, ${drag.offset.y}px)` }),
+  };
   return (
     <button
       type="button"
       className="bar"
-      style={barStyle(bar)}
+      style={style}
+      data-dragging={drag.offset ? 'true' : undefined}
+      data-event-id={event.id}
+      aria-keyshortcuts={
+        onMove ? 'Shift+ArrowUp Shift+ArrowDown Shift+ArrowLeft Shift+ArrowRight' : undefined
+      }
+      onKeyDown={(e) => {
+        if (!onMove || e.target !== e.currentTarget) return;
+        const rtl = getComputedStyle(e.currentTarget).direction === 'rtl';
+        const action = keyAction(
+          e.code,
+          { shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey },
+          rtl,
+        );
+        if (action?.kind !== 'move') return;
+        // In the month, up/down is a week earlier or later.
+        const days = action.days !== 0 ? action.days : action.minutes < 0 ? -7 : 7;
+        e.preventDefault();
+        onKeyboardEdit(event.id);
+        onMove(bar.occurrence, { days, minutes: 0 });
+      }}
       data-open-start={bar.continuesBefore ? 'true' : undefined}
       data-open-end={bar.continuesAfter ? 'true' : undefined}
       title={title}
-      onClick={() => onOpen(bar.occurrence)}
+      onClick={() => {
+        if (!drag.consumeClick()) onOpen(bar.occurrence);
+      }}
+      {...(onMove ? drag.handlers : {})}
     >
       {bar.showTime && <span className="bar-time">{formatTime(start, timeFmt)}</span>}
       <span className="bar-title">{title}</span>

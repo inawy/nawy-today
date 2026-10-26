@@ -398,6 +398,7 @@ function Calendar({
           <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.showEvent} />
         ) : view === 'month' ? (
           <MonthView
+            onMoveEvent={flow.moveEvent}
             model={monthModel}
             today={today}
             lanes={MAX_LANES}

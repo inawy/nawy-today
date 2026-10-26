@@ -93,6 +93,21 @@ describe('moveDraft', () => {
   });
 });
 
+describe('dragDelta in the month grid', () => {
+  const month = { columnWidth: 100, hourPx: 1, rtl: false, stepMinutes: 15, rowHeight: 120 };
+
+  it('turns up and down into whole weeks and never into minutes', () => {
+    expect(dragDelta({ ...month, dx: 0, dy: 70 })).toEqual({ days: 7, minutes: 0 });
+    expect(dragDelta({ ...month, dx: 0, dy: 50 })).toEqual({ days: 0, minutes: 0 });
+    expect(dragDelta({ ...month, dx: 0, dy: -130 })).toEqual({ days: -7, minutes: 0 });
+  });
+
+  it('adds sideways days to the weeks, and mirrors them for right-to-left', () => {
+    expect(dragDelta({ ...month, dx: 210, dy: 125 })).toEqual({ days: 9, minutes: 0 });
+    expect(dragDelta({ ...month, rtl: true, dx: 210, dy: 125 })).toEqual({ days: 5, minutes: 0 });
+  });
+});
+
 describe('dragDelta', () => {
   const base = { columnWidth: 100, hourPx: 48, rtl: false, stepMinutes: 15 };
 

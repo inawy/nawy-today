@@ -186,3 +186,17 @@ button.more {
   line-height: 1;
   color: var(--text-muted);
 }
+
+/* An item picked up to move it to another day or week (D-049). */
+.month .bar {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.month .bar[data-dragging='true'] {
+  z-index: 30;
+  opacity: 0.9;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.3);
+  cursor: grabbing;
+  transition: none;
+}

@@ -101,6 +101,33 @@ test.describe('the whole cycle in a real browser', () => {
     await expect.poll(column).toBe(before);
   });
 
+  test('dragging an item in the month moves it a week, and undo puts it back', async ({ page }) => {
+    await page.goto('/');
+    await addEvent(page, 'Month drag');
+    const bar = page.locator('.month .bar', { hasText: 'Month drag' });
+    const weekIndex = () =>
+      bar.evaluate((el) => [...document.querySelectorAll('.month .week')].indexOf(el.closest('.week')!));
+    const before = await weekIndex();
+    const rows = await page.locator('.month .week').count();
+    const down = before < rows - 1;
+    const box = await bar.boundingBox();
+    const row = await bar.locator('xpath=ancestor::*[contains(@class,"week")][1]').boundingBox();
+    if (!box || !row) throw new Error('the item has no box');
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    const dy = down ? row.height : -row.height;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y + dy / 2, { steps: 6 });
+    await page.mouse.move(x, y + dy, { steps: 6 });
+    await page.mouse.up();
+    await expect.poll(weekIndex).toBe(before + (down ? 1 : -1));
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect.poll(weekIndex).toBe(before);
+  });
+
   test('editing and deleting work, and undo brings the event back', async ({ page }) => {
     await page.goto('/');
     await addEvent(page, 'Lunch');
