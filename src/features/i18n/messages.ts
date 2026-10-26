@@ -162,6 +162,22 @@ const ar = {
   eventDeleted: 'تم حذف الحدث',
   eventMoved: 'تم نقل الحدث',
   eventResized: 'تم تغيير مدة الحدث',
+  aboutOpen: 'عن التطبيق والخصوصية',
+  aboutTitle: 'عن ناوي توداي',
+  aboutWhatH: 'ما هو',
+  aboutWhat: 'تقويم شخصي يعمل على جهازك. لا حساب ولا خادم.',
+  aboutDataH: 'أين بياناتك',
+  aboutData:
+    'كل أحداثك وتقويماتك وإعداداتك محفوظة في متصفح هذا الجهاز فقط. لا تُرسَل إلى أي جهة، ولا يوجد تتبّع ولا إحصاءات. التطبيق لا يطلب من الإنترنت إلا ملفاته هو ليعمل بلا اتصال ويتحدّث.',
+  aboutRiskH: 'ما يعنيه هذا لك',
+  aboutRisk:
+    'إن مسحتَ بيانات المتصفح أو فقدتَ الجهاز فقدتَ التقويم، ولا نسخة لدينا نعيدها لك. نزّل نسخة احتياطية من «البيانات» من وقت لآخر، ويمكنك أيضًا تصدير ملف ICS.',
+  aboutNoH: 'ما لا يفعله',
+  aboutNo:
+    'لا تذكيرات ولا إشعارات: التطبيق لا يستطيع تنبيهك عند موعد الحدث. ولا مزامنة بين أجهزتك؛ للانتقال إلى جهاز آخر استخدم النسخة الاحتياطية.',
+  aboutLicH: 'تراخيص',
+  aboutLic:
+    'الخط: IBM Plex Sans Arabic بترخيص OFL 1.1، وهو مضمَّن في التطبيق ولا يُحمَّل من الإنترنت.',
   shortcutsOpen: 'اختصارات لوحة المفاتيح',
   shortcutsTitle: 'اختصارات لوحة المفاتيح',
   shortcutsNote: 'تعمل على المفتاح الفعلي، فهي نفسها بأي لغة إدخال. لا تعمل أثناء الكتابة في خانة.',
@@ -429,6 +445,22 @@ const en: Record<MessageKey, string> = {
   eventDeleted: 'Event deleted',
   eventMoved: 'Event moved',
   eventResized: 'Event length changed',
+  aboutOpen: 'About and privacy',
+  aboutTitle: 'About Nawy Today',
+  aboutWhatH: 'What it is',
+  aboutWhat: 'A personal calendar that runs on your device. No account and no server.',
+  aboutDataH: 'Where your data lives',
+  aboutData:
+    'All your events, calendars and settings are stored in this device’s browser only. Nothing is sent anywhere, and there is no tracking or analytics. The app asks the internet only for its own files, so it can work offline and update.',
+  aboutRiskH: 'What that means for you',
+  aboutRisk:
+    'If you clear the browser’s data or lose the device, the calendar is gone, and we have no copy to give back. Download a backup from “Data” now and then; you can also export an ICS file.',
+  aboutNoH: 'What it does not do',
+  aboutNo:
+    'No reminders and no notifications: the app cannot alert you when an event is due. No sync between your devices; to move to another device use a backup.',
+  aboutLicH: 'Licences',
+  aboutLic:
+    'Font: IBM Plex Sans Arabic, licensed under OFL 1.1. It is bundled with the app and not loaded from the internet.',
   shortcutsOpen: 'Keyboard shortcuts',
   shortcutsTitle: 'Keyboard shortcuts',
   shortcutsNote:

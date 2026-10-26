@@ -335,6 +335,21 @@ button.block {
   text-align: center;
 }
 
+.modal.about {
+  inline-size: min(520px, 100%);
+}
+
+.about-head {
+  margin-block: 12px 4px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.about-text {
+  margin: 0;
+  line-height: 1.7;
+}
+
 /* A phone has no keyboard to speak of: the entry in the menu is not offered. */
 @media (pointer: coarse) {
   .shortcuts-btn {

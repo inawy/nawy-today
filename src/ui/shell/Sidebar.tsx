@@ -16,6 +16,7 @@ export interface SidebarProps {
   readonly onInstall?: (() => void) | undefined;
   readonly onOpenData?: (() => void) | undefined;
   readonly onOpenShortcuts?: (() => void) | undefined;
+  readonly onOpenAbout?: (() => void) | undefined;
   /** Lets the person jump to a date from a small month. */
   readonly mini?:
     | {
@@ -43,6 +44,7 @@ export function Sidebar({
   onInstall,
   onOpenData,
   onOpenShortcuts,
+  onOpenAbout,
   mini,
   onNewCalendar,
   onEditCalendar,
@@ -176,6 +178,11 @@ export function Sidebar({
         {onOpenShortcuts && (
           <button type="button" className="btn shortcuts-btn" onClick={onOpenShortcuts}>
             {t('shortcutsOpen')}
+          </button>
+        )}
+        {onOpenAbout && (
+          <button type="button" className="btn" onClick={onOpenAbout}>
+            {t('aboutOpen')}
           </button>
         )}
         {onInstall && (
