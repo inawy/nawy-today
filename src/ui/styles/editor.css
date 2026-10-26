@@ -369,8 +369,13 @@ button.block {
     inset-block-end: calc(72px + env(safe-area-inset-bottom));
   }
 
+  /* A notice is a bar across the screen, not a narrow card that wraps and hides the content. */
   .toast {
     inset-block-end: calc(76px + env(safe-area-inset-bottom));
+    inset-inline: 8px;
+    translate: none;
+    max-inline-size: none;
+    justify-content: space-between;
   }
 }
 

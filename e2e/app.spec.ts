@@ -320,6 +320,44 @@ test.describe('on a phone', () => {
     await expect(page.getByRole('button', { name: 'Agenda' })).toBeVisible(); // still in the app
   });
 
+  test('the menu lines its buttons and lists up inside the drawer (D-056)', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Menu' }).click();
+    const sidebar = page.locator('.sidebar');
+    await expect(sidebar).toBeVisible();
+    const boxes = await page.evaluate(() => {
+      const box = (el: Element) => {
+        const r = el.getBoundingClientRect();
+        return { left: r.left, right: r.right, width: r.width };
+      };
+      const side = document.querySelector('.sidebar');
+      return {
+        side: side ? box(side) : null,
+        buttons: [...document.querySelectorAll('.sidebar-settings > .btn')].map(box),
+        selects: [...document.querySelectorAll('.sidebar-settings select')].map(box),
+      };
+    });
+    expect(boxes.side).not.toBeNull();
+    expect(boxes.buttons.length).toBeGreaterThan(0);
+    const widths = [...boxes.buttons, ...boxes.selects].map((b) => Math.round(b.width));
+    expect(new Set(widths).size, `widths differ: ${widths.join(', ')}`).toBe(1);
+    for (const b of [...boxes.buttons, ...boxes.selects]) {
+      expect(b.left).toBeGreaterThanOrEqual((boxes.side?.left ?? 0) - 0.5);
+      expect(b.right).toBeLessThanOrEqual((boxes.side?.right ?? 0) + 0.5);
+    }
+  });
+
+  test('a notice is a bar inside the screen, not a card that wraps', async ({ page }) => {
+    await page.goto('/');
+    const toast = page.locator('.toast').first();
+    await toast.waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
+    test.skip((await toast.count()) === 0, 'no notice appeared in this run');
+    const box = await toast.boundingBox();
+    expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
+    expect((box?.x ?? 0) + (box?.width ?? 999)).toBeLessThanOrEqual(390);
+    expect(box?.height ?? 999).toBeLessThanOrEqual(80);
+  });
+
   test('buttons are at least 44px tall', async ({ page }) => {
     await page.goto('/');
     const small = await page.evaluate(() =>

@@ -73,6 +73,17 @@
   margin-block-start: 24px;
 }
 
+/* The buttons under the settings share one width and one rhythm (D-056). */
+.sidebar-settings > .btn {
+  display: block;
+  inline-size: 100%;
+  margin-block-start: 8px;
+}
+
+.sidebar-settings > .ed-check {
+  margin-block-end: 4px;
+}
+
 .calendar-list {
   list-style: none;
   margin: 0;

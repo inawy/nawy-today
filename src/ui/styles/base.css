@@ -164,6 +164,9 @@ input:not([type='checkbox']) {
 }
 
 .field select {
+  inline-size: 100%;
+  min-inline-size: 0;
+  text-overflow: ellipsis;
   min-block-size: 44px;
   padding-inline: 8px;
   border: 1px solid var(--border);

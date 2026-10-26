@@ -78,6 +78,7 @@ export function TimeGrid({
   return (
     <div
       className="tg"
+      data-cols={count}
       ref={rootRef}
       style={{ '--cols': count, '--hour-h': `${HOUR_PX}px`, '--lanes': allDayRows } as Vars}
     >

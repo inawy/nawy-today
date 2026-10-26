@@ -93,7 +93,7 @@ export function TopBar({
       </button>
       <h1 className="topbar-title" aria-live="polite">
         {lead !== undefined && `${lead} `}
-        <span className="title-rest">{rest}</span>
+        <span className={lead === undefined ? undefined : 'title-rest'}>{rest}</span>
         {subtitle && <small className="topbar-sub">{subtitle}</small>}
       </h1>
       <button

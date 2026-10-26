@@ -284,3 +284,35 @@ button.tg-headcell:hover {
   cursor: grabbing;
   transition: none;
 }
+
+/* A phone shows seven day columns about 47px wide (D-056): the title is what matters, so it
+   wraps instead of being cut to three letters, and the time (in the card on tap) is left out. */
+@media (max-width: 599px) {
+  .tg[data-cols='7'] .block {
+    padding-inline: 3px;
+    font-size: 0.6875rem;
+    line-height: 1.2;
+  }
+
+  .tg[data-cols='7'] .block-time {
+    display: none;
+  }
+
+  .tg[data-cols='7'] .block-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+  }
+
+  .tg[data-cols='7'] .block[data-short='true'] {
+    align-items: flex-start;
+    padding-block: 1px;
+  }
+
+  .tg[data-cols='7'] .block[data-short='true'] .block-title {
+    -webkit-line-clamp: 1;
+  }
+}
