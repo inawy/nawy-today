@@ -333,7 +333,10 @@ test.describe('on a phone', () => {
       const side = document.querySelector('.sidebar');
       return {
         side: side ? box(side) : null,
-        buttons: [...document.querySelectorAll('.sidebar-settings > .btn')].map(box),
+        // Hidden ones (the shortcuts button on a touch screen) have no box and are not measured.
+        buttons: [...document.querySelectorAll('.sidebar-settings > .btn')]
+          .map(box)
+          .filter((b) => b.width > 0),
         selects: [...document.querySelectorAll('.sidebar-settings select')].map(box),
       };
     });
