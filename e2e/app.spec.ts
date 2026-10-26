@@ -106,7 +106,9 @@ test.describe('the whole cycle in a real browser', () => {
     await addEvent(page, 'Month drag');
     const bar = page.locator('.month .bar', { hasText: 'Month drag' });
     const weekIndex = () =>
-      bar.evaluate((el) => [...document.querySelectorAll('.month .week')].indexOf(el.closest('.week')!));
+      bar.evaluate((el) =>
+        [...document.querySelectorAll('.month .week')].indexOf(el.closest('.week')!),
+      );
     const before = await weekIndex();
     const rows = await page.locator('.month .week').count();
     const down = before < rows - 1;
