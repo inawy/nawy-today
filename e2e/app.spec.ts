@@ -79,7 +79,8 @@ test.describe('the whole cycle in a real browser', () => {
     await expect(dialog).toBeHidden();
     await page.getByRole('button', { name: 'Week', exact: true }).click();
     const bar = page.locator('.tg-allday .bar', { hasText: 'Holiday' });
-    const column = async () => Number(((await bar.evaluate((el) => el.style.gridColumn)) ?? '').split(' ')[0]);
+    const column = async () =>
+      Number(((await bar.evaluate((el) => el.style.gridColumn)) ?? '').split(' ')[0]);
     const before = await column();
     const box = await bar.boundingBox();
     if (!box) throw new Error('the item has no box');
