@@ -83,4 +83,3 @@ describe('the view the app opens on (D-054)', () => {
     expect((await screen.findAllByRole('button', { name: 'Month', pressed: true })).length).toBe(1);
   });
 });
-
