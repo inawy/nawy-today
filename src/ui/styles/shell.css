@@ -357,3 +357,8 @@
   color: var(--on-accent-fill);
   font-weight: 600;
 }
+
+/* A narrow bar may wrap the title after its comma, never inside "25 أكتوبر 2026". */
+.title-rest {
+  white-space: nowrap;
+}

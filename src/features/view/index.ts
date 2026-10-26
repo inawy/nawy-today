@@ -1,4 +1,4 @@
-export { hijriSubtitle, shiftAnchor, viewTitle, visibleDays } from './nav';
+export { hijriSubtitle, shiftAnchor, splitTitle, viewTitle, visibleDays } from './nav';
 export type { ViewKind } from './nav';
 export { shortcutFor, useShortcuts } from './shortcuts';
 export { SHORTCUT_GROUPS } from './help';

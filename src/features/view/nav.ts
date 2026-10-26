@@ -84,3 +84,15 @@ export function hijriSubtitle(
     }
   }
 }
+
+/**
+ * Splits a title at its first comma (Latin or Arabic) so a narrow bar can wrap there and keep the
+ * rest, "25 أكتوبر 2026", on one line. A title with no comma is not split.
+ */
+export function splitTitle(title: string): {
+  readonly lead: string | undefined;
+  readonly rest: string;
+} {
+  const m = /^([^،,]+[،,])\s+(.+)$/.exec(title);
+  return m ? { lead: m[1], rest: m[2] ?? '' } : { lead: undefined, rest: title };
+}

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { hijriSubtitle, shiftAnchor, shortcutFor, viewTitle, visibleDays } from '@/features/view';
+import {
+  hijriSubtitle,
+  shiftAnchor,
+  shortcutFor,
+  splitTitle,
+  viewTitle,
+  visibleDays,
+} from '@/features/view';
 import type { KeyLike } from '@/features/view';
 
 describe('shiftAnchor', () => {
@@ -127,5 +134,17 @@ describe('hijriSubtitle', () => {
   it('is the Hijri month(s) for a week or a month', () => {
     expect(hijriSubtitle('week', '2026-10-13', 6, ar)).toContain('1448');
     expect(hijriSubtitle('month', '2026-10-13', 6, ar)).toContain('–');
+  });
+});
+
+describe('splitTitle', () => {
+  it('splits at the first comma, Arabic or Latin, and keeps the rest whole', () => {
+    expect(splitTitle('الأحد، 25 أكتوبر 2026')).toEqual({ lead: 'الأحد،', rest: '25 أكتوبر 2026' });
+    expect(splitTitle('Oct 12 – 18, 2026')).toEqual({ lead: 'Oct 12 – 18,', rest: '2026' });
+  });
+
+  it('leaves a title with no comma alone', () => {
+    expect(splitTitle('أكتوبر 2026')).toEqual({ lead: undefined, rest: 'أكتوبر 2026' });
+    expect(splitTitle('')).toEqual({ lead: undefined, rest: '' });
   });
 });

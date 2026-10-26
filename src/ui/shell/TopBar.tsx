@@ -1,6 +1,7 @@
 import type { Ref } from 'react';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
+import { splitTitle } from '@/features/view';
 import type { ViewKind } from '@/features/view';
 import { ChevronIcon, MenuIcon, SearchIcon } from './Icons';
 
@@ -56,6 +57,7 @@ export function TopBar({
   onSearch,
 }: TopBarProps) {
   const t = useT();
+  const { lead, rest } = splitTitle(title);
   return (
     <header className="topbar">
       <button
@@ -90,7 +92,8 @@ export function TopBar({
         <ChevronIcon />
       </button>
       <h1 className="topbar-title" aria-live="polite">
-        {title}
+        {lead !== undefined && `${lead} `}
+        <span className="title-rest">{rest}</span>
         {subtitle && <small className="topbar-sub">{subtitle}</small>}
       </h1>
       <button
