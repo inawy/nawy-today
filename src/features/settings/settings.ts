@@ -5,6 +5,16 @@ import type { IsoWeekday, Numerals } from '@/core/time';
 
 export type Locale = 'ar' | 'en';
 export type ThemePreference = 'auto' | 'light' | 'dark';
+/** The view the app opens on. `auto`: the Today list on a phone, the month elsewhere (D-025). */
+export type DefaultView = 'auto' | 'agenda' | 'day' | 'days3' | 'week' | 'month';
+export const DEFAULT_VIEWS: readonly DefaultView[] = [
+  'auto',
+  'agenda',
+  'day',
+  'days3',
+  'week',
+  'month',
+];
 
 export interface Settings {
   readonly locale: Locale;
@@ -14,6 +24,7 @@ export interface Settings {
   /** Show the Hijri date as a small secondary line (display only, D-016). */
   readonly hijri: boolean;
   readonly numerals: Numerals;
+  readonly defaultView: DefaultView;
 }
 
 export const SETTINGS_KEY = 'nawy-today:settings:v1';
@@ -32,6 +43,7 @@ export function defaultSettings(locale: Locale): Settings {
     hour12: true,
     hijri: false,
     numerals: 'latn',
+    defaultView: 'auto',
   };
 }
 
@@ -56,6 +68,7 @@ export function parseSettings(raw: unknown, fallbackLocale: Locale): Settings {
     hour12: typeof o['hour12'] === 'boolean' ? o['hour12'] : d.hour12,
     hijri: typeof o['hijri'] === 'boolean' ? o['hijri'] : d.hijri,
     numerals: isOneOf(o['numerals'], ['latn', 'arab'] as const) ? o['numerals'] : d.numerals,
+    defaultView: isOneOf(o['defaultView'], DEFAULT_VIEWS) ? o['defaultView'] : d.defaultView,
   };
 }
 

@@ -3,7 +3,8 @@ import type { IsoWeekday, Numerals } from '@/core/time';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
-import type { Locale, ThemePreference } from '@/features/settings';
+import { DEFAULT_VIEWS } from '@/features/settings';
+import type { DefaultView, Locale, ThemePreference } from '@/features/settings';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
 import type { FormatOptions, PlainDate } from '@/core/time';
 import { EditIcon, PlusIcon } from './Icons';
@@ -31,6 +32,15 @@ export interface SidebarProps {
   /** Steps for this platform, shown when no install button is possible and the app is not installed yet. */
   readonly installHelp?: 'ios' | 'android' | 'desktop' | null | undefined;
 }
+
+const VIEW_LABELS: Record<DefaultView, MessageKey> = {
+  auto: 'defaultViewAuto',
+  agenda: 'viewAgenda',
+  day: 'viewDay',
+  days3: 'viewDays3',
+  week: 'viewWeek',
+  month: 'viewMonth',
+};
 
 const THEMES: readonly [ThemePreference, MessageKey][] = [
   ['auto', 'themeAuto'],
@@ -140,6 +150,19 @@ export function Sidebar({
             <option value={6}>{t('daySaturday')}</option>
             <option value={7}>{t('daySunday')}</option>
             <option value={1}>{t('dayMonday')}</option>
+          </select>
+        </label>
+        <label className="field">
+          <span>{t('defaultViewLabel')}</span>
+          <select
+            value={settings.defaultView}
+            onChange={(e) => update({ defaultView: e.currentTarget.value as DefaultView })}
+          >
+            {DEFAULT_VIEWS.map((value) => (
+              <option key={value} value={value}>
+                {t(VIEW_LABELS[value])}
+              </option>
+            ))}
           </select>
         </label>
         <label className="field">

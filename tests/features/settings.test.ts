@@ -39,6 +39,7 @@ describe('parseSettings is lenient field by field', () => {
       hour12: false,
       hijri: true,
       numerals: 'arab',
+      defaultView: 'week',
     };
     expect(parseSettings(s, 'ar')).toEqual(s);
   });
@@ -53,6 +54,13 @@ describe('parseSettings is lenient field by field', () => {
 
   it.each([null, undefined, 'x', 42, [], {}])('survives %j', (raw) => {
     expect(parseSettings(raw, 'ar')).toEqual(defaultSettings('ar'));
+  });
+
+  it('opens on the automatic view unless a known one was chosen', () => {
+    expect(defaultSettings('ar').defaultView).toBe('auto');
+    expect(parseSettings({ defaultView: 'days3' }, 'ar').defaultView).toBe('days3');
+    expect(parseSettings({ defaultView: 'year' }, 'ar').defaultView).toBe('auto');
+    expect(parseSettings({ defaultView: 7 }, 'ar').defaultView).toBe('auto');
   });
 
   it('rejects fractional and out-of-range week starts', () => {

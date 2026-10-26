@@ -19,7 +19,7 @@ import type { WorkerContainer } from '@/features/pwa';
 import { buildSearchIndex } from '@/features/search';
 import { buildMonthModel, monthOf } from '@/features/month';
 import { SettingsProvider, useSettings } from '@/features/settings';
-import type { ReadableStorage, WritableStorage } from '@/features/settings';
+import type { DefaultView, ReadableStorage, WritableStorage } from '@/features/settings';
 import { buildTimeGridModel } from '@/features/timegrid';
 import { useEventFlow } from './useEventFlow';
 import {
@@ -65,8 +65,12 @@ export interface AppProps {
   readonly serviceWorker?: WorkerContainer | undefined;
 }
 
-/** Phones open on the Today list (PRODUCT_SPEC 3.2); wider screens on the month. */
-function initialView(): ViewKind {
+/**
+ * The view to open on: the person's choice (D-054), else phones open on the Today list
+ * (PRODUCT_SPEC 3.2) and wider screens on the month. Read once at start.
+ */
+function initialView(preferred: DefaultView): ViewKind {
+  if (preferred !== 'auto') return preferred;
   try {
     return window.matchMedia?.('(max-width: 599px)').matches ? 'agenda' : 'month';
   } catch {
@@ -141,7 +145,7 @@ function Calendar({
   const calendarData = useCalendarData();
   const nowLocal = useNowLocal(now);
   const today = datePart(nowLocal);
-  const [view, setView] = useState<ViewKind>(initialView);
+  const [view, setView] = useState<ViewKind>(() => initialView(settings.defaultView));
   const [anchor, setAnchor] = useState<PlainDate>(today);
   const motion = useViewMotion(view, anchor);
   const pwa = useServiceWorker(worker);

@@ -7,6 +7,18 @@ import { SETTINGS_KEY } from '@/features/settings';
 
 afterEach(cleanup);
 
+const memory = (initial?: Record<string, unknown>) => {
+  const m = new Map<string, string>();
+  if (initial) m.set(SETTINGS_KEY, JSON.stringify(initial));
+  return {
+    m,
+    storage: {
+      getItem: (k: string) => m.get(k) ?? null,
+      setItem: (k: string, v: string) => void m.set(k, v),
+    },
+  };
+};
+
 describe('display settings', () => {
   it('week start, time format and numerals are changeable and remembered', async () => {
     const m = new Map<string, string>();
@@ -42,3 +54,33 @@ describe('display settings', () => {
     expect(heading.textContent).toContain('October 2026');
   });
 });
+
+describe('the view the app opens on (D-054)', () => {
+  const open = (storage: ReturnType<typeof memory>['storage']) =>
+    render(
+      <App
+        create={() => createDb(`dv-${Math.random().toString(36).slice(2)}`)}
+        now={() => Date.UTC(2026, 9, 13, 12)}
+        storage={storage}
+      />,
+    );
+
+  it('is remembered when changed', async () => {
+    const { m, storage } = memory();
+    open(storage);
+    fireEvent.change(await screen.findByLabelText('View when the app opens'), {
+      target: { value: 'week' },
+    });
+    expect(JSON.parse(m.get(SETTINGS_KEY) ?? '{}')).toMatchObject({ defaultView: 'week' });
+  });
+
+  it('opens on the chosen view, and on the month when nothing was chosen', async () => {
+    const chosen = memory({ locale: 'en', defaultView: 'week' });
+    const first = open(chosen.storage);
+    expect((await screen.findAllByRole('button', { name: 'Week', pressed: true })).length).toBe(1);
+    first.unmount();
+    open(memory({ locale: 'en' }).storage);
+    expect((await screen.findAllByRole('button', { name: 'Month', pressed: true })).length).toBe(1);
+  });
+});
+

@@ -1,4 +1,5 @@
 export {
+  DEFAULT_VIEWS,
   SETTINGS_KEY,
   applyToDocument,
   defaultSettings,
@@ -8,6 +9,7 @@ export {
   saveSettings,
 } from './settings';
 export type {
+  DefaultView,
   Locale,
   ReadableStorage,
   Settings,
