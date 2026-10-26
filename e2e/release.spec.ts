@@ -150,7 +150,9 @@ test.describe('keyboard and focus', () => {
     await page.goto('/');
     await addEvent(page, 'Reach me');
     const seen = new Set<string>();
-    for (let i = 0; i < 60; i += 1) {
+    // The month grid has a Tab stop per day, so how far the event is depends on which week of the
+    // month today falls in: allow a full month grid plus the page chrome, and stop when it is found.
+    for (let i = 0; i < 150; i += 1) {
       await page.keyboard.press('Tab');
       const info = await page.evaluate(() => {
         const el = document.activeElement as HTMLElement | null;
@@ -167,6 +169,7 @@ test.describe('keyboard and focus', () => {
       if (info) {
         seen.add(info.label);
         expect(info.visibleRing, `no visible focus on "${info.label}"`).toBe(true);
+        if (info.label.includes('Reach me')) break;
       }
     }
     expect(seen.has('Reach me') || [...seen].some((l) => l.includes('Reach me'))).toBe(true);
