@@ -30,6 +30,7 @@ describe('about and privacy', () => {
     const dialog = await screen.findByRole('dialog', { name: 'About Nawy Today' });
     expect(within(dialog).getByText(/No reminders and no notifications/)).toBeTruthy();
     expect(within(dialog).getByText(/we have no copy to give back/)).toBeTruthy();
+    expect(within(dialog).getByText(/^Build:/)).toBeTruthy();
     // Shortcuts pause while it is open: "C" must not start a new event.
     fireEvent.keyDown(window, { code: 'KeyC' });
     expect(screen.queryByRole('dialog', { name: 'New event' })).toBeNull();

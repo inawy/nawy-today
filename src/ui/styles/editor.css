@@ -350,6 +350,12 @@ button.block {
   line-height: 1.7;
 }
 
+.about-build {
+  margin-block: 16px 0;
+  font-size: 0.875rem;
+  user-select: text;
+}
+
 /* A phone has no keyboard to speak of: the entry in the menu is not offered. */
 @media (pointer: coarse) {
   .shortcuts-btn {
