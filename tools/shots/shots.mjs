@@ -120,4 +120,16 @@ await session('phone-ar', { viewport: { width: 390, height: 844 }, locale: 'ar-S
   await page.getByRole('button', { name: 'يوم', exact: true }).click(); await shot('day');
 });
 
+// A tall phone: shows the whole menu and the dialogs without scrolling (D-056).
+await session('phone-tall-ar', { viewport: { width: 390, height: 1500 }, locale: 'ar-SA', hasTouch: true, isMobile: true, deviceScaleFactor: 2 }, async (page, shot) => {
+  await page.getByRole('button', { name: 'القائمة' }).click(); await shot('menu');
+  await page.getByRole('button', { name: 'البيانات والنسخ الاحتياطي' }).click(); await shot('data');
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'القائمة' }).click();
+  await page.getByRole('button', { name: 'عن التطبيق والخصوصية' }).click(); await shot('about');
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'القائمة' }).click();
+  await page.getByRole('button', { name: 'إضافة تقويم' }).click(); await shot('calendar');
+});
+
 await browser.close();
