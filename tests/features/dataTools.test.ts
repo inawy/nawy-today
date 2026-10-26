@@ -152,8 +152,18 @@ describe('the round trip with everything a real calendar holds', () => {
 
     const all = async (db: typeof target) => {
       const env = await exportEnvelope(db, 1);
-      const byId = <T extends { id: string }>(rows: readonly T[]) =>
-        [...rows].sort((a, b) => a.id.localeCompare(b.id));
+      // A restore restamps the merge clock (updatedAt, and deletedAt on tombstones), so those two
+      // are compared by presence only; everything else must match exactly.
+      const byId = <T extends { id: string; updatedAt: number; deletedAt?: number }>(
+        rows: readonly T[],
+      ) =>
+        rows
+          .map((r) => ({
+            ...r,
+            updatedAt: 0,
+            ...(r.deletedAt === undefined ? {} : { deletedAt: 0 }),
+          }))
+          .sort((a, b) => a.id.localeCompare(b.id));
       return { calendars: byId(env.calendars), events: byId(env.events) };
     };
     const restored = await all(target);
