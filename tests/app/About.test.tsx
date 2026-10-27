@@ -31,6 +31,8 @@ describe('about and privacy', () => {
     expect(within(dialog).getByText(/No reminders and no notifications/)).toBeTruthy();
     expect(within(dialog).getByText(/we have no copy to give back/)).toBeTruthy();
     expect(within(dialog).getByText(/^Build:/)).toBeTruthy();
+    expect(within(dialog).getByText(/Version 1\.0\./)).toBeTruthy();
+    expect(within(dialog).getByText(/not yet been tried on many devices/)).toBeTruthy();
     // Shortcuts pause while it is open: "C" must not start a new event.
     fireEvent.keyDown(window, { code: 'KeyC' });
     expect(screen.queryByRole('dialog', { name: 'New event' })).toBeNull();

@@ -177,6 +177,9 @@ const ar = {
   aboutNoH: 'ما لا يفعله',
   aboutNo:
     'لا تذكيرات ولا إشعارات: التطبيق لا يستطيع تنبيهك عند موعد الحدث. ولا مزامنة بين أجهزتك؛ للانتقال إلى جهاز آخر استخدم النسخة الاحتياطية.',
+  aboutStateH: 'حالة هذه النسخة',
+  aboutState:
+    'النسخة 1.0. جرّبها صاحب المشروع على هاتف حقيقي في الاستخدام اليومي وفي النسخ الاحتياطي والاسترجاع. لم تُجرَّب بعد على أجهزة ومتصفحات وقارئات شاشة كثيرة. إن تعطّل شيء فاحتفظ برقم النسخة أدناه.',
   aboutLicH: 'تراخيص',
   aboutLic:
     'الخط: IBM Plex Sans Arabic بترخيص OFL 1.1، وهو مضمَّن في التطبيق ولا يُحمَّل من الإنترنت.',
@@ -466,6 +469,9 @@ const en: Record<MessageKey, string> = {
   aboutNoH: 'What it does not do',
   aboutNo:
     'No reminders and no notifications: the app cannot alert you when an event is due. No sync between your devices; to move to another device use a backup.',
+  aboutStateH: 'State of this version',
+  aboutState:
+    'Version 1.0. The project owner has used it on a real phone for daily use and for backup and restore. It has not yet been tried on many devices, browsers or screen readers. If something breaks, keep the build number below.',
   aboutLicH: 'Licences',
   aboutLic:
     'Font: IBM Plex Sans Arabic, licensed under OFL 1.1. It is bundled with the app and not loaded from the internet.',

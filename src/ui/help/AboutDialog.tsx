@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { useT } from '@/features/i18n';
-import { BUILD_INFO } from '@/lib/buildInfo';
+import { BUILD_INFO, RELEASE } from '@/lib/buildInfo';
 import { trapTab } from '@/lib/focusTrap';
 import { CloseIcon } from '../shell/Icons';
 
@@ -14,10 +14,11 @@ const SECTIONS = [
   ['aboutDataH', 'aboutData'],
   ['aboutRiskH', 'aboutRisk'],
   ['aboutNoH', 'aboutNo'],
+  ['aboutStateH', 'aboutState'],
   ['aboutLicH', 'aboutLic'],
 ] as const;
 
-const build = [BUILD_INFO.sha, BUILD_INFO.date].filter(Boolean).join(' · ');
+const build = [RELEASE, BUILD_INFO.sha, BUILD_INFO.date].filter(Boolean).join(' · ');
 
 /** What the app is, where the data lives, and what it cannot do (D-051). Read-only. */
 export function AboutDialog({ onClose }: AboutDialogProps) {
