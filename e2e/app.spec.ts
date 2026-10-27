@@ -365,7 +365,10 @@ test.describe('on a phone', () => {
         .map((el) => ({ el, box: el.getBoundingClientRect() }))
         .filter(({ box }) => box.width > 0 && (box.left < -0.5 || box.right > width + 0.5))
         .slice(0, 8)
-        .map(({ el, box }) => `${el.tagName}.${el.className} ${Math.round(box.left)}..${Math.round(box.right)}`);
+        .map(
+          ({ el, box }) =>
+            `${el.tagName}.${el.className} ${Math.round(box.left)}..${Math.round(box.right)}`,
+        );
     });
     expect(outside, 'parts of the editor outside the screen').toEqual([]);
     const body = dialog.locator('.ed-body');
