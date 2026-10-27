@@ -36,3 +36,32 @@ export function daysSinceBackup(input: ReminderInput): number {
   const since = input.lastBackupAt ?? input.startedAt;
   return Math.max(0, Math.floor((input.now - since) / DAY_MS));
 }
+
+export const WARN_STORAGE_AGAIN_AFTER_DAYS = 14;
+
+export interface StorageWarningInput {
+  readonly now: number;
+  /** What the browser answered when asked for durable storage. Only `denied` warns. */
+  readonly persistence: 'granted' | 'denied' | 'unsupported' | 'pending';
+  readonly lastBackupAt: number | undefined;
+  readonly lastWarnedAt: number | undefined;
+  /** Live events (not tombstones). */
+  readonly eventCount: number;
+}
+
+/**
+ * Should the app say, early, that the browser refused to keep the data for good (D-057)? Only
+ * when something is worth losing and no backup file was saved lately: with a recent file the
+ * person is already protected, and the ordinary reminder takes over later.
+ */
+export function shouldWarnStorage(input: StorageWarningInput): boolean {
+  if (input.persistence !== 'denied') return false;
+  if (input.eventCount < MIN_EVENTS_TO_REMIND) return false;
+  const recentBackup =
+    input.lastBackupAt !== undefined && input.now - input.lastBackupAt < REMIND_AFTER_DAYS * DAY_MS;
+  if (recentBackup) return false;
+  return !(
+    input.lastWarnedAt !== undefined &&
+    input.now - input.lastWarnedAt < WARN_STORAGE_AGAIN_AFTER_DAYS * DAY_MS
+  );
+}

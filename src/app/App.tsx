@@ -165,6 +165,7 @@ function Calendar({
     now,
     eventCount: calendarData.events.filter((e) => e.seriesId === undefined).length,
     enabled: data.status === 'ready' && calendarData.status === 'ready',
+    persistence: data.status === 'ready' ? data.persistence : undefined,
   });
   const { markBackedUp } = reminder;
   const tools = useMemo(
@@ -310,6 +311,9 @@ function Calendar({
   const skipped = active.skipped;
   const problems = active.problems;
 
+  const showStorageWarning =
+    reminder.storageWarning && !reminder.show && !flow.dialogOpen && !searchOpen && !dataOpen;
+
   return (
     <Shell
       title={viewTitle(view, anchor, settings.weekStart, fmt)}
@@ -385,6 +389,19 @@ function Calendar({
             </button>
             <button type="button" className="btn" onClick={reminder.dismiss}>
               {t('reminderLater')}
+            </button>
+          </span>
+        </p>
+      )}
+      {showStorageWarning && (
+        <p role="status" className="banner banner-action">
+          <span>{t('storageWarnText')}</span>
+          <span className="banner-buttons">
+            <button type="button" className="btn" onClick={() => setDataOpen(true)}>
+              {t('reminderNow')}
+            </button>
+            <button type="button" className="btn" onClick={reminder.dismissStorageWarning}>
+              {t('storageWarnDismiss')}
             </button>
           </span>
         </p>

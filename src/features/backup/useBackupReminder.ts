@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { daysSinceBackup, shouldRemindBackup } from '@/core/backup';
+import { daysSinceBackup, shouldRemindBackup, shouldWarnStorage } from '@/core/backup';
 import { loadBackupState, saveBackupState } from './state';
 import type { BackupState, ReadableStorage, WritableStorage } from './state';
 
@@ -13,6 +13,9 @@ export interface BackupReminder {
   readonly markBackedUp: (at: number) => void;
   /** "Later": do not show again for a while. */
   readonly dismiss: () => void;
+  /** The browser refused durable storage and nothing protects the data yet (D-057). */
+  readonly storageWarning: boolean;
+  readonly dismissStorageWarning: () => void;
 }
 
 export interface BackupReminderOptions {
@@ -22,6 +25,8 @@ export interface BackupReminderOptions {
   readonly eventCount: number;
   /** False while the data is still loading or has failed. */
   readonly enabled: boolean;
+  /** The browser's answer to the durable-storage request. */
+  readonly persistence?: 'granted' | 'denied' | 'unsupported' | 'pending' | undefined;
 }
 
 export function useBackupReminder({
@@ -29,6 +34,7 @@ export function useBackupReminder({
   now,
   eventCount,
   enabled,
+  persistence = 'pending',
 }: BackupReminderOptions): BackupReminder {
   const [state, setState] = useState<BackupState>(() => loadBackupState(storage));
 
@@ -53,6 +59,7 @@ export function useBackupReminder({
 
   const markBackedUp = useCallback((at: number) => update({ lastBackupAt: at }), [update]);
   const dismiss = useCallback(() => update({ lastRemindedAt: now() }), [update, now]);
+  const dismissStorageWarning = useCallback(() => update({ lastWarnedAt: now() }), [update, now]);
 
   const input = {
     now: now(),
@@ -67,5 +74,15 @@ export function useBackupReminder({
     days: daysSinceBackup(input),
     markBackedUp,
     dismiss,
+    storageWarning:
+      enabled &&
+      shouldWarnStorage({
+        now: now(),
+        persistence,
+        lastBackupAt: state.lastBackupAt,
+        lastWarnedAt: state.lastWarnedAt,
+        eventCount,
+      }),
+    dismissStorageWarning,
   };
 }

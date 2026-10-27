@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { daysSinceBackup, shouldRemindBackup, type ReminderInput } from '@/core/backup';
+import {
+  daysSinceBackup,
+  shouldRemindBackup,
+  shouldWarnStorage,
+  type ReminderInput,
+  type StorageWarningInput,
+} from '@/core/backup';
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.UTC(2026, 9, 19);
@@ -42,5 +48,33 @@ describe('daysSinceBackup', () => {
     expect(daysSinceBackup(base)).toBe(31);
     expect(daysSinceBackup({ ...base, lastBackupAt: undefined })).toBe(100);
     expect(daysSinceBackup({ ...base, lastBackupAt: NOW + DAY })).toBe(0);
+  });
+});
+
+describe('shouldWarnStorage', () => {
+  const warn: StorageWarningInput = {
+    now: NOW,
+    persistence: 'denied',
+    lastBackupAt: undefined,
+    lastWarnedAt: undefined,
+    eventCount: 3,
+  };
+
+  it('warns when the browser refused, there is something to lose and no backup file', () => {
+    expect(shouldWarnStorage(warn)).toBe(true);
+  });
+  it.each(['granted', 'unsupported', 'pending'] as const)('stays quiet when it is %s', (p) => {
+    expect(shouldWarnStorage({ ...warn, persistence: p })).toBe(false);
+  });
+  it('stays quiet with fewer than 3 events', () => {
+    expect(shouldWarnStorage({ ...warn, eventCount: 2 })).toBe(false);
+  });
+  it('stays quiet while a backup file is recent, and returns once it is 30 days old', () => {
+    expect(shouldWarnStorage({ ...warn, lastBackupAt: NOW - 29 * DAY })).toBe(false);
+    expect(shouldWarnStorage({ ...warn, lastBackupAt: NOW - 30 * DAY })).toBe(true);
+  });
+  it('after "Got it", stays quiet for 14 days', () => {
+    expect(shouldWarnStorage({ ...warn, lastWarnedAt: NOW - 13 * DAY })).toBe(false);
+    expect(shouldWarnStorage({ ...warn, lastWarnedAt: NOW - 14 * DAY })).toBe(true);
   });
 });

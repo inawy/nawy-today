@@ -6,6 +6,8 @@ export interface BackupState {
   readonly startedAt: number | undefined;
   readonly lastBackupAt: number | undefined;
   readonly lastRemindedAt: number | undefined;
+  /** When the "storage is not guaranteed" notice was last dismissed (D-057). */
+  readonly lastWarnedAt?: number | undefined;
 }
 
 export const BACKUP_STATE_KEY = 'nawy-today:backup:v1';
@@ -25,6 +27,7 @@ export function parseBackupState(raw: unknown): BackupState {
     startedAt: stamp(o['startedAt']),
     lastBackupAt: stamp(o['lastBackupAt']),
     lastRemindedAt: stamp(o['lastRemindedAt']),
+    lastWarnedAt: stamp(o['lastWarnedAt']),
   };
 }
 

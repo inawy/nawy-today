@@ -272,6 +272,9 @@ const ar = {
   reminderText: 'لم تحفظ نسخة احتياطية منذ {days} يومًا.',
   reminderNow: 'نزّل نسخة الآن',
   reminderLater: 'لاحقًا',
+  storageWarnText:
+    'المتصفح لم يضمن حفظ بياناتك: قد يمسحها عند ضيق المساحة. نزّل نسخة احتياطية تحميها.',
+  storageWarnDismiss: 'فهمت',
   recoveryTitle: 'الاسترداد',
   recoverySnapshot: 'تنزيل آخر لقطة محفوظة',
   recoveryNoSnapshot: 'لا توجد لقطة محفوظة في هذا المتصفح.',
@@ -566,6 +569,9 @@ const en: Record<MessageKey, string> = {
   reminderText: 'You have not saved a backup file in {days} days.',
   reminderNow: 'Download a backup now',
   reminderLater: 'Later',
+  storageWarnText:
+    'Your browser has not promised to keep your data: it may clear it when space runs low. Download a backup to protect it.',
+  storageWarnDismiss: 'Got it',
   recoveryTitle: 'Recovery',
   recoverySnapshot: 'Download the latest saved snapshot',
   recoveryNoSnapshot: 'No snapshot is saved in this browser.',
