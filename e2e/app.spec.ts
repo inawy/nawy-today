@@ -352,6 +352,26 @@ test.describe('on a phone', () => {
     }
   });
 
+  test('the month keeps its grid and lists the chosen day under it (D-059)', async ({ page }) => {
+    await page.goto('/');
+    await addEvent(page, 'Listed under the month');
+    await page.getByRole('button', { name: 'Month', exact: true }).click();
+    const title = page.locator('.month-day-title');
+    await expect(title).toBeVisible();
+    await expect(
+      page.locator('.month-day').getByRole('button', { name: /Listed under the month/ }),
+    ).toBeVisible();
+    const before = await title.textContent();
+    await page.locator('.day-btn[aria-pressed="false"]').nth(10).click();
+    await expect(title).not.toHaveText(before ?? '');
+    await expect(page.getByRole('button', { name: 'Month', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    // The grid is still on screen after the list scrolled or changed.
+    await expect(page.locator('.month-split .month')).toBeInViewport();
+  });
+
   test('the editor fits the screen, with a repeat rule open too (D-058)', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Add event' }).click();

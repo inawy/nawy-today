@@ -29,6 +29,11 @@ export interface MonthViewProps {
   readonly onOpenDay: (date: PlainDate) => void;
   /** Opens an event for editing. */
   readonly onOpenEvent: (occurrence: Occurrence) => void;
+  /**
+   * On a phone: the chosen day, shown with a ring. Touching a day then chooses it (the list of
+   * its events sits under the grid) instead of leaving the month (D-059).
+   */
+  readonly selected?: PlainDate | undefined;
   /** An item was dragged (or moved with Shift + arrows) by whole days: weeks count as 7 days. */
   readonly onMoveEvent?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
 }
@@ -42,6 +47,7 @@ export function MonthView({
   onOpenDay,
   onOpenEvent,
   onMoveEvent,
+  selected,
 }: MonthViewProps) {
   const t = useT();
   const { settings } = useSettings();
@@ -64,6 +70,7 @@ export function MonthView({
           month={model.month}
           today={today}
           lanes={lanes}
+          selected={selected}
           fmt={fmt}
           timeFmt={timeFmt}
           hijri={settings.hijri}
@@ -87,6 +94,7 @@ interface WeekRowProps {
   readonly month: number;
   readonly today: PlainDate;
   readonly lanes: number;
+  readonly selected: PlainDate | undefined;
   readonly fmt: FormatOptions;
   readonly timeFmt: TimeFormatOptions;
   /** Show the Hijri day under each day number (display only). */
@@ -103,6 +111,7 @@ function WeekRow({
   month,
   today,
   lanes,
+  selected,
   fmt,
   timeFmt,
   hijri,
@@ -123,6 +132,7 @@ function WeekRow({
             className="day"
             data-outside={inMonth ? undefined : 'true'}
             data-today={day === today ? 'true' : undefined}
+            data-selected={day === selected ? 'true' : undefined}
             style={{ gridColumn: col + 1 } as Vars}
           >
             <button
@@ -134,6 +144,7 @@ function WeekRow({
                   : formatDate(day, fmt, 'full')
               }
               aria-current={day === today ? 'date' : undefined}
+              aria-pressed={selected === undefined ? undefined : day === selected}
               onClick={() => onOpenDay(day)}
             >
               <time className="day-number" dateTime={day}>

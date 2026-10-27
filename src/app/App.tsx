@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { datePart, localTimeZone, nowMs } from '@/core/time';
+import { datePart, formatDate, localTimeZone, nowMs } from '@/core/time';
 import type { FormatOptions, PlainDate } from '@/core/time';
 import type { NawyDb, SnapshotDb } from '@/data';
 import type { FileToSave } from '@/features/backup';
@@ -33,6 +33,7 @@ import {
 import type { ShortcutAction, ViewKind } from '@/features/view';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { useBackLayer } from '@/lib/useBackLayer';
+import { useMediaQuery } from '@/lib/useMediaQuery';
 import { MonthView } from '@/ui/month/MonthView';
 import { LoadingScreen, RecoveryScreen } from '@/ui/RecoveryScreen';
 import { PlusIcon } from '@/ui/shell/Icons';
@@ -65,6 +66,9 @@ export interface AppProps {
   readonly serviceWorker?: WorkerContainer | undefined;
 }
 
+/** A phone-width screen. The same line is in the CSS (`max-width: 599px`). */
+const PHONE = '(max-width: 599px)';
+
 /**
  * The view to open on: the person's choice (D-054), else phones open on the Today list
  * (PRODUCT_SPEC 3.2) and wider screens on the month. Read once at start.
@@ -72,7 +76,7 @@ export interface AppProps {
 function initialView(preferred: DefaultView): ViewKind {
   if (preferred !== 'auto') return preferred;
   try {
-    return window.matchMedia?.('(max-width: 599px)').matches ? 'agenda' : 'month';
+    return window.matchMedia?.(PHONE).matches ? 'agenda' : 'month';
   } catch {
     return 'month';
   }
@@ -146,6 +150,7 @@ function Calendar({
   const nowLocal = useNowLocal(now);
   const today = datePart(nowLocal);
   const [view, setView] = useState<ViewKind>(() => initialView(settings.defaultView));
+  const phone = useMediaQuery(PHONE);
   const [anchor, setAnchor] = useState<PlainDate>(today);
   const motion = useViewMotion(view, anchor);
   const pwa = useServiceWorker(worker);
@@ -429,14 +434,25 @@ function Calendar({
         {view === 'agenda' ? (
           <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.showEvent} />
         ) : view === 'month' ? (
-          <MonthView
-            onMoveEvent={flow.moveEvent}
-            model={monthModel}
-            today={today}
-            lanes={MAX_LANES}
-            onOpenDay={openDay}
-            onOpenEvent={flow.showEvent}
-          />
+          <div className={phone ? 'month-split' : 'month-wrap'}>
+            <MonthView
+              onMoveEvent={flow.moveEvent}
+              model={monthModel}
+              today={today}
+              lanes={MAX_LANES}
+              selected={phone ? anchor : undefined}
+              onOpenDay={phone ? setAnchor : openDay}
+              onOpenEvent={flow.showEvent}
+            />
+            {phone && (
+              <section className="month-day" aria-labelledby="month-day-title">
+                <h2 id="month-day-title" className="month-day-title">
+                  {formatDate(anchor, fmt, 'full')}
+                </h2>
+                <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.showEvent} />
+              </section>
+            )}
+          </div>
         ) : (
           <TimeGrid
             key={view}
