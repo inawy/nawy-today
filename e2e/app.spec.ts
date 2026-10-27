@@ -352,6 +352,27 @@ test.describe('on a phone', () => {
     }
   });
 
+  test('the editor fits the screen, with a repeat rule open too (D-058)', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Add event' }).click();
+    const dialog = page.getByRole('dialog', { name: 'New event' });
+    await expect(dialog).toBeVisible();
+    await dialog.getByLabel('Repeat').selectOption({ label: 'Weekly' });
+    const outside = await page.evaluate(() => {
+      const width = document.documentElement.clientWidth;
+      return [...document.querySelectorAll<HTMLElement>('[role="dialog"] *')]
+        .filter((el) => el.offsetParent !== null)
+        .map((el) => ({ el, box: el.getBoundingClientRect() }))
+        .filter(({ box }) => box.width > 0 && (box.left < -0.5 || box.right > width + 0.5))
+        .slice(0, 8)
+        .map(({ el, box }) => `${el.tagName}.${el.className} ${Math.round(box.left)}..${Math.round(box.right)}`);
+    });
+    expect(outside, 'parts of the editor outside the screen').toEqual([]);
+    const body = dialog.locator('.ed-body');
+    const scrolls = await body.evaluate((el) => el.scrollWidth - el.clientWidth);
+    expect(scrolls, 'the form scrolls sideways').toBeLessThanOrEqual(0);
+  });
+
   test('a notice is a bar inside the screen, not a card that wraps', async ({ page }) => {
     await page.goto('/');
     const toast = page.locator('.toast').first();

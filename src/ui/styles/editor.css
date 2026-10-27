@@ -109,6 +109,9 @@ button.block {
 
 .ed-body {
   display: grid;
+  /* One column that may shrink: without it a long option (a time zone name) sets the column's
+     width and the form runs off the phone's edge (D-058). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   padding: 12px 16px;
   overflow-y: auto;
@@ -142,6 +145,7 @@ button.block {
 
 .ed-field {
   display: grid;
+  min-inline-size: 0;
   gap: 4px;
 }
 
@@ -173,6 +177,13 @@ button.block {
   background: var(--bg);
   color: var(--text);
   font-size: 16px;
+}
+
+.ed-body :where(select, textarea) {
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  text-overflow: ellipsis;
 }
 
 .ed-body textarea {
