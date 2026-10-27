@@ -234,7 +234,9 @@ button.more {
 }
 
 .day[data-selected='true'][data-today='true'] .day-number {
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-fill);
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--accent-fill);
 }
 
 .month-day {
