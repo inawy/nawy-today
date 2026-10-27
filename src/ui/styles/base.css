@@ -185,13 +185,25 @@ input:not([type='checkbox']) {
 
 .banner-action {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
+}
+
+/* The text gets a readable line length; when the buttons do not fit beside it they drop under it
+   instead of squeezing the words into a column (D-059). */
+.banner-action > span:first-child {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
 }
 
 .banner-buttons {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.banner-buttons .btn {
+  white-space: nowrap;
 }
