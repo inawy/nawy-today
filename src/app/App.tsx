@@ -463,6 +463,7 @@ function Calendar({
             onOpenDay={view === 'week' || view === 'days3' ? openDay : undefined}
             onOpenEvent={flow.showEvent}
             onCreateAt={flow.openNew}
+            onCreateAllDay={(date) => flow.openNew(date, undefined, { allDay: true })}
             onMoveEvent={flow.moveEvent}
             onResizeEvent={flow.resizeEvent}
           />

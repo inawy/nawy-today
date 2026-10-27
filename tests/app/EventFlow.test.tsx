@@ -51,6 +51,16 @@ describe('create', () => {
     expect(screen.getByText('Personal')).toBeTruthy(); // the calendar that was created
   });
 
+  it('touching the all-day strip starts an all-day event on that day', async () => {
+    const { container } = open();
+    await screen.findByRole('button', { name: 'Add event' });
+    fireEvent.keyDown(window, { code: 'KeyD' });
+    await waitFor(() => expect(container.querySelector('.tg-allday-cell')).toBeTruthy());
+    fireEvent.click(container.querySelector('.tg-allday-cell') as HTMLElement);
+    const dialog = await screen.findByRole('dialog', { name: 'New event' });
+    expect((within(dialog).getByLabelText('All day') as HTMLInputElement).checked).toBe(true);
+  });
+
   it('the C key opens the editor, and shortcuts pause while it is open', async () => {
     open();
     await screen.findByRole('button', { name: 'Add event' });

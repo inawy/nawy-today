@@ -60,8 +60,8 @@ export interface EventFlowInput {
 }
 
 export interface EventFlow {
-  /** Starts a new event on `date` (at `time` when given, otherwise 09:00). */
-  readonly openNew: (date: PlainDate, time?: string) => void;
+  /** Starts a new event on `date` (at `time` when given, otherwise 09:00; all day when asked). */
+  readonly openNew: (date: PlainDate, time?: string, options?: { allDay?: boolean }) => void;
   /** Opens the event's card (what it is, with Edit and Delete). */
   readonly showEvent: (occurrence: Occurrence) => void;
   /** Goes straight to the editor (used by search). */
@@ -119,7 +119,7 @@ export function useEventFlow({
   );
 
   const openNew = useCallback(
-    (date: PlainDate, time?: string) => {
+    (date: PlainDate, time?: string, options?: { allDay?: boolean }) => {
       if (!store) return;
       void (async () => {
         let calendar = calendars.find((c) => c.visible) ?? calendars[0];
@@ -142,6 +142,7 @@ export function useEventFlow({
           draft: draftForNew({
             date,
             ...(time !== undefined && { time }),
+            ...(options?.allDay && { allDay: true }),
             calendarId: calendar.id,
             tzid: tz,
           }),

@@ -90,6 +90,10 @@ button.tg-headcell:hover {
   border-inline-start: 1px solid var(--border);
 }
 
+.tg-allday-cell[data-create='true'] {
+  cursor: pointer;
+}
+
 .tg-scroll {
   flex: 1;
   min-block-size: 0;

@@ -30,6 +30,8 @@ export interface TimeGridProps {
   readonly onOpenEvent: (occurrence: Occurrence) => void;
   /** Clicking an empty spot of a day starts a new event there (`time` is `HH:mm`, on the half hour). */
   readonly onCreateAt: (date: PlainDate, time: string) => void;
+  /** Touching an empty spot of the all-day strip starts an all-day event on that day (D-061). */
+  readonly onCreateAllDay?: ((date: PlainDate) => void) | undefined;
   /** A block was dragged somewhere else: move this occurrence by that many days/minutes. */
   readonly onMoveEvent?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
   /** The bottom edge of a block was dragged: move this occurrence's end by that many minutes. */
@@ -48,6 +50,7 @@ export function TimeGrid({
   onOpenDay,
   onOpenEvent,
   onCreateAt,
+  onCreateAllDay,
   onMoveEvent,
   onResizeEvent,
 }: TimeGridProps) {
@@ -127,7 +130,13 @@ export function TimeGrid({
         <div className="tg-gutter tg-allday-label">{t('allDay')}</div>
         <div className="tg-allday-grid" ref={allDayRef}>
           {model.days.map((d, i) => (
-            <div key={d.date} className="tg-allday-cell" style={{ gridColumn: i + 1 } as Vars} />
+            <div
+              key={d.date}
+              className="tg-allday-cell"
+              data-create={onCreateAllDay ? 'true' : undefined}
+              style={{ gridColumn: i + 1 } as Vars}
+              onClick={onCreateAllDay ? () => onCreateAllDay(d.date) : undefined}
+            />
           ))}
           {model.allDay.hidden.map((n, i) =>
             n > 0 ? (

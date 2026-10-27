@@ -32,6 +32,7 @@ const view = (
     onOpenDay?: (d: string) => void;
     onOpenEvent?: (id: string) => void;
     onCreateAt?: (date: string, time: string) => void;
+    onCreateAllDay?: (date: string) => void;
     now?: string;
     locale?: 'ar' | 'en';
     extra?: object;
@@ -50,6 +51,7 @@ const view = (
         onOpenDay={props.onOpenDay}
         onOpenEvent={(o) => props.onOpenEvent?.(o.event.id)}
         onCreateAt={(d, tm) => props.onCreateAt?.(d, tm)}
+        onCreateAllDay={props.onCreateAllDay ? (d) => props.onCreateAllDay?.(d) : undefined}
       />
     </SettingsProvider>,
   );
@@ -326,5 +328,19 @@ describe('TimeGrid', () => {
     expect(onCreateAt).toHaveBeenCalledWith('2026-10-13', '10:00');
     fireEvent.click(col, { clientY: 1000 + 60 });
     expect(onCreateAt).toHaveBeenLastCalledWith('2026-10-13', '10:30');
+  });
+
+  it('a touch on an empty spot of the all-day strip starts an all-day event on that day', () => {
+    const onCreateAllDay = vi.fn();
+    const { container } = view(model([]), { onCreateAllDay });
+    const cells = container.querySelectorAll<HTMLElement>('.tg-allday-cell');
+    fireEvent.click(cells[2] as HTMLElement);
+    expect(onCreateAllDay).toHaveBeenCalledWith('2026-10-14');
+    expect(cells[0]?.getAttribute('data-create')).toBe('true');
+  });
+
+  it('without a handler the strip is not offered as something to touch', () => {
+    const { container } = view(model([]));
+    expect(container.querySelector('.tg-allday-cell')?.getAttribute('data-create')).toBeNull();
   });
 });
