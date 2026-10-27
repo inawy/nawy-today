@@ -372,6 +372,30 @@ test.describe('on a phone', () => {
     await expect(page.locator('.month-split .month')).toBeInViewport();
   });
 
+  test('a tap on an empty spot of the day starts an event at that time (D-060)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Day', exact: true }).click();
+    const col = page.locator('.tg-col').first();
+    await expect(col).toBeVisible();
+    const scroll = await page.locator('.tg-scroll').boundingBox();
+    const box = await col.boundingBox();
+    expect(scroll && box).toBeTruthy();
+    // Tap the middle of what is on screen, and work out which half hour that is.
+    const y = (scroll?.y ?? 0) + (scroll?.height ?? 0) / 2;
+    const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+    const half = Math.min(47, Math.floor(((y - (box?.y ?? 0)) / (box?.height ?? 1)) * 48));
+    const hour = String(Math.floor(half / 2)).padStart(2, '0');
+    const expected = `${hour}:${half % 2 === 0 ? '00' : '30'}`;
+    await page.touchscreen.tap(x, y);
+    const dialog = page.getByRole('dialog', { name: 'New event' });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByLabel('Starts · Time')).toHaveValue(expected);
+    // The title is ready to type into, without another tap.
+    await expect(dialog.getByLabel('Title')).toBeFocused();
+  });
+
   test('the editor fits the screen, with a repeat rule open too (D-058)', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Add event' }).click();
