@@ -295,16 +295,16 @@ test.describe('on a phone', () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(overflow).toBeLessThanOrEqual(0);
-    const small = await page.evaluate(() =>
-      [...document.querySelectorAll<HTMLElement>('.year-day[data-day], .year-month-open')]
-        .map((el) => el.getBoundingClientRect())
-        .filter((r) => r.height < 43.5 || r.width < 40)
-        .length,
+    const small = await page.evaluate(
+      () =>
+        [...document.querySelectorAll<HTMLElement>('.year-day[data-day], .year-month-open')]
+          .map((el) => el.getBoundingClientRect())
+          .filter((r) => r.height < 43.5 || r.width < 40).length,
     );
     expect(small, 'year targets smaller than 44px').toBe(0);
-    const bar = await page.locator('.view-btn').evaluateAll((els) =>
-      els.map((el) => Math.round(el.getBoundingClientRect().width)),
-    );
+    const bar = await page
+      .locator('.view-btn')
+      .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().width)));
     expect(bar).toHaveLength(6);
     expect(Math.min(...bar)).toBeGreaterThanOrEqual(44);
   });

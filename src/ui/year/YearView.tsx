@@ -24,14 +24,7 @@ export interface YearViewProps {
 }
 
 /** Twelve small months. A dot under a day means it has events; touching it opens the day. */
-export function YearView({
-  model,
-  today,
-  anchor,
-  fmt,
-  onOpenDay,
-  onOpenMonth,
-}: YearViewProps) {
+export function YearView({ model, today, anchor, fmt, onOpenDay, onOpenMonth }: YearViewProps) {
   const buttons = useRef(new Map<string, HTMLButtonElement>());
   const inYear = model.months.some((m) =>
     m.weeks.some((w) => w.some((d) => d.inMonth && d.date === anchor)),

@@ -12,9 +12,7 @@ const base = (over: Partial<YearInput> = {}): YearInput => ({
 });
 
 const countOn = (m: ReturnType<typeof buildYearModel>, date: string): number | undefined =>
-  m.months
-    .flatMap((x) => x.weeks.flat())
-    .find((d) => d.inMonth && d.date === date)?.count;
+  m.months.flatMap((x) => x.weeks.flat()).find((d) => d.inMonth && d.date === date)?.count;
 
 describe('buildYearModel: shape', () => {
   it('has twelve months of real days only, in rows that hold at least one of them', () => {
