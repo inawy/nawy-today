@@ -411,7 +411,7 @@ test.describe('on a phone', () => {
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     };
 
-    await page.getByRole('button', { name: 'Menu' }).click();
+    await page.getByRole('button', { name: 'Menu', exact: true }).click();
     const shell = page.locator('.shell');
     await expect(shell).toHaveAttribute('data-drawer', 'open');
     const side = await page.locator('#sidebar').boundingBox();
@@ -419,7 +419,7 @@ test.describe('on a phone', () => {
     await swipe({ x: cx, y: 300 }, { x: cx - 160, y: 305 }); // the drawer comes from the left here
     await expect(shell).toHaveAttribute('data-drawer', 'closed');
 
-    await page.getByRole('button', { name: 'Menu' }).click();
+    await page.getByRole('button', { name: 'Menu', exact: true }).click();
     await page.getByRole('button', { name: 'About and privacy' }).click();
     const dialog = page.getByRole('dialog', { name: 'About Nawy Today' });
     await expect(dialog).toBeVisible();
