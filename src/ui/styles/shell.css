@@ -194,9 +194,9 @@
 }
 
 /* A quiet segmented control: no outlines, the chosen view is the only filled one. */
-.view-btn,
-.view-btn:first-child,
-.view-btn:last-child {
+.view-switch .view-btn,
+.view-switch .view-btn:first-child,
+.view-switch .view-btn:last-child {
   margin: 0;
   padding-inline: 12px;
   border-color: transparent;
@@ -204,7 +204,7 @@
   background: transparent;
 }
 
-.view-btn:hover {
+.view-switch .view-btn:hover {
   background: var(--border);
 }
 
