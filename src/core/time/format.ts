@@ -50,6 +50,11 @@ export function formatMonthTitle(date: PlainDate, o: FormatOptions): string {
   return f.format(utcMidnight(date));
 }
 
+/** e.g. "2026" / "٢٠٢٦" (no thousands separator). */
+export function formatYear(date: PlainDate, o: FormatOptions): string {
+  return formatter(o.locale, { ...gregorian(o), year: 'numeric' }).format(utcMidnight(date));
+}
+
 export function formatWeekday(
   date: PlainDate,
   o: FormatOptions,

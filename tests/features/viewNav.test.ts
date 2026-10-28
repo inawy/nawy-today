@@ -16,6 +16,12 @@ describe('shiftAnchor', () => {
     expect(shiftAnchor('month', '2026-10-13', 2)).toBe('2026-12-13');
   });
 
+  it('moves the year by whole years and clamps 29 February', () => {
+    expect(shiftAnchor('year', '2026-10-13', 1)).toBe('2027-10-13');
+    expect(shiftAnchor('year', '2028-02-29', 1)).toBe('2029-02-28');
+    expect(shiftAnchor('year', '2026-01-01', -1)).toBe('2025-01-01');
+  });
+
   it('clamps the day when a month is shorter', () => {
     expect(shiftAnchor('month', '2026-01-31', 1)).toBe('2026-02-28');
     expect(shiftAnchor('month', '2028-03-31', -1)).toBe('2028-02-29');
@@ -50,6 +56,7 @@ describe('viewTitle', () => {
   it('names the day, the week range, or the month', () => {
     expect(viewTitle('day', '2026-10-13', 1, en)).toBe('Tuesday, October 13, 2026');
     expect(viewTitle('month', '2026-10-13', 1, en)).toBe('October 2026');
+    expect(viewTitle('year', '2026-10-13', 1, en)).toBe('2026');
     const week = viewTitle('week', '2026-10-13', 1, en).replace(/[\s\u2009\u202f]/g, ' ');
     expect(week).toMatch(/^Oct 12 ?[–-] ?18, 2026$/);
   });
@@ -71,6 +78,7 @@ describe('shortcutFor', () => {
     expect(shortcutFor(key('KeyD'))).toEqual({ kind: 'view', view: 'day' });
     expect(shortcutFor(key('KeyW'))).toEqual({ kind: 'view', view: 'week' });
     expect(shortcutFor(key('KeyM'))).toEqual({ kind: 'view', view: 'month' });
+    expect(shortcutFor(key('KeyY'))).toEqual({ kind: 'view', view: 'year' });
   });
 
   it('opens the help with Shift + the slash key, and search with the slash key alone', () => {

@@ -21,6 +21,7 @@ const BY_CODE: Record<string, ShortcutAction> = {
   KeyX: { kind: 'view', view: 'days3' },
   KeyW: { kind: 'view', view: 'week' },
   KeyM: { kind: 'view', view: 'month' },
+  KeyY: { kind: 'view', view: 'year' },
 };
 
 export interface KeyLike {

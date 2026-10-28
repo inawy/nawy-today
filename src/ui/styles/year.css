@@ -1,0 +1,100 @@
+/* The year: twelve small months. Cells are small with a mouse; on a phone the months stack in one
+   column so every day is a 44px target (D-069). */
+.year {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 16px 28px;
+  padding: 12px 20px 28px;
+}
+
+.year-month-title {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.year-month-open {
+  min-block-size: 44px;
+  padding-inline: 8px;
+  margin-inline-start: -8px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.year-month-open:hover {
+  background: var(--surface-2);
+}
+
+.year-heads,
+.year-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.year-head {
+  padding-block: 4px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.year-day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-block-size: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.year-day-empty {
+  cursor: default;
+}
+
+button.year-day:hover {
+  background: var(--surface-2);
+}
+
+/* A dot means "has events"; a wider one means three or more. */
+.year-day[data-busy]::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 4px;
+  inline-size: 5px;
+  block-size: 5px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.year-day[data-busy='many']::after {
+  inline-size: 12px;
+}
+
+.year-day[data-today] {
+  background: var(--accent-fill);
+  color: var(--on-accent-fill);
+  font-weight: 700;
+}
+
+.year-day[data-today]::after {
+  background: var(--on-accent-fill);
+}
+
+@media (max-width: 599px) {
+  .year {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: 16px;
+  }
+
+  .year-day {
+    min-block-size: 44px;
+  }
+}

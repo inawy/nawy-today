@@ -17,6 +17,7 @@ import {
 } from '@/features/pwa';
 import type { WorkerContainer } from '@/features/pwa';
 import { buildSearchIndex, useRecentSearches } from '@/features/search';
+import { buildYearModel } from '@/features/year';
 import { buildMonthModel, monthOf } from '@/features/month';
 import { SettingsProvider, useSettings } from '@/features/settings';
 import type { DefaultView, ReadableStorage, WritableStorage } from '@/features/settings';
@@ -48,6 +49,7 @@ import { CalendarDialog } from '@/ui/calendars/CalendarDialog';
 import { CALENDAR_COLOR_IDS } from '@/ui/theme/tokens';
 import { SearchPanel } from '@/ui/search/SearchPanel';
 import { TimeGrid } from '@/ui/timegrid/TimeGrid';
+import { YearView } from '@/ui/year/YearView';
 
 /** How many event rows fit under a day number before "+N" (responsive tuning comes with Phase 6). */
 const MAX_LANES = 3;
@@ -211,6 +213,20 @@ function Calendar({
     });
   }, [calendarData.calendars, calendarData.events, anchor, settings.weekStart]);
 
+  // Twelve months are only expanded while the year is on screen.
+  const yearModel = useMemo(
+    () =>
+      view === 'year'
+        ? buildYearModel({
+            calendars: calendarData.calendars,
+            events: calendarData.events,
+            year: dateParts(anchor).year,
+            weekStart: settings.weekStart,
+          })
+        : undefined,
+    [view, calendarData.calendars, calendarData.events, anchor, settings.weekStart],
+  );
+
   const gridModel = useMemo(
     () =>
       buildTimeGridModel({
@@ -313,7 +329,14 @@ function Calendar({
 
   const count = (n: number) =>
     new Intl.NumberFormat(settings.locale, { numberingSystem: settings.numerals }).format(n);
-  const active = view === 'month' ? monthModel : view === 'agenda' ? agendaModel : gridModel;
+  const active =
+    view === 'month'
+      ? monthModel
+      : view === 'agenda'
+        ? agendaModel
+        : view === 'year' && yearModel
+          ? yearModel
+          : gridModel;
   const skipped = active.skipped;
   const problems = active.problems;
 
@@ -433,7 +456,19 @@ function Calendar({
         tick={motion.tick}
         onSwipe={(intent) => (intent === 'next' ? next() : previous())}
       >
-        {view === 'agenda' ? (
+        {view === 'year' && yearModel ? (
+          <YearView
+            model={yearModel}
+            today={today}
+            anchor={anchor}
+            fmt={fmt}
+            onOpenDay={openDay}
+            onOpenMonth={(date) => {
+              setAnchor(date);
+              setView('month');
+            }}
+          />
+        ) : view === 'agenda' ? (
           <AgendaView model={agendaModel} nowLocal={nowLocal} onOpenEvent={flow.showEvent} />
         ) : view === 'month' ? (
           <div className={phone ? 'month-split' : 'month-wrap'}>

@@ -28,6 +28,7 @@ const VIEWS: readonly [ViewKind, MessageKey][] = [
   ['days3', 'viewDays3'],
   ['week', 'viewWeek'],
   ['month', 'viewMonth'],
+  ['year', 'viewYear'],
 ];
 
 const PREVIOUS: Record<ViewKind, MessageKey> = {
@@ -36,6 +37,7 @@ const PREVIOUS: Record<ViewKind, MessageKey> = {
   days3: 'previousDays3',
   week: 'previousWeek',
   month: 'previousMonth',
+  year: 'previousYear',
 };
 const NEXT: Record<ViewKind, MessageKey> = {
   agenda: 'nextDay',
@@ -43,6 +45,7 @@ const NEXT: Record<ViewKind, MessageKey> = {
   days3: 'nextDays3',
   week: 'nextWeek',
   month: 'nextMonth',
+  year: 'nextYear',
 };
 
 export function TopBar({

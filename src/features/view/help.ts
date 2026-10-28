@@ -26,6 +26,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { keys: ['X'], label: 'viewDays3' },
       { keys: ['W'], label: 'viewWeek' },
       { keys: ['M'], label: 'viewMonth' },
+      { keys: ['Y'], label: 'viewYear' },
     ],
   },
   {

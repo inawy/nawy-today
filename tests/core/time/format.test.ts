@@ -10,6 +10,7 @@ import {
   formatMonthTitle,
   formatTime,
   formatWeekday,
+  formatYear,
 } from '@/core/time';
 
 // Assertions avoid exact Arabic strings (ICU data differs slightly between versions) and check
@@ -167,5 +168,13 @@ describe('Hijri day and span', () => {
   it('names both months when the days cross a boundary', () => {
     // Umm al-Qura months are 29/30 days, so a 40-day stretch must cross one.
     expect(formatHijriSpan('2026-10-01', '2026-11-10', AR)).toContain('–');
+  });
+});
+
+describe('formatYear', () => {
+  it('gives the year alone, in the chosen digits, with no thousands separator', () => {
+    expect(formatYear('2026-10-13', EN)).toBe('2026');
+    expect(formatYear('2026-10-13', { locale: 'ar', numerals: 'arab' })).toBe('٢٠٢٦');
+    expect(formatYear('2026-10-13', { locale: 'ar', numerals: 'latn' })).toBe('2026');
   });
 });

@@ -5,6 +5,7 @@ import 'virtual:theme.css';
 import '@/ui/styles/base.css';
 import '@/ui/styles/shell.css';
 import '@/ui/styles/month.css';
+import '@/ui/styles/year.css';
 import '@/ui/styles/timegrid.css';
 import '@/ui/styles/editor.css';
 import '@/ui/styles/agenda.css';

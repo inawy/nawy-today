@@ -1,16 +1,18 @@
 import {
   addDays,
   addMonths,
+  addYears,
   formatDate,
   formatDateRange,
   formatHijriDate,
   formatHijriSpan,
   formatMonthTitle,
+  formatYear,
   startOfWeek,
 } from '@/core/time';
 import type { FormatOptions, IsoWeekday, PlainDate } from '@/core/time';
 
-export type ViewKind = 'agenda' | 'day' | 'days3' | 'week' | 'month';
+export type ViewKind = 'agenda' | 'day' | 'days3' | 'week' | 'month' | 'year';
 
 /** Moves the anchor date by whole units of the current view. Month moves clamp the day. */
 export function shiftAnchor(view: ViewKind, anchor: PlainDate, delta: number): PlainDate {
@@ -24,6 +26,8 @@ export function shiftAnchor(view: ViewKind, anchor: PlainDate, delta: number): P
       return addDays(anchor, 7 * delta);
     case 'month':
       return addMonths(anchor, delta);
+    case 'year':
+      return addYears(anchor, delta);
   }
 }
 
@@ -59,6 +63,8 @@ export function viewTitle(
     }
     case 'month':
       return formatMonthTitle(anchor, fmt);
+    case 'year':
+      return formatYear(anchor, fmt);
   }
 }
 
@@ -81,6 +87,10 @@ export function hijriSubtitle(
     case 'month': {
       const first = `${anchor.slice(0, 8)}01` as PlainDate;
       return formatHijriSpan(first, addDays(addMonths(first, 1), -1), fmt);
+    }
+    case 'year': {
+      const first = `${anchor.slice(0, 4)}-01-01` as PlainDate;
+      return formatHijriSpan(first, `${anchor.slice(0, 4)}-12-31` as PlainDate, fmt);
     }
   }
 }
