@@ -5,7 +5,8 @@ export const RECENT_SEARCHES_KEY = 'nawy-today:recent-searches:v1';
 export const MAX_RECENT_SEARCHES = 5;
 const MAX_QUERY_LENGTH = 80;
 
-const clean = (query: string): string => query.trim().replace(/\s+/g, ' ').slice(0, MAX_QUERY_LENGTH);
+const clean = (query: string): string =>
+  query.trim().replace(/\s+/g, ' ').slice(0, MAX_QUERY_LENGTH);
 
 /** Puts `query` first, dropping an earlier copy (ignoring case) and keeping at most five. */
 export function rememberQuery(list: readonly string[], query: string): readonly string[] {
