@@ -40,6 +40,7 @@ const VIEW_LABELS: Record<DefaultView, MessageKey> = {
   days3: 'viewDays3',
   week: 'viewWeek',
   month: 'viewMonth',
+  year: 'viewYear',
 };
 
 const THEMES: readonly [ThemePreference, MessageKey][] = [

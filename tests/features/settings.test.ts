@@ -59,7 +59,8 @@ describe('parseSettings is lenient field by field', () => {
   it('opens on the automatic view unless a known one was chosen', () => {
     expect(defaultSettings('ar').defaultView).toBe('auto');
     expect(parseSettings({ defaultView: 'days3' }, 'ar').defaultView).toBe('days3');
-    expect(parseSettings({ defaultView: 'year' }, 'ar').defaultView).toBe('auto');
+    expect(parseSettings({ defaultView: 'year' }, 'ar').defaultView).toBe('year');
+    expect(parseSettings({ defaultView: 'decade' }, 'ar').defaultView).toBe('auto');
     expect(parseSettings({ defaultView: 7 }, 'ar').defaultView).toBe('auto');
   });
 

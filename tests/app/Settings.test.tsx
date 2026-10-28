@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { App } from '@/app/App';
 import { createDb } from '@/data';
@@ -81,5 +81,13 @@ describe('the view the app opens on (D-054)', () => {
     first.unmount();
     open(memory({ locale: 'en' }).storage);
     expect((await screen.findAllByRole('button', { name: 'Month', pressed: true })).length).toBe(1);
+  });
+
+  it('can be the year (D-070)', async () => {
+    open(memory({ locale: 'en', defaultView: 'year' }).storage);
+    expect((await screen.findAllByRole('button', { name: 'Year', pressed: true })).length).toBe(1);
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toMatch(/^\d{4}$/);
+    const choice = screen.getByLabelText('View when the app opens');
+    expect(within(choice).getByRole('option', { name: 'Year' })).toBeTruthy();
   });
 });

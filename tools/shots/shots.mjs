@@ -92,7 +92,8 @@ const key = (page, code) => page.keyboard.press(code);
 
 await session('desktop-ar', { viewport: { width: 1280, height: 800 }, locale: 'ar-SA' }, async (page, shot) => {
   await shot('month');
-  await key(page, 'KeyY'); await shot('year');
+  await key(page, 'KeyY');
+  await page.locator('.year-month').nth(9).scrollIntoViewIfNeeded(); await shot('year');
   await key(page, 'KeyW'); await shot('week');
   await key(page, 'KeyD'); await shot('day');
   await key(page, 'KeyA'); await shot('agenda');
@@ -119,7 +120,8 @@ await session('phone-ar', { viewport: { width: 390, height: 844 }, locale: 'ar-S
   await page.getByRole('button', { name: '3 أيام', exact: true }).click(); await shot('days3');
   await page.getByRole('button', { name: 'أسبوع', exact: true }).click(); await shot('week');
   await page.getByRole('button', { name: 'يوم', exact: true }).click(); await shot('day');
-  await page.getByRole('button', { name: 'سنة', exact: true }).click(); await shot('year');
+  await page.getByRole('button', { name: 'سنة', exact: true }).click();
+  await page.locator('.year-month').nth(9).scrollIntoViewIfNeeded(); await shot('year');
 });
 
 // A tall phone: shows the whole menu and the dialogs without scrolling (D-056).

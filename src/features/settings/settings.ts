@@ -6,7 +6,7 @@ import type { IsoWeekday, Numerals } from '@/core/time';
 export type Locale = 'ar' | 'en';
 export type ThemePreference = 'auto' | 'light' | 'dark';
 /** The view the app opens on. `auto`: the Today list on a phone, the month elsewhere (D-025). */
-export type DefaultView = 'auto' | 'agenda' | 'day' | 'days3' | 'week' | 'month';
+export type DefaultView = 'auto' | 'agenda' | 'day' | 'days3' | 'week' | 'month' | 'year';
 export const DEFAULT_VIEWS: readonly DefaultView[] = [
   'auto',
   'agenda',
@@ -14,6 +14,7 @@ export const DEFAULT_VIEWS: readonly DefaultView[] = [
   'days3',
   'week',
   'month',
+  'year',
 ];
 
 export interface Settings {
