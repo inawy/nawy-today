@@ -208,3 +208,32 @@ input:not([type='checkbox']) {
 .banner-buttons .btn {
   white-space: nowrap;
 }
+
+/* On a phone a notice takes less of the screen: smaller text, the two buttons share one row (D-068). */
+@media (max-width: 599px) {
+  .banner {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .banner-action {
+    gap: 6px;
+  }
+
+  .banner-action > span:first-child {
+    flex-basis: 100%;
+  }
+
+  .banner-buttons {
+    inline-size: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .banner-buttons .btn {
+    flex: 1 1 0;
+    min-inline-size: 0;
+    padding-inline: 8px;
+    font-size: 0.875rem;
+  }
+}
