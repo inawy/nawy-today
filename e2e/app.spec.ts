@@ -312,7 +312,8 @@ test.describe('on a phone', () => {
     // The Today button shows the day number, not the word, and is still a 44px target (D-064).
     const today = page.getByRole('button', { name: 'Today' });
     await expect(today.locator('.tb-today-day')).toBeVisible();
-    await expect(today.locator('.tb-today-text')).toBeHidden();
+    const word = await today.locator('.tb-today-text').boundingBox();
+    expect(word?.width ?? 0).toBeLessThanOrEqual(1);
     const box = await today.boundingBox();
     expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);

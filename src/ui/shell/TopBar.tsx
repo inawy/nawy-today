@@ -74,10 +74,8 @@ export function TopBar({
       >
         <MenuIcon />
       </button>
-      <button type="button" className="btn tb-today" aria-label={t('today')} onClick={onToday}>
-        <span className="tb-today-text" aria-hidden="true">
-          {t('today')}
-        </span>
+      <button type="button" className="btn tb-today" onClick={onToday}>
+        <span className="tb-today-text">{t('today')}</span>
         {todayDay !== undefined && (
           <span className="tb-today-day" aria-hidden="true">
             {todayDay}
