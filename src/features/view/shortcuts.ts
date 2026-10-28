@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import type { ViewKind } from './nav';
 
 export type ShortcutAction =
@@ -51,9 +51,13 @@ export function shortcutFor(event: KeyLike): ShortcutAction | undefined {
   return BY_CODE[event.code];
 }
 
-/** Listens on the window while `enabled` (turn off while a dialog or the drawer is open). */
+/**
+ * Listens on the window while `enabled` (turn off while a dialog or the drawer is open). A layout
+ * effect, so the listener is removed in the same commit that shows the dialog, not a moment later
+ * (D-066).
+ */
 export function useShortcuts(enabled: boolean, onAction: (action: ShortcutAction) => void): void {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!enabled) return;
     const handler = (event: KeyboardEvent): void => {
       const action = shortcutFor(event);
