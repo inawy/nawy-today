@@ -208,8 +208,8 @@
   background: var(--border);
 }
 
-.view-btn[aria-pressed='true'],
-.view-btn[aria-pressed='true']:hover {
+.view-switch .view-btn[aria-pressed='true'],
+.view-switch .view-btn[aria-pressed='true']:hover {
   background: var(--accent-fill);
   color: var(--on-accent-fill);
   font-weight: 600;
