@@ -186,32 +186,33 @@
 
 .view-switch {
   display: flex;
-  gap: 0;
+  gap: 2px;
   margin-inline-start: auto;
+  padding: 3px;
+  border-radius: calc(var(--radius) + 3px);
+  background: var(--surface-2);
 }
 
-.view-btn {
-  border-radius: 0;
-  margin-inline-start: -1px;
-  padding-inline: 12px;
-}
-
-.view-btn:first-child {
-  border-start-start-radius: var(--radius);
-  border-end-start-radius: var(--radius);
-  margin-inline-start: 0;
-}
-
+/* A quiet segmented control: no outlines, the chosen view is the only filled one. */
+.view-btn,
+.view-btn:first-child,
 .view-btn:last-child {
-  border-start-end-radius: var(--radius);
-  border-end-end-radius: var(--radius);
+  margin: 0;
+  padding-inline: 12px;
+  border-color: transparent;
+  border-radius: var(--radius);
+  background: transparent;
 }
 
-.view-btn[aria-pressed='true'] {
+.view-btn:hover {
+  background: var(--border);
+}
+
+.view-btn[aria-pressed='true'],
+.view-btn[aria-pressed='true']:hover {
   background: var(--accent-fill);
-  border-color: var(--accent-fill);
   color: var(--on-accent-fill);
-  position: relative;
+  font-weight: 600;
 }
 
 /* The day number replaces the word "Today" only on a phone (D-064). */
@@ -289,6 +290,7 @@
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 4px;
     background: var(--surface);
+    border-radius: 0;
     border-block-start: 1px solid var(--border);
   }
 

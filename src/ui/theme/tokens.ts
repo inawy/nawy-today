@@ -30,10 +30,10 @@ export interface ThemeTokens {
 export const LIGHT: ThemeTokens = {
   bg: '#FFFFFF',
   surface: '#FFFFFF',
-  surface2: '#F4F6FA',
-  text: '#14181F',
+  surface2: '#F5F7FA',
+  text: '#171B22',
   textMuted: '#4B5563',
-  border: '#D5DAE3',
+  border: '#E3E7EE',
   accent: '#2B5FD9', // a deeper step of the brand blue: the brand itself is 3.8:1 on white
   accentFill: '#2B5FD9',
   onAccentFill: '#FFFFFF',
@@ -48,7 +48,7 @@ export function darkTokens(brand: Brand): ThemeTokens {
     surface2: '#1C222C',
     text: '#E8ECF2',
     textMuted: '#A3ADBD',
-    border: '#2B3340',
+    border: '#262D39',
     accent: '#6C9CFF',
     accentFill: brand.accent, // the exact brand blue, with dark text on it (white would be 3.8:1)
     onAccentFill: '#06122B',

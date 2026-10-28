@@ -66,7 +66,7 @@ button.block {
   border-radius: calc(var(--radius) * 1.5);
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 0.3);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.08), 0 16px 40px rgb(0 0 0 / 0.22);
   overflow: hidden;
 }
 
@@ -269,7 +269,7 @@ button.block {
   border-radius: 50%;
   background: var(--accent-fill);
   color: var(--on-accent-fill);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.3);
+  box-shadow: var(--shadow-lift);
   cursor: pointer;
 }
 
