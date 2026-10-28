@@ -74,12 +74,7 @@ export function TopBar({
       >
         <MenuIcon />
       </button>
-      <button
-        type="button"
-        className="btn tb-today"
-        aria-label={t('today')}
-        onClick={onToday}
-      >
+      <button type="button" className="btn tb-today" aria-label={t('today')} onClick={onToday}>
         <span className="tb-today-text" aria-hidden="true">
           {t('today')}
         </span>
