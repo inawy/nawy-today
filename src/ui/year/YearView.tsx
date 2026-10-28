@@ -1,6 +1,12 @@
 import { useRef } from 'react';
 import type { KeyboardEvent } from 'react';
-import { addDays, formatDate, formatDayOfMonth, formatMonthTitle, formatWeekday } from '@/core/time';
+import {
+  addDays,
+  formatDate,
+  formatDayOfMonth,
+  formatMonthTitle,
+  formatWeekday,
+} from '@/core/time';
 import type { FormatOptions, PlainDate } from '@/core/time';
 import { useT } from '@/features/i18n';
 import type { YearModel, YearMonth } from '@/features/year';
@@ -27,7 +33,9 @@ export function YearView({
   onOpenMonth,
 }: YearViewProps) {
   const buttons = useRef(new Map<string, HTMLButtonElement>());
-  const inYear = model.months.some((m) => m.weeks.some((w) => w.some((d) => d.inMonth && d.date === anchor)));
+  const inYear = model.months.some((m) =>
+    m.weeks.some((w) => w.some((d) => d.inMonth && d.date === anchor)),
+  );
   const stop = inYear ? anchor : (model.months[0]?.first ?? anchor);
 
   // One tab stop for 365 days: arrow keys move through them by date.

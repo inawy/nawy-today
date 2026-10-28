@@ -287,6 +287,28 @@ test.describe('Arabic, right to left', () => {
 test.describe('on a phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
+  test('the year view fits six view buttons and every day is a 44px target', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Year', exact: true }).click();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^\d{4}$/);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+    const small = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>('.year-day[data-day], .year-month-open')]
+        .map((el) => el.getBoundingClientRect())
+        .filter((r) => r.height < 43.5 || r.width < 40)
+        .length,
+    );
+    expect(small, 'year targets smaller than 44px').toBe(0);
+    const bar = await page.locator('.view-btn').evaluateAll((els) =>
+      els.map((el) => Math.round(el.getBoundingClientRect().width)),
+    );
+    expect(bar).toHaveLength(6);
+    expect(Math.min(...bar)).toBeGreaterThanOrEqual(44);
+  });
+
   test('opens on the Today list, fits the screen, and Back closes the editor', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('button', { name: 'Agenda' })).toHaveAttribute(
