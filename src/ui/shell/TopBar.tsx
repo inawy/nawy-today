@@ -15,6 +15,8 @@ export interface TopBarProps {
   readonly menuRef: Ref<HTMLButtonElement>;
   readonly drawerOpen: boolean;
   readonly onToday: () => void;
+  /** Today's day number, already formatted; shown instead of the word on a phone (D-064). */
+  readonly todayDay?: string | undefined;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
   readonly onSearch: () => void;
@@ -52,6 +54,7 @@ export function TopBar({
   menuRef,
   drawerOpen,
   onToday,
+  todayDay,
   onPrevious,
   onNext,
   onSearch,
@@ -71,8 +74,20 @@ export function TopBar({
       >
         <MenuIcon />
       </button>
-      <button type="button" className="btn tb-today" onClick={onToday}>
-        {t('today')}
+      <button
+        type="button"
+        className="btn tb-today"
+        aria-label={t('today')}
+        onClick={onToday}
+      >
+        <span className="tb-today-text" aria-hidden="true">
+          {t('today')}
+        </span>
+        {todayDay !== undefined && (
+          <span className="tb-today-day" aria-hidden="true">
+            {todayDay}
+          </span>
+        )}
       </button>
       {/* Each chevron is drawn pointing to the inline end and mirrored where needed. */}
       <button

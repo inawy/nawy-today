@@ -21,6 +21,7 @@ export interface ShellProps {
   readonly calendars: readonly Calendar[];
   readonly onToggleCalendar: (id: string, visible: boolean) => void;
   readonly onToday: () => void;
+  readonly todayDay?: string | undefined;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
   readonly onSearch: () => void;
@@ -50,6 +51,7 @@ export function Shell({
   calendars,
   onToggleCalendar,
   onToday,
+  todayDay,
   onPrevious,
   onNext,
   onSearch,
@@ -104,6 +106,7 @@ export function Shell({
         drawerOpen={open}
         onMenu={() => setOpen(!open)}
         onToday={onToday}
+        todayDay={todayDay}
         onPrevious={onPrevious}
         onNext={onNext}
         onSearch={onSearch}

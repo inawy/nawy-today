@@ -5,7 +5,7 @@ import { TopBar } from '@/ui/shell/TopBar';
 
 afterEach(cleanup);
 
-const bar = (title: string) =>
+const bar = (title: string, todayDay?: string) =>
   render(
     <SettingsProvider
       storage={{ getItem: () => JSON.stringify(defaultSettings('ar')), setItem: () => undefined }}
@@ -19,6 +19,7 @@ const bar = (title: string) =>
         menuRef={{ current: null }}
         drawerOpen={false}
         onToday={() => undefined}
+        todayDay={todayDay}
         onPrevious={() => undefined}
         onNext={() => undefined}
         onSearch={() => undefined}
@@ -38,5 +39,20 @@ describe('the title in the top bar', () => {
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading.textContent).toBe('26–28 أكتوبر 2026');
     expect(heading.querySelector('.title-rest')).toBeNull();
+  });
+});
+
+describe('the today button', () => {
+  it('keeps its name and shows the day number beside the word', () => {
+    bar('أكتوبر 2026', '٢٨');
+    const button = screen.getByRole('button', { name: 'اليوم' });
+    expect(button.querySelector('.tb-today-day')?.textContent).toBe('٢٨');
+    expect(button.querySelector('.tb-today-text')?.textContent).toBe('اليوم');
+  });
+
+  it('works without a day number', () => {
+    bar('أكتوبر 2026');
+    const button = screen.getByRole('button', { name: 'اليوم' });
+    expect(button.querySelector('.tb-today-day')).toBeNull();
   });
 });

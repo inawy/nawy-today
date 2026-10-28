@@ -309,6 +309,14 @@ test.describe('on a phone', () => {
     );
     expect(overflow, `wider than the screen: ${offenders.join(' | ')}`).toBeLessThanOrEqual(0);
 
+    // The Today button shows the day number, not the word, and is still a 44px target (D-064).
+    const today = page.getByRole('button', { name: 'Today' });
+    await expect(today.locator('.tb-today-day')).toBeVisible();
+    await expect(today.locator('.tb-today-text')).toBeHidden();
+    const box = await today.boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+
     await addEvent(page, 'On my phone');
     await expect(page.getByRole('button', { name: /On my phone/ })).toBeVisible();
 

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { datePart, formatDate, localTimeZone, nowMs } from '@/core/time';
+import { datePart, dateParts, formatDate, localTimeZone, nowMs } from '@/core/time';
 import type { FormatOptions, PlainDate } from '@/core/time';
 import type { NawyDb, SnapshotDb } from '@/data';
 import type { FileToSave } from '@/features/backup';
@@ -330,6 +330,7 @@ function Calendar({
       calendars={calendarData.calendars}
       onToggleCalendar={toggle}
       onToday={goToday}
+      todayDay={count(dateParts(today).day)}
       onPrevious={previous}
       onNext={next}
       onSearch={() => setSearchOpen(true)}
