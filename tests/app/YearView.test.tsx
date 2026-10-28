@@ -32,6 +32,8 @@ async function seed() {
 const open = () =>
   render(<App create={() => createDb(dbName)} now={NOW} storage={memoryStorage()} />);
 
+// The sidebar's small month has the same name, so the year's months are looked up inside .year.
+const year = () => within(document.querySelector('.year') as HTMLElement);
 const heading = () => screen.getByRole('heading', { level: 1 }).textContent;
 
 describe('the year view (D-069)', () => {
@@ -42,8 +44,8 @@ describe('the year view (D-069)', () => {
     fireEvent.keyDown(window, { code: 'KeyY' });
     expect(heading()).toBe('2026');
     expect(screen.getByRole('button', { name: 'Year' }).getAttribute('aria-pressed')).toBe('true');
-    expect(screen.getAllByRole('region').length).toBeGreaterThanOrEqual(12);
-    const october = screen.getByRole('region', { name: 'October 2026' });
+    expect(year().getAllByRole('region')).toHaveLength(12);
+    const october = year().getByRole('region', { name: 'October 2026' });
     const busy = await within(october).findByRole('button', {
       name: 'Tuesday, October 13, 2026, 1 event(s)',
     });
@@ -58,7 +60,7 @@ describe('the year view (D-069)', () => {
     open();
     await screen.findByRole('heading', { level: 1, name: 'October 2026' });
     fireEvent.click(screen.getByRole('button', { name: 'Year' }));
-    const october = screen.getByRole('region', { name: 'October 2026' });
+    const october = year().getByRole('region', { name: 'October 2026' });
     fireEvent.click(await within(october).findByRole('button', { name: /October 13, 2026/ }));
     expect(heading()).toBe('Tuesday, October 13, 2026');
 
