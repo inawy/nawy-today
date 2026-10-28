@@ -4,6 +4,7 @@ import { useT } from '@/features/i18n';
 import { BUILD_INFO, RELEASE } from '@/lib/buildInfo';
 import { trapTab } from '@/lib/focusTrap';
 import { CloseIcon } from '../shell/Icons';
+import { useSwipeClose } from '../shell/useSwipeClose';
 
 export interface AboutDialogProps {
   readonly onClose: () => void;
@@ -29,6 +30,7 @@ export function AboutDialog({ onClose }: AboutDialogProps) {
   useEffect(() => {
     ref.current?.focus();
   }, []);
+  const swipe = useSwipeClose('down', onClose);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.code === 'Escape') {
@@ -50,7 +52,7 @@ export function AboutDialog({ onClose }: AboutDialogProps) {
         tabIndex={-1}
         onKeyDown={onKeyDown}
       >
-        <header className="ed-head">
+        <header className="ed-head sheet-grip" {...swipe}>
           <h2 id={titleId}>{t('aboutTitle')}</h2>
           <button type="button" className="icon-btn" aria-label={t('close')} onClick={onClose}>
             <CloseIcon />

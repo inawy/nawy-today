@@ -18,6 +18,7 @@ import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
 import { trapTab } from '@/lib/focusTrap';
+import { useSwipeClose } from '../shell/useSwipeClose';
 import { downloadFile } from './download';
 
 export interface DataDialogProps {
@@ -182,6 +183,8 @@ export function DataDialog({
       else setMessage('importMissing');
     }, 'exportFailed');
 
+  const swipe = useSwipeClose('down', onClose, !busy);
+
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.code === 'Escape') {
       event.stopPropagation();
@@ -206,7 +209,7 @@ export function DataDialog({
         tabIndex={-1}
         onKeyDown={onKeyDown}
       >
-        <h2 id={titleId} className="data-title">
+        <h2 id={titleId} className="data-title sheet-grip" {...swipe}>
           {t('dataTitle')}
         </h2>
 

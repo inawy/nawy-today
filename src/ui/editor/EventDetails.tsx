@@ -4,6 +4,7 @@ import type { Calendar, CalEvent } from '@/core/model';
 import { useT } from '@/features/i18n';
 import { trapTab } from '@/lib/focusTrap';
 import { CloseIcon } from '@/ui/shell/Icons';
+import { useSwipeClose } from '@/ui/shell/useSwipeClose';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
 
 export interface EventDetailsProps {
@@ -36,6 +37,7 @@ export function EventDetails({
   useEffect(() => {
     editRef.current?.focus();
   }, []);
+  const swipe = useSwipeClose('down', onClose);
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
     if (e.code === 'Escape') {
@@ -61,7 +63,7 @@ export function EventDetails({
         aria-labelledby={titleId}
         onKeyDown={onKeyDown}
       >
-        <div className="ed-head">
+        <div className="ed-head sheet-grip" {...swipe}>
           <span
             className="details-bar"
             style={{ background: calendarColorVars(calendar?.color ?? 'gray').bar }}

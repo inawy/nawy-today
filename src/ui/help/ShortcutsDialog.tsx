@@ -4,6 +4,7 @@ import { useT } from '@/features/i18n';
 import { SHORTCUT_GROUPS } from '@/features/view';
 import { trapTab } from '@/lib/focusTrap';
 import { CloseIcon } from '../shell/Icons';
+import { useSwipeClose } from '../shell/useSwipeClose';
 
 export interface ShortcutsDialogProps {
   readonly onClose: () => void;
@@ -18,6 +19,7 @@ export function ShortcutsDialog({ onClose }: ShortcutsDialogProps) {
   useEffect(() => {
     ref.current?.focus();
   }, []);
+  const swipe = useSwipeClose('down', onClose);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.code === 'Escape') {
@@ -39,7 +41,7 @@ export function ShortcutsDialog({ onClose }: ShortcutsDialogProps) {
         tabIndex={-1}
         onKeyDown={onKeyDown}
       >
-        <header className="ed-head">
+        <header className="ed-head sheet-grip" {...swipe}>
           <h2 id={titleId}>{t('shortcutsTitle')}</h2>
           <button type="button" className="icon-btn" aria-label={t('close')} onClick={onClose}>
             <CloseIcon />

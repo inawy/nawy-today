@@ -8,6 +8,7 @@ import { CloseIcon } from './Icons';
 import { Sidebar } from './Sidebar';
 import type { SidebarProps } from './Sidebar';
 import { TopBar } from './TopBar';
+import { useSwipeClose } from './useSwipeClose';
 
 export interface ShellProps {
   readonly title: string;
@@ -76,6 +77,9 @@ export function Shell({
     if (open) closeRef.current?.focus();
   }, [open]);
 
+  // The drawer goes back to the side it came from (D-063); on a wide screen it is not a drawer.
+  const swipe = useSwipeClose('inline-start', close, open);
+
   const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
     if (!open) return;
     if (event.code === 'Escape') {
@@ -104,7 +108,14 @@ export function Shell({
         onNext={onNext}
         onSearch={onSearch}
       />
-      <aside id="sidebar" ref={sidebarRef} className="sidebar" onKeyDown={onKeyDown}>
+      <aside
+        id="sidebar"
+        ref={sidebarRef}
+        className="sidebar"
+        onKeyDown={onKeyDown}
+        onTouchStart={swipe.onTouchStart}
+        onTouchEnd={swipe.onTouchEnd}
+      >
         <button
           ref={closeRef}
           type="button"

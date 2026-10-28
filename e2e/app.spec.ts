@@ -396,6 +396,40 @@ test.describe('on a phone', () => {
     await expect(dialog.getByLabel('Title')).toBeFocused();
   });
 
+  test('the menu and a read-only sheet close by swiping (D-063)', async ({ page }) => {
+    await page.goto('/');
+    const cdp = await page.context().newCDPSession(page);
+    const swipe = async (from: { x: number; y: number }, to: { x: number; y: number }) => {
+      const point = (p: { x: number; y: number }) => [{ x: p.x, y: p.y, id: 1 }];
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: point(from) });
+      for (const f of [0.25, 0.5, 0.75, 1]) {
+        await cdp.send('Input.dispatchTouchEvent', {
+          type: 'touchMove',
+          touchPoints: point({ x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f }),
+        });
+      }
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    };
+
+    await page.getByRole('button', { name: 'Menu' }).click();
+    const shell = page.locator('.shell');
+    await expect(shell).toHaveAttribute('data-drawer', 'open');
+    const side = await page.locator('#sidebar').boundingBox();
+    const cx = (side?.x ?? 0) + (side?.width ?? 0) / 2;
+    await swipe({ x: cx, y: 300 }, { x: cx - 160, y: 305 }); // the drawer comes from the left here
+    await expect(shell).toHaveAttribute('data-drawer', 'closed');
+
+    await page.getByRole('button', { name: 'Menu' }).click();
+    await page.getByRole('button', { name: 'About and privacy' }).click();
+    const dialog = page.getByRole('dialog', { name: 'About Nawy Today' });
+    await expect(dialog).toBeVisible();
+    const grip = await dialog.locator('.sheet-grip').boundingBox();
+    const gx = (grip?.x ?? 0) + (grip?.width ?? 0) / 2;
+    const gy = (grip?.y ?? 0) + (grip?.height ?? 0) / 2;
+    await swipe({ x: gx, y: gy }, { x: gx + 4, y: gy + 170 });
+    await expect(dialog).toBeHidden();
+  });
+
   test('the editor fits the screen, with a repeat rule open too (D-058)', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Add event' }).click();

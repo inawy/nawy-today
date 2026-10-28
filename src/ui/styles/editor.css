@@ -619,3 +619,25 @@ button.block:active {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
+
+/* A sheet on a phone shows a grip and can be swiped down from its header (D-063). The header
+   stops the browser's own pull-to-refresh so the swipe reaches the sheet. */
+@media (max-width: 599px) {
+  .sheet-grip {
+    position: relative;
+    min-block-size: 48px;
+    padding-block-start: 14px;
+    touch-action: none;
+  }
+
+  .sheet-grip::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 6px;
+    inset-inline-start: calc(50% - 18px);
+    inline-size: 36px;
+    block-size: 4px;
+    border-radius: 2px;
+    background: var(--border);
+  }
+}
