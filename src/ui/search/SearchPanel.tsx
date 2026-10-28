@@ -15,12 +15,24 @@ export interface SearchPanelProps {
   readonly today: PlainDate;
   readonly onOpen: (occurrence: Occurrence) => void;
   readonly onClose: () => void;
+  /** Queries that led to an opened event before (D-065); empty or absent hides the list. */
+  readonly recent?: readonly string[];
+  readonly onRemember?: (query: string) => void;
+  readonly onClearRecent?: () => void;
 }
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
 /** Live search: results update as you type, nearest to today first; picking one opens it. */
-export function SearchPanel({ index, today, onOpen, onClose }: SearchPanelProps) {
+export function SearchPanel({
+  index,
+  today,
+  onOpen,
+  onClose,
+  recent = [],
+  onRemember,
+  onClearRecent,
+}: SearchPanelProps) {
   const t = useT();
   const { settings } = useSettings();
   const titleId = useId();
@@ -40,6 +52,11 @@ export function SearchPanel({ index, today, onOpen, onClose }: SearchPanelProps)
   const count = new Intl.NumberFormat(settings.locale, {
     numberingSystem: settings.numerals,
   }).format(results.length);
+
+  const open = (occurrence: Occurrence): void => {
+    onRemember?.(query);
+    onOpen(occurrence);
+  };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.code === 'Escape') {
@@ -78,7 +95,7 @@ export function SearchPanel({ index, today, onOpen, onClose }: SearchPanelProps)
             const first = results[0];
             if (e.code === 'Enter' && first) {
               e.preventDefault();
-              onOpen(first.occurrence);
+              open(first.occurrence);
             }
           }}
         />
@@ -89,10 +106,36 @@ export function SearchPanel({ index, today, onOpen, onClose }: SearchPanelProps)
               ? t('searchNone')
               : t('searchCount', { count })}
         </p>
+        {!typed && recent.length > 0 && (
+          <section className="search-recent" aria-label={t('searchRecent')}>
+            <div className="search-recent-head">
+              <h3 className="muted">{t('searchRecent')}</h3>
+              <button type="button" className="btn" onClick={onClearRecent}>
+                {t('searchRecentClear')}
+              </button>
+            </div>
+            <ul className="search-recent-list">
+              {recent.map((q) => (
+                <li key={q}>
+                  <button
+                    type="button"
+                    className="search-recent-item"
+                    onClick={() => {
+                      setQuery(q);
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    {q}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <ul className="search-list">
           {results.map((r) => (
             <li key={r.occurrence.key}>
-              <Row result={r} fmt={fmt} timeFmt={timeFmt} onOpen={onOpen} />
+              <Row result={r} fmt={fmt} timeFmt={timeFmt} onOpen={open} />
             </li>
           ))}
         </ul>

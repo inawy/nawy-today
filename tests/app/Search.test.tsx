@@ -134,4 +134,42 @@ describe('search', () => {
     window.history.back();
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
+
+  it('offers the queries that led to an opened event, and can clear them', async () => {
+    await seed();
+    open();
+    let dialog = await openSearch();
+    expect(within(dialog).queryByText('Recent searches')).toBeNull();
+    type('follow');
+    fireEvent.click(await within(dialog).findByRole('button', { name: /Dentist follow-up/ }));
+    fireEvent.keyDown(await screen.findByRole('dialog', { name: 'Edit event' }), {
+      code: 'Escape',
+    });
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+    dialog = await openSearch();
+    expect(within(dialog).getByText('Recent searches')).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'follow' }));
+    expect((screen.getByRole('searchbox', { name: 'Search' }) as HTMLInputElement).value).toBe(
+      'follow',
+    );
+    expect(await within(dialog).findByRole('button', { name: /Dentist follow-up/ })).toBeTruthy();
+    expect(within(dialog).queryByText('Recent searches')).toBeNull();
+
+    type('');
+    fireEvent.click(await within(dialog).findByRole('button', { name: 'Clear' }));
+    expect(within(dialog).queryByText('Recent searches')).toBeNull();
+  });
+
+  it('does not remember a query that opened nothing', async () => {
+    await seed();
+    open();
+    let dialog = await openSearch();
+    type('zzzz');
+    await within(dialog).findByText('No results.');
+    fireEvent.keyDown(dialog, { code: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    dialog = await openSearch();
+    expect(within(dialog).queryByText('Recent searches')).toBeNull();
+  });
 });

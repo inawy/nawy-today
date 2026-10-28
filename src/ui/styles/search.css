@@ -67,3 +67,42 @@
   font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
+
+.search-recent {
+  margin-block-end: 8px;
+}
+
+.search-recent-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.search-recent-head h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.search-recent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-recent-item {
+  min-block-size: 44px;
+  max-inline-size: 100%;
+  padding-inline: 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}

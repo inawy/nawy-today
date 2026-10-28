@@ -16,7 +16,7 @@ import {
   useServiceWorker,
 } from '@/features/pwa';
 import type { WorkerContainer } from '@/features/pwa';
-import { buildSearchIndex } from '@/features/search';
+import { buildSearchIndex, useRecentSearches } from '@/features/search';
 import { buildMonthModel, monthOf } from '@/features/month';
 import { SettingsProvider, useSettings } from '@/features/settings';
 import type { DefaultView, ReadableStorage, WritableStorage } from '@/features/settings';
@@ -158,6 +158,7 @@ function Calendar({
   // `'new'`, the id of the calendar being edited, or nothing.
   const [calendarDialog, setCalendarDialog] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const recentSearches = useRecentSearches(storage);
   const [dataOpen, setDataOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -513,6 +514,9 @@ function Calendar({
             flow.openEvent(occurrence);
           }}
           onClose={() => setSearchOpen(false)}
+          recent={recentSearches.recent}
+          onRemember={recentSearches.remember}
+          onClearRecent={recentSearches.clear}
         />
       )}
     </Shell>
