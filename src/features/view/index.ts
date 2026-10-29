@@ -15,6 +15,7 @@ export {
   settleDrag,
   startsDrag,
   swipeIntent,
+  verticalSwipeIntent,
 } from './swipe';
 export type { CloseDirection, DragOutcome, SwipeIntent, SwipeMove } from './swipe';
 export { placeBeside } from './placement';

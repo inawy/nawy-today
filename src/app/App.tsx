@@ -454,6 +454,7 @@ function Calendar({
       <ViewMotion
         motion={motion.kind}
         tick={motion.tick}
+        axis={phone && view === 'month' ? 'y' : 'x'}
         onSwipe={(intent) => (intent === 'next' ? next() : previous())}
       >
         {view === 'year' && yearModel ? (
@@ -478,6 +479,7 @@ function Calendar({
               today={today}
               lanes={MAX_LANES}
               selected={phone ? anchor : undefined}
+              onPage={phone ? (intent) => (intent === 'next' ? next() : previous()) : undefined}
               onOpenDay={phone ? setAnchor : openDay}
               onOpenEvent={flow.showEvent}
             />

@@ -224,6 +224,11 @@ button.more {
   background: var(--bg);
 }
 
+/* Vertical touches on the grid page through months; sideways ones still reach the view's swipe. */
+.month[data-paging='true'] {
+  touch-action: pan-x;
+}
+
 .month-split .week {
   grid-template-rows: minmax(0, 1fr);
   align-content: stretch;

@@ -89,3 +89,16 @@ export function dragOffset(
   if (direction === 'down') return { x: 0, y: Math.max(0, move.dy) };
   return { x: rtl ? Math.max(0, move.dx) : Math.min(0, move.dx), y: 0 };
 }
+
+/**
+ * A deliberate swipe up or down on the month grid of a phone pages through months (D-075): up
+ * brings the next month (like scrolling down), down brings the previous. Mostly vertical, long
+ * enough and quick enough, so a tap or a slow drag never pages.
+ */
+export function verticalSwipeIntent(move: SwipeMove): SwipeIntent {
+  const { dx, dy, ms } = move;
+  if (ms > MAX_MS) return null;
+  if (Math.abs(dy) < MIN_DISTANCE_PX) return null;
+  if (Math.abs(dy) < Math.abs(dx) * 2) return null;
+  return dy < 0 ? 'next' : 'previous';
+}

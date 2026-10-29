@@ -5,6 +5,8 @@ interface ViewMotionProps {
   readonly motion: 'next' | 'previous' | 'swap' | 'none';
   /** Changes each time the content moves, so the same motion can play twice in a row. */
   readonly tick: number;
+  /** Which way the content slides: sideways, or up and down for the phone's month (D-075). */
+  readonly axis?: 'x' | 'y';
   /** A deliberate sideways swipe on a touch screen. */
   readonly onSwipe?: ((intent: Exclude<SwipeIntent, null>) => void) | undefined;
   readonly children: ReactNode;
@@ -13,7 +15,7 @@ interface ViewMotionProps {
 const DISTANCE_PX = 28;
 
 /** Plays a short slide/fade on the content; skipped entirely for people who asked for less motion. */
-export function ViewMotion({ motion, tick, onSwipe, children }: ViewMotionProps) {
+export function ViewMotion({ motion, tick, axis = 'x', onSwipe, children }: ViewMotionProps) {
   const ref = useRef<HTMLDivElement>(null);
   const start = useRef<{ x: number; y: number; at: number } | null>(null);
   const onTouchStart = (e: TouchEvent): void => {
@@ -38,17 +40,19 @@ export function ViewMotion({ motion, tick, onSwipe, children }: ViewMotionProps)
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     const rtl = getComputedStyle(el).direction === 'rtl';
     // "next" brings content in from the reading-end side of the screen.
-    const sign = (motion === 'next' ? 1 : -1) * (rtl ? -1 : 1);
+    // Up and down do not mirror: the next month always comes up from below.
+    const sign = (motion === 'next' ? 1 : -1) * (axis === 'y' || !rtl ? 1 : -1);
+    const slide = axis === 'y' ? 'translateY' : 'translateX';
     const from =
       motion === 'swap'
         ? { opacity: 0 }
-        : { opacity: 0, transform: `translateX(${sign * DISTANCE_PX}px)` };
+        : { opacity: 0, transform: `${slide}(${sign * DISTANCE_PX}px)` };
     const animation = el.animate([from, { opacity: 1, transform: 'none' }], {
       duration: motion === 'swap' ? 160 : 200,
       easing: 'cubic-bezier(0.2, 0, 0, 1)',
     });
     return () => animation.cancel();
-  }, [motion, tick]);
+  }, [motion, tick, axis]);
   return (
     <div ref={ref} className="view-anim" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       {children}

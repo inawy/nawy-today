@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { closeSwipe, dragOffset, settleDrag, startsDrag, swipeIntent } from '@/features/view';
+import {
+  closeSwipe,
+  dragOffset,
+  settleDrag,
+  startsDrag,
+  swipeIntent,
+  verticalSwipeIntent,
+} from '@/features/view';
 
 describe('swipeIntent', () => {
   it('left-to-right reading: dragging left goes forward, right goes back', () => {
@@ -77,5 +84,18 @@ describe('startsDrag and dragOffset', () => {
     expect(dragOffset({ dx: -40, dy: 9 }, 'inline-start', false)).toEqual({ x: -40, y: 0 });
     expect(dragOffset({ dx: 40, dy: 9 }, 'inline-start', false)).toEqual({ x: 0, y: 0 });
     expect(dragOffset({ dx: 40, dy: 9 }, 'inline-start', true)).toEqual({ x: 40, y: 0 });
+  });
+});
+
+describe('verticalSwipeIntent: paging through months on a phone', () => {
+  it('up brings the next month and down the previous one', () => {
+    expect(verticalSwipeIntent({ dx: 5, dy: -120, ms: 250 })).toBe('next');
+    expect(verticalSwipeIntent({ dx: -5, dy: 120, ms: 250 })).toBe('previous');
+  });
+  it('ignores short, slow and slanted movements, and sideways ones', () => {
+    expect(verticalSwipeIntent({ dx: 0, dy: -30, ms: 100 })).toBeNull();
+    expect(verticalSwipeIntent({ dx: 0, dy: -200, ms: 900 })).toBeNull();
+    expect(verticalSwipeIntent({ dx: 80, dy: -100, ms: 200 })).toBeNull();
+    expect(verticalSwipeIntent({ dx: 150, dy: 10, ms: 200 })).toBeNull();
   });
 });

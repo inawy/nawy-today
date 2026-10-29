@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import type { TouchEvent } from 'react';
 import type { CSSProperties, RefObject } from 'react';
 import { ErrorBoundary } from '@/lib/ErrorBoundary';
 import { useRefocus } from '@/lib/useRefocus';
@@ -16,6 +17,8 @@ import type { MonthBar, MonthModel, WeekModel } from '@/features/month';
 import { useT } from '@/features/i18n';
 import { useSettings } from '@/features/settings';
 import { keyAction } from '@/features/timegrid';
+import { verticalSwipeIntent } from '@/features/view';
+import type { SwipeIntent } from '@/features/view';
 import type { DragDelta } from '@/features/timegrid';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
 import { useBlockDrag } from '../timegrid/useBlockDrag';
@@ -34,6 +37,11 @@ export interface MonthViewProps {
    * its events sits under the grid) instead of leaving the month (D-059).
    */
   readonly selected?: PlainDate | undefined;
+  /**
+   * On a phone: a quick swipe up or down on the grid pages to the next or previous month (D-075).
+   * The grid then keeps vertical touches for itself; the list under it still scrolls.
+   */
+  readonly onPage?: ((intent: Exclude<SwipeIntent, null>) => void) | undefined;
   /** An item was dragged (or moved with Shift + arrows) by whole days: weeks count as 7 days. */
   readonly onMoveEvent?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
 }
@@ -47,6 +55,7 @@ export function MonthView({
   onOpenDay,
   onOpenEvent,
   onMoveEvent,
+  onPage,
   selected,
 }: MonthViewProps) {
   const t = useT();
@@ -55,9 +64,36 @@ export function MonthView({
   const timeFmt: TimeFormatOptions = { ...fmt, hour12: settings.hour12 };
   const header = model.weeks[0]?.days ?? [];
   const { rootRef, remember } = useRefocus();
+  const touch = useRef<{ x: number; y: number; at: number } | null>(null);
+  const paging = onPage
+    ? {
+        onTouchStart: (e: TouchEvent) => {
+          const t0 = e.touches.length === 1 ? e.touches[0] : undefined;
+          touch.current = t0 ? { x: t0.clientX, y: t0.clientY, at: e.timeStamp } : null;
+        },
+        onTouchEnd: (e: TouchEvent) => {
+          const from = touch.current;
+          const t1 = e.changedTouches[0];
+          touch.current = null;
+          if (!from || !t1) return;
+          const intent = verticalSwipeIntent({
+            dx: t1.clientX - from.x,
+            dy: t1.clientY - from.y,
+            ms: e.timeStamp - from.at,
+          });
+          if (intent) onPage(intent);
+        },
+      }
+    : {};
 
   return (
-    <div className="month" ref={rootRef} style={{ '--lanes': lanes } as Vars}>
+    <div
+      className="month"
+      ref={rootRef}
+      style={{ '--lanes': lanes } as Vars}
+      data-paging={onPage ? 'true' : undefined}
+      {...paging}
+    >
       <div className="month-weekdays" aria-hidden="true">
         {header.map((d) => (
           <span key={d}>{formatWeekday(d, fmt, 'short')}</span>

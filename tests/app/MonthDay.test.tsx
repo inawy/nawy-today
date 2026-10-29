@@ -97,4 +97,36 @@ describe('the month on a phone (D-059)', () => {
     );
     expect(screen.queryByRole('region', { name: THURSDAY })).toBeNull();
   });
+
+  it('on a phone a swipe up or down on the grid pages through months (D-075)', async () => {
+    phone(true);
+    await seed();
+    const { container } = open();
+    await screen.findByRole('heading', { level: 1, name: 'October 2026' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Month' }));
+    const grid = container.querySelector('.month') as HTMLElement;
+    expect(grid.getAttribute('data-paging')).toBe('true');
+    const swipe = (dy: number, dx = 0) => {
+      fireEvent.touchStart(grid, { touches: [{ clientX: 200, clientY: 300 }] });
+      fireEvent.touchEnd(grid, { changedTouches: [{ clientX: 200 + dx, clientY: 300 + dy }] });
+    };
+    const title = () => screen.getByRole('heading', { level: 1 }).textContent;
+    swipe(-120);
+    expect(title()).toBe('November 2026');
+    swipe(40); // too short
+    expect(title()).toBe('November 2026');
+    swipe(100, 90); // slanted: not a paging swipe
+    expect(title()).toBe('November 2026');
+    swipe(120);
+    swipe(120);
+    expect(title()).toBe('September 2026');
+  });
+
+  it('on a wide screen the grid does not page by touch', async () => {
+    phone(false);
+    await seed();
+    const { container } = open();
+    await screen.findByRole('heading', { level: 1, name: 'October 2026' });
+    expect(container.querySelector('.month')?.getAttribute('data-paging')).toBeNull();
+  });
 });
