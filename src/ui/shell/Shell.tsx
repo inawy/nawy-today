@@ -117,7 +117,9 @@ export function Shell({
         className="sidebar"
         onKeyDown={onKeyDown}
         onTouchStart={swipe.onTouchStart}
+        onTouchMove={swipe.onTouchMove}
         onTouchEnd={swipe.onTouchEnd}
+        onTouchCancel={swipe.onTouchCancel}
       >
         <button
           ref={closeRef}

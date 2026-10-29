@@ -8,7 +8,14 @@ export { motionBetween } from './motion';
 export type { ViewMotion } from './motion';
 export { useViewMotion } from './useViewMotion';
 export type { MotionState } from './useViewMotion';
-export { closeSwipe, swipeIntent } from './swipe';
-export type { CloseDirection, SwipeIntent, SwipeMove } from './swipe';
+export {
+  DRAG_START_PX,
+  closeSwipe,
+  dragOffset,
+  settleDrag,
+  startsDrag,
+  swipeIntent,
+} from './swipe';
+export type { CloseDirection, DragOutcome, SwipeIntent, SwipeMove } from './swipe';
 export { placeBeside } from './placement';
 export type { Point, Size } from './placement';

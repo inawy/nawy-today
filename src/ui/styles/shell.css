@@ -151,6 +151,7 @@
     inset-inline-start: 0;
     inline-size: min(320px, 85vw);
     z-index: 30;
+    touch-action: pan-y; /* sideways touches reach the drag that closes it (D-074) */
     padding-block-start: calc(16px + env(safe-area-inset-top));
     transform: translateX(calc(-100% * var(--dir)));
     visibility: hidden;

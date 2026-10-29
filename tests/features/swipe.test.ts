@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { closeSwipe, swipeIntent } from '@/features/view';
+import { closeSwipe, dragOffset, settleDrag, startsDrag, swipeIntent } from '@/features/view';
 
 describe('swipeIntent', () => {
   it('left-to-right reading: dragging left goes forward, right goes back', () => {
@@ -41,5 +41,41 @@ describe('closeSwipe', () => {
     expect(closeSwipe({ dx: -40, dy: 0, ...quick }, 'inline-start', false)).toBe(false);
     expect(closeSwipe({ dx: -90, dy: 0, ms: 900 }, 'inline-start', false)).toBe(false);
     expect(closeSwipe({ dx: -90, dy: 80, ...quick }, 'inline-start', false)).toBe(false);
+  });
+});
+
+describe('settleDrag: a panel that followed the finger', () => {
+  it('closes on a quick flick, as before', () => {
+    expect(settleDrag({ dx: 0, dy: 90, ms: 200 }, 'down', false)).toBe('close');
+    expect(settleDrag({ dx: -90, dy: 0, ms: 200 }, 'inline-start', false)).toBe('close');
+  });
+  it('also closes when carried far enough, however slowly', () => {
+    expect(settleDrag({ dx: 0, dy: 140, ms: 2000 }, 'down', false)).toBe('close');
+    expect(settleDrag({ dx: 150, dy: 5, ms: 2000 }, 'inline-start', true)).toBe('close');
+  });
+  it('springs back when it was not carried far, or was carried the wrong way', () => {
+    expect(settleDrag({ dx: 0, dy: 100, ms: 2000 }, 'down', false)).toBe('back');
+    expect(settleDrag({ dx: 0, dy: -200, ms: 300 }, 'down', false)).toBe('back');
+    expect(settleDrag({ dx: 200, dy: 0, ms: 2000 }, 'inline-start', false)).toBe('back');
+    expect(settleDrag({ dx: 150, dy: 140, ms: 2000 }, 'down', false)).toBe('back');
+  });
+});
+
+describe('startsDrag and dragOffset', () => {
+  it('a drag starts only in the leaving direction (so scrolling and taps are left alone)', () => {
+    expect(startsDrag({ dx: 2, dy: 20 }, 'down', false)).toBe(true);
+    expect(startsDrag({ dx: 0, dy: -20 }, 'down', false)).toBe(false);
+    expect(startsDrag({ dx: 30, dy: 20 }, 'down', false)).toBe(false);
+    expect(startsDrag({ dx: -30, dy: 5 }, 'inline-start', false)).toBe(true);
+    expect(startsDrag({ dx: 30, dy: 5 }, 'inline-start', false)).toBe(false);
+    expect(startsDrag({ dx: 30, dy: 5 }, 'inline-start', true)).toBe(true);
+    expect(startsDrag({ dx: -30, dy: 25 }, 'inline-start', false)).toBe(false);
+  });
+  it('draws the panel only toward where it leaves, never back past its place', () => {
+    expect(dragOffset({ dx: 9, dy: 50 }, 'down', false)).toEqual({ x: 0, y: 50 });
+    expect(dragOffset({ dx: 0, dy: -50 }, 'down', false)).toEqual({ x: 0, y: 0 });
+    expect(dragOffset({ dx: -40, dy: 9 }, 'inline-start', false)).toEqual({ x: -40, y: 0 });
+    expect(dragOffset({ dx: 40, dy: 9 }, 'inline-start', false)).toEqual({ x: 0, y: 0 });
+    expect(dragOffset({ dx: 40, dy: 9 }, 'inline-start', true)).toEqual({ x: 40, y: 0 });
   });
 });
