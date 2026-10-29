@@ -95,6 +95,9 @@ await session('desktop-ar', { viewport: { width: 1280, height: 800 }, locale: 'a
   await key(page, 'KeyY');
   await page.locator('.year-month').nth(9).scrollIntoViewIfNeeded(); await shot('year');
   await key(page, 'KeyW'); await shot('week');
+  await key(page, 'KeyW');
+  await page.locator('.tg-col').nth(2).click({ position: { x: 40, y: 700 } }); await shot('quick');
+  await key(page, 'Escape');
   await key(page, 'KeyD'); await shot('day');
   await key(page, 'KeyA'); await shot('agenda');
   await key(page, 'KeyC'); await shot('editor');
