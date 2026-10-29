@@ -387,6 +387,7 @@ button.block {
     inset-block-end: calc(76px + env(safe-area-inset-bottom));
     inset-inline: 8px;
     translate: none;
+    animation-name: toast-rise-bar;
     max-inline-size: none;
     justify-content: space-between;
   }
@@ -464,6 +465,14 @@ button.block:active {
   from {
     opacity: 0;
     translate: calc(-50% * var(--dir)) 12px;
+  }
+}
+
+/* The phone's notice is a full-width bar (no centring shift), so it only rises, never slides in. */
+@keyframes toast-rise-bar {
+  from {
+    opacity: 0;
+    translate: 0 12px;
   }
 }
 
