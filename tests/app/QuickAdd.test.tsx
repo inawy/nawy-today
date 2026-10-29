@@ -112,7 +112,7 @@ describe('the quick card on a wide screen (D-071)', () => {
     await seed();
     const view = open();
     await screen.findByRole('button', { name: 'Add event' });
-    fireEvent.click(screen.getByRole('button', { name: 'Day', exact: true }));
+    fireEvent.click(screen.getByRole('button', { name: 'Day' }));
     await waitFor(() => expect(view.container.querySelector('.tg-allday-cell')).toBeTruthy());
     fireEvent.click(view.container.querySelector('.tg-allday-cell') as HTMLElement);
     expect(await screen.findByRole('dialog', { name: 'New event' })).toBeTruthy();
