@@ -44,7 +44,7 @@ describe('the add button while scrolling (D-076)', () => {
     scrollTo(area, 200);
     expect(fab.getAttribute('data-hidden')).toBe('true');
     expect(fab.getAttribute('tabindex')).toBe('-1');
-    scrollTo(area, 190); // a tremor: still hidden
+    scrollTo(area, 196); // a tremor of 4px: still hidden
     expect(fab.getAttribute('data-hidden')).toBe('true');
     scrollTo(area, 150);
     expect(fab.getAttribute('data-hidden')).toBeNull();
