@@ -503,7 +503,11 @@ function Calendar({
               flow.openNew(date, time, { quick: !phone, ...(point && { point }) })
             }
             onCreateAllDay={(date, point) =>
-              flow.openNew(date, undefined, { allDay: true, quick: !phone, ...(point && { point }) })
+              flow.openNew(date, undefined, {
+                allDay: true,
+                quick: !phone,
+                ...(point && { point }),
+              })
             }
             onMoveEvent={flow.moveEvent}
             onResizeEvent={flow.resizeEvent}
