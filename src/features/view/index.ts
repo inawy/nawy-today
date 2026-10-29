@@ -20,3 +20,4 @@ export {
 export type { CloseDirection, DragOutcome, SwipeIntent, SwipeMove } from './swipe';
 export { placeBeside } from './placement';
 export type { Point, Size } from './placement';
+export { FAB_HIDE_PX, FAB_SHOW_PX, fabAfterScroll } from './fab';
