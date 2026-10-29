@@ -34,6 +34,11 @@ export interface TimeGridProps {
   readonly onOpenDay?: ((date: PlainDate) => void) | undefined;
   /** Opens an event for editing. */
   readonly onOpenEvent: (occurrence: Occurrence) => void;
+  /**
+   * Changes each time the person asks to go to "now" (the Today button or key): the hours scroll
+   * smoothly to the current time instead of staying where they were (D-077).
+   */
+  readonly jumpToNow?: number | undefined;
   /** Clicking an empty spot of a day starts a new event there (`time` is `HH:mm`, on the half hour). */
   readonly onCreateAt: (date: PlainDate, time: string, point?: ClickPoint) => void;
   /** Touching an empty spot of the all-day strip starts an all-day event on that day (D-061). */
@@ -55,6 +60,7 @@ export function TimeGrid({
   lanes,
   onOpenDay,
   onOpenEvent,
+  jumpToNow,
   onCreateAt,
   onCreateAllDay,
   onMoveEvent,
@@ -81,6 +87,19 @@ export function TimeGrid({
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = firstHour * HOUR_PX;
   }, [firstHour]);
+
+  // Only a change after the first draw is a request: opening the view uses the instant placement.
+  const seenJump = useRef(jumpToNow);
+  useEffect(() => {
+    if (jumpToNow === seenJump.current) return;
+    seenJump.current = jumpToNow;
+    const el = scrollRef.current;
+    if (!el) return;
+    const top = Math.max(0, Number(nowLocal.slice(11, 13)) - 1) * HOUR_PX;
+    const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    if (typeof el.scrollTo === 'function') el.scrollTo({ top, behavior: calm ? 'auto' : 'smooth' });
+    else el.scrollTop = top;
+  }, [jumpToNow, nowLocal]);
 
   const { rootRef, remember } = useRefocus();
 

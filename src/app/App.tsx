@@ -267,7 +267,12 @@ function Calendar({
     [calendarData],
   );
 
-  const goToday = useCallback(() => setAnchor(today), [today]);
+  // Counts the requests to go to "now", so the time grid can scroll to the current hour (D-077).
+  const [nowJumps, setNowJumps] = useState(0);
+  const goToday = useCallback(() => {
+    setAnchor(today);
+    setNowJumps((n) => n + 1);
+  }, [today]);
   const previous = useCallback(() => setAnchor((a) => shiftAnchor(view, a, -1)), [view]);
   const next = useCallback(() => setAnchor((a) => shiftAnchor(view, a, 1)), [view]);
   const openDay = useCallback((date: PlainDate) => {
@@ -498,6 +503,7 @@ function Calendar({
           <TimeGrid
             key={view}
             model={gridModel}
+            jumpToNow={nowJumps}
             today={today}
             nowLocal={nowLocal}
             lanes={MAX_ALL_DAY_LANES}

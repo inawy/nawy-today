@@ -369,3 +369,38 @@ describe('TimeGrid', () => {
     expect(container.querySelector('.tg-allday-cell')?.getAttribute('data-create')).toBeNull();
   });
 });
+
+describe('TimeGrid: going to now (D-077)', () => {
+  const grid = (jump: number) => (
+    <SettingsProvider storage={storage('en')} languages={['en']}>
+      <TimeGrid
+        model={model([])}
+        today="2026-10-13"
+        nowLocal="2026-10-13T14:20"
+        lanes={3}
+        jumpToNow={jump}
+        onOpenEvent={() => undefined}
+        onCreateAt={() => undefined}
+      />
+    </SettingsProvider>
+  );
+
+  it('scrolls smoothly to an hour before now when asked, and not when it first opens', () => {
+    const scrollTo = vi.fn();
+    const original = HTMLElement.prototype.scrollTo;
+    HTMLElement.prototype.scrollTo = scrollTo as unknown as typeof original;
+    try {
+      const { rerender } = render(grid(0));
+      expect(scrollTo).not.toHaveBeenCalled();
+      rerender(grid(0));
+      expect(scrollTo).not.toHaveBeenCalled();
+      rerender(grid(1));
+      expect(scrollTo).toHaveBeenCalledTimes(1);
+      expect(scrollTo).toHaveBeenCalledWith({ top: 13 * 48, behavior: 'smooth' });
+      rerender(grid(2));
+      expect(scrollTo).toHaveBeenCalledTimes(2);
+    } finally {
+      HTMLElement.prototype.scrollTo = original;
+    }
+  });
+});
