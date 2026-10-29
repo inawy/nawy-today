@@ -429,6 +429,17 @@ test.describe('on a phone', () => {
 
   test('the menu and a read-only sheet close by swiping (D-063)', async ({ page }) => {
     await page.goto('/');
+    // Where a thing is while it slides in is not where it ends up: wait for the animations to
+    // finish before measuring where to put a finger (D-072).
+    const settled = () =>
+      page.evaluate(() =>
+        Promise.all(
+          document
+            .getAnimations()
+            .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+            .map((a) => a.finished.catch(() => undefined)),
+        ),
+      );
     const cdp = await page.context().newCDPSession(page);
     const swipe = async (from: { x: number; y: number }, to: { x: number; y: number }) => {
       const point = (p: { x: number; y: number }) => [{ x: p.x, y: p.y, id: 1 }];
@@ -445,6 +456,7 @@ test.describe('on a phone', () => {
     await page.getByRole('button', { name: 'Menu', exact: true }).click();
     const shell = page.locator('.shell');
     await expect(shell).toHaveAttribute('data-drawer', 'open');
+    await settled();
     const side = await page.locator('#sidebar').boundingBox();
     const cx = (side?.x ?? 0) + (side?.width ?? 0) / 2;
     await swipe({ x: cx, y: 300 }, { x: cx - 160, y: 305 }); // the drawer comes from the left here
@@ -454,6 +466,7 @@ test.describe('on a phone', () => {
     await page.getByRole('button', { name: 'About and privacy' }).click();
     const dialog = page.getByRole('dialog', { name: 'About Nawy Today' });
     await expect(dialog).toBeVisible();
+    await settled();
     const grip = await dialog.locator('.sheet-grip').boundingBox();
     const gx = (grip?.x ?? 0) + (grip?.width ?? 0) / 2;
     const gy = (grip?.y ?? 0) + (grip?.height ?? 0) / 2;
