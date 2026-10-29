@@ -18,6 +18,12 @@ export const HOUR_PX = 48;
 /** Below this height a block cannot stack title over time, so they share one line. */
 const SHORT_BLOCK_PX = 40;
 
+/** Where on the screen (viewport pixels) a tap landed, so a card can open beside it (D-073). */
+export interface ClickPoint {
+  readonly x: number;
+  readonly y: number;
+}
+
 export interface TimeGridProps {
   readonly model: TimeGridModel;
   readonly today: PlainDate;
@@ -29,9 +35,9 @@ export interface TimeGridProps {
   /** Opens an event for editing. */
   readonly onOpenEvent: (occurrence: Occurrence) => void;
   /** Clicking an empty spot of a day starts a new event there (`time` is `HH:mm`, on the half hour). */
-  readonly onCreateAt: (date: PlainDate, time: string) => void;
+  readonly onCreateAt: (date: PlainDate, time: string, point?: ClickPoint) => void;
   /** Touching an empty spot of the all-day strip starts an all-day event on that day (D-061). */
-  readonly onCreateAllDay?: ((date: PlainDate) => void) | undefined;
+  readonly onCreateAllDay?: ((date: PlainDate, point?: ClickPoint) => void) | undefined;
   /** A block was dragged somewhere else: move this occurrence by that many days/minutes. */
   readonly onMoveEvent?: ((occurrence: Occurrence, delta: DragDelta) => void) | undefined;
   /** The bottom edge of a block was dragged: move this occurrence's end by that many minutes. */
@@ -135,7 +141,11 @@ export function TimeGrid({
               className="tg-allday-cell"
               data-create={onCreateAllDay ? 'true' : undefined}
               style={{ gridColumn: i + 1 } as Vars}
-              onClick={onCreateAllDay ? () => onCreateAllDay(d.date) : undefined}
+              onClick={
+                onCreateAllDay
+                  ? (e) => onCreateAllDay(d.date, { x: e.clientX, y: e.clientY })
+                  : undefined
+              }
             />
           ))}
           {model.allDay.hidden.map((n, i) =>
@@ -197,6 +207,7 @@ export function TimeGrid({
                     onCreateAt(
                       d.date,
                       `${pad(Math.floor(half / 2))}:${half % 2 === 0 ? '00' : '30'}`,
+                      { x: e.clientX, y: e.clientY },
                     );
                   }}
                 >

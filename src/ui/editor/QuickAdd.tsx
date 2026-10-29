@@ -1,10 +1,17 @@
-import { useEffect, useId, useRef, useState } from 'react';
-import type { FormEvent, KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import type { CSSProperties, FormEvent, KeyboardEvent } from 'react';
 import type { Calendar } from '@/core/model';
 import type { Draft } from '@/features/events';
+import { placeBeside } from '@/features/view';
 import { useT } from '@/features/i18n';
 import { trapTab } from '@/lib/focusTrap';
 import { calendarColorVars } from '@/ui/theme/calendarColor';
+
+/** Where the person tapped, in viewport pixels. */
+export interface QuickPoint {
+  readonly x: number;
+  readonly y: number;
+}
 
 export interface QuickAddProps {
   /** The new event as the tap made it: the day and time, the first visible calendar. */
@@ -17,6 +24,8 @@ export interface QuickAddProps {
   /** Opens the full editor with what was typed so far. */
   readonly onMore: (draft: Draft) => void;
   readonly onClose: () => void;
+  /** When known, the card opens beside the tap instead of in the middle (D-073). */
+  readonly point?: QuickPoint | undefined;
 }
 
 /**
@@ -24,7 +33,15 @@ export interface QuickAddProps {
  * from where the person tapped; Enter saves, and "More options" carries everything typed into
  * the full editor. Text only, never parsed as HTML.
  */
-export function QuickAdd({ initial, calendars, when, onSave, onMore, onClose }: QuickAddProps) {
+export function QuickAdd({
+  initial,
+  calendars,
+  when,
+  onSave,
+  onMore,
+  onClose,
+  point,
+}: QuickAddProps) {
   const t = useT();
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
@@ -35,6 +52,23 @@ export function QuickAdd({ initial, calendars, when, onSave, onMore, onClose }: 
   const [failed, setFailed] = useState(false);
   const draft: Draft = { ...initial, title: title.trim(), calendarId };
   const calendar = calendars.find((c) => c.id === calendarId);
+  const [place, setPlace] = useState<CSSProperties | undefined>(undefined);
+
+  // Beside the tap, kept fully on screen. Measured after the first paint of the card, because its
+  // size is not known before; the logical offset is measured from the side the text starts on.
+  useLayoutEffect(() => {
+    const card = ref.current;
+    if (!point || !card) return;
+    const { width, height } = card.getBoundingClientRect();
+    const rtl = getComputedStyle(card).direction === 'rtl';
+    const spot = placeBeside(
+      point,
+      { width, height },
+      { width: window.innerWidth, height: window.innerHeight },
+      rtl,
+    );
+    setPlace({ insetBlockStart: spot.top, insetInlineStart: spot.inlineStart });
+  }, [point]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -63,7 +97,7 @@ export function QuickAdd({ initial, calendars, when, onSave, onMore, onClose }: 
 
   return (
     <div
-      className="modal-backdrop"
+      className={point ? 'modal-backdrop quick-anchored' : 'modal-backdrop'}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -71,6 +105,8 @@ export function QuickAdd({ initial, calendars, when, onSave, onMore, onClose }: 
       <div
         ref={ref}
         className="modal quick"
+        style={place}
+        data-placed={place ? 'true' : undefined}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

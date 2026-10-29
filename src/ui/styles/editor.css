@@ -696,3 +696,19 @@ button.block:active {
   block-size: 12px;
   border-radius: 50%;
 }
+
+/* Beside the tap: no dimming, the card is placed by script (D-073). Until it is placed it stays
+   invisible so it does not flash in the middle first. */
+.modal-backdrop.quick-anchored {
+  display: block;
+  padding: 0;
+  background: transparent;
+}
+
+.quick-anchored .modal.quick {
+  position: fixed;
+}
+
+.quick-anchored .modal.quick:not([data-placed]) {
+  visibility: hidden;
+}

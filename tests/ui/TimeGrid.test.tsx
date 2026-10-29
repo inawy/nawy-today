@@ -33,6 +33,7 @@ const view = (
     onOpenEvent?: (id: string) => void;
     onCreateAt?: (date: string, time: string) => void;
     onCreateAllDay?: (date: string) => void;
+    onPoint?: (point: { x: number; y: number } | undefined) => void;
     now?: string;
     locale?: 'ar' | 'en';
     extra?: object;
@@ -50,8 +51,18 @@ const view = (
         lanes={3}
         onOpenDay={props.onOpenDay}
         onOpenEvent={(o) => props.onOpenEvent?.(o.event.id)}
-        onCreateAt={(d, tm) => props.onCreateAt?.(d, tm)}
-        onCreateAllDay={props.onCreateAllDay ? (d) => props.onCreateAllDay?.(d) : undefined}
+        onCreateAt={(d, tm, p) => {
+          props.onCreateAt?.(d, tm);
+          props.onPoint?.(p);
+        }}
+        onCreateAllDay={
+          props.onCreateAllDay
+            ? (d, p) => {
+                props.onCreateAllDay?.(d);
+                props.onPoint?.(p);
+              }
+            : undefined
+        }
       />
     </SettingsProvider>,
   );
@@ -328,6 +339,20 @@ describe('TimeGrid', () => {
     expect(onCreateAt).toHaveBeenCalledWith('2026-10-13', '10:00');
     fireEvent.click(col, { clientY: 1000 + 60 });
     expect(onCreateAt).toHaveBeenLastCalledWith('2026-10-13', '10:30');
+  });
+
+  it('tells where the tap landed, so a card can open beside it', () => {
+    const onPoint = vi.fn();
+    const { container } = view(model([]), { onPoint, onCreateAllDay: () => undefined });
+    const col = container.querySelectorAll<HTMLElement>('.tg-col')[1] as HTMLElement;
+    col.getBoundingClientRect = () => ({ top: 0, height: 2400 }) as DOMRect;
+    fireEvent.click(col, { clientX: 300, clientY: 1010 });
+    expect(onPoint).toHaveBeenLastCalledWith({ x: 300, y: 1010 });
+    fireEvent.click(container.querySelectorAll<HTMLElement>('.tg-allday-cell')[0] as HTMLElement, {
+      clientX: 120,
+      clientY: 40,
+    });
+    expect(onPoint).toHaveBeenLastCalledWith({ x: 120, y: 40 });
   });
 
   it('a touch on an empty spot of the all-day strip starts an all-day event on that day', () => {

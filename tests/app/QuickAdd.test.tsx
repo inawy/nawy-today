@@ -45,6 +45,21 @@ async function tapStrip() {
 }
 
 describe('the quick card on a wide screen (D-071)', () => {
+  it('opens beside the tap when the tap says where it was (D-073)', async () => {
+    await seed();
+    const view = open();
+    await screen.findByRole('button', { name: 'Add event' });
+    fireEvent.keyDown(window, { code: 'KeyD' });
+    await waitFor(() => expect(view.container.querySelector('.tg-allday-cell')).toBeTruthy());
+    fireEvent.click(view.container.querySelector('.tg-allday-cell') as HTMLElement, {
+      clientX: 400,
+      clientY: 90,
+    });
+    const card = await screen.findByRole('dialog', { name: 'Quick add' });
+    expect(card.getAttribute('data-placed')).toBe('true');
+    expect(card.closest('.modal-backdrop')?.classList.contains('quick-anchored')).toBe(true);
+  });
+
   it('opens with the title ready, says when, and Enter saves an event on that day', async () => {
     await seed();
     const card = await tapStrip();

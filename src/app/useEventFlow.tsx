@@ -65,7 +65,7 @@ export interface EventFlow {
   readonly openNew: (
     date: PlainDate,
     time?: string,
-    options?: { allDay?: boolean; quick?: boolean },
+    options?: { allDay?: boolean; quick?: boolean; point?: { x: number; y: number } },
   ) => void;
   /** Opens the event's card (what it is, with Edit and Delete). */
   readonly showEvent: (occurrence: Occurrence) => void;
@@ -97,7 +97,11 @@ export function useEventFlow({
   const [editing, setEditing] = useState<Editing | null>(null);
   const [ask, setAsk] = useState<ScopeAsk | null>(null);
   const [viewing, setViewing] = useState<Occurrence | null>(null);
-  const [quick, setQuick] = useState<{ readonly id: number; readonly draft: Draft } | null>(null);
+  const [quick, setQuick] = useState<{
+    readonly id: number;
+    readonly draft: Draft;
+    readonly point?: { readonly x: number; readonly y: number } | undefined;
+  } | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const counter = useRef(0);
   const closeEditorRef = useRef<(() => Promise<boolean>) | null>(null);
@@ -127,7 +131,11 @@ export function useEventFlow({
   );
 
   const openNew = useCallback(
-    (date: PlainDate, time?: string, options?: { allDay?: boolean; quick?: boolean }) => {
+    (
+      date: PlainDate,
+      time?: string,
+      options?: { allDay?: boolean; quick?: boolean; point?: { x: number; y: number } },
+    ) => {
       if (!store) return;
       void (async () => {
         let calendar = calendars.find((c) => c.visible) ?? calendars[0];
@@ -151,7 +159,7 @@ export function useEventFlow({
           calendarId: calendar.id,
           tzid: tz,
         });
-        if (options?.quick) setQuick({ id: counter.current, draft });
+        if (options?.quick) setQuick({ id: counter.current, draft, point: options.point });
         else setEditing({ mode: 'new', id: counter.current, draft });
       })();
     },
@@ -411,6 +419,7 @@ export function useEventFlow({
           initial={quick.draft}
           calendars={calendars}
           when={quickWhen}
+          point={quick.point}
           onSave={quickSave}
           onMore={quickMore}
           onClose={() => setQuick(null)}

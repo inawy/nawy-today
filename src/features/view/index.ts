@@ -10,3 +10,5 @@ export { useViewMotion } from './useViewMotion';
 export type { MotionState } from './useViewMotion';
 export { closeSwipe, swipeIntent } from './swipe';
 export type { CloseDirection, SwipeIntent, SwipeMove } from './swipe';
+export { placeBeside } from './placement';
+export type { Point, Size } from './placement';

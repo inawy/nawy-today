@@ -499,9 +499,11 @@ function Calendar({
             lanes={MAX_ALL_DAY_LANES}
             onOpenDay={view === 'week' || view === 'days3' ? openDay : undefined}
             onOpenEvent={flow.showEvent}
-            onCreateAt={(date, time) => flow.openNew(date, time, { quick: !phone })}
-            onCreateAllDay={(date) =>
-              flow.openNew(date, undefined, { allDay: true, quick: !phone })
+            onCreateAt={(date, time, point) =>
+              flow.openNew(date, time, { quick: !phone, ...(point && { point }) })
+            }
+            onCreateAllDay={(date, point) =>
+              flow.openNew(date, undefined, { allDay: true, quick: !phone, ...(point && { point }) })
             }
             onMoveEvent={flow.moveEvent}
             onResizeEvent={flow.resizeEvent}
