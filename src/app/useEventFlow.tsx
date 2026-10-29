@@ -25,6 +25,7 @@ import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
 import { EventDetails } from '@/ui/editor/EventDetails';
 import { EventEditor } from '@/ui/editor/EventEditor';
+import { QuickAdd } from '@/ui/editor/QuickAdd';
 import type { SaveOutcome } from '@/ui/editor/EventEditor';
 import { ScopeDialog } from '@/ui/editor/ScopeDialog';
 import { Toast } from '@/ui/editor/Toast';
@@ -61,7 +62,11 @@ export interface EventFlowInput {
 
 export interface EventFlow {
   /** Starts a new event on `date` (at `time` when given, otherwise 09:00; all day when asked). */
-  readonly openNew: (date: PlainDate, time?: string, options?: { allDay?: boolean }) => void;
+  readonly openNew: (
+    date: PlainDate,
+    time?: string,
+    options?: { allDay?: boolean; quick?: boolean },
+  ) => void;
   /** Opens the event's card (what it is, with Edit and Delete). */
   readonly showEvent: (occurrence: Occurrence) => void;
   /** Goes straight to the editor (used by search). */
@@ -92,6 +97,7 @@ export function useEventFlow({
   const [editing, setEditing] = useState<Editing | null>(null);
   const [ask, setAsk] = useState<ScopeAsk | null>(null);
   const [viewing, setViewing] = useState<Occurrence | null>(null);
+  const [quick, setQuick] = useState<{ readonly id: number; readonly draft: Draft } | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const counter = useRef(0);
   const closeEditorRef = useRef<(() => Promise<boolean>) | null>(null);
@@ -99,6 +105,8 @@ export function useEventFlow({
   askRef.current = ask;
   const viewingRef = useRef<Occurrence | null>(null);
   viewingRef.current = viewing;
+  const quickRef = useRef(false);
+  quickRef.current = quick !== null;
   const registerClose = useCallback((close: (() => Promise<boolean>) | null) => {
     closeEditorRef.current = close;
   }, []);
@@ -119,7 +127,7 @@ export function useEventFlow({
   );
 
   const openNew = useCallback(
-    (date: PlainDate, time?: string, options?: { allDay?: boolean }) => {
+    (date: PlainDate, time?: string, options?: { allDay?: boolean; quick?: boolean }) => {
       if (!store) return;
       void (async () => {
         let calendar = calendars.find((c) => c.visible) ?? calendars[0];
@@ -136,17 +144,15 @@ export function useEventFlow({
           }
         }
         counter.current += 1;
-        setEditing({
-          mode: 'new',
-          id: counter.current,
-          draft: draftForNew({
-            date,
-            ...(time !== undefined && { time }),
-            ...(options?.allDay && { allDay: true }),
-            calendarId: calendar.id,
-            tzid: tz,
-          }),
+        const draft = draftForNew({
+          date,
+          ...(time !== undefined && { time }),
+          ...(options?.allDay && { allDay: true }),
+          calendarId: calendar.id,
+          tzid: tz,
         });
+        if (options?.quick) setQuick({ id: counter.current, draft });
+        else setEditing({ mode: 'new', id: counter.current, draft });
       })();
     },
     [store, calendars, t, notify, tz],
@@ -275,6 +281,27 @@ export function useEventFlow({
     [store, editing, askScope, notify, t],
   );
 
+  /** The quick card's save: the same create as the editor's, without opening the editor. */
+  const quickSave = useCallback(
+    async (draft: Draft): Promise<boolean> => {
+      if (!store) return false;
+      const fields = draftToFields(draft);
+      if (!fields.ok) return false;
+      const outcome = await execute(store, [{ kind: 'create', event: fields.fields }]);
+      if (outcome.status !== 'ok') return false;
+      setQuick(null);
+      notify(t('saved'));
+      return true;
+    },
+    [store, notify, t],
+  );
+
+  const quickMore = useCallback((draft: Draft) => {
+    counter.current += 1;
+    setQuick(null);
+    setEditing({ mode: 'new', id: counter.current, draft });
+  }, []);
+
   const removeTarget = useCallback(
     async (target: Target): Promise<boolean> => {
       if (!store) return false;
@@ -324,6 +351,10 @@ export function useEventFlow({
       setAsk(null);
       return false;
     }
+    if (quickRef.current) {
+      setQuick(null);
+      return true;
+    }
     if (viewingRef.current) {
       setViewing(null);
       return true;
@@ -363,9 +394,28 @@ export function useEventFlow({
       })()
     : null;
 
+  const quickWhen = (() => {
+    if (!quick) return '';
+    const fields = draftToFields(quick.draft);
+    if (!fields.ok) return '';
+    const { start, end, allDay, tzid } = fields.fields;
+    return describeWhen({ start, end, allDay, tzid }, { ...fmt, hour12 }, tz);
+  })();
+
   const overlay = (
     <>
       {card}
+      {quick && (
+        <QuickAdd
+          key={quick.id}
+          initial={quick.draft}
+          calendars={calendars}
+          when={quickWhen}
+          onSave={quickSave}
+          onMore={quickMore}
+          onClose={() => setQuick(null)}
+        />
+      )}
       {editing && (
         <EventEditor
           key={editing.id}
@@ -418,7 +468,7 @@ export function useEventFlow({
     moveEvent,
     resizeEvent,
     overlay,
-    dialogOpen: editing !== null || ask !== null || viewing !== null,
+    dialogOpen: editing !== null || ask !== null || viewing !== null || quick !== null,
     back,
   };
 }

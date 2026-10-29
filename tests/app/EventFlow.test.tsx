@@ -57,6 +57,9 @@ describe('create', () => {
     fireEvent.keyDown(window, { code: 'KeyD' });
     await waitFor(() => expect(container.querySelector('.tg-allday-cell')).toBeTruthy());
     fireEvent.click(container.querySelector('.tg-allday-cell') as HTMLElement);
+    // On a wide screen the tap opens the quick card; "More options" goes on to the full editor.
+    const quick = await screen.findByRole('dialog', { name: 'Quick add' });
+    fireEvent.click(within(quick).getByRole('button', { name: 'More options' }));
     const dialog = await screen.findByRole('dialog', { name: 'New event' });
     expect((within(dialog).getByLabelText('All day') as HTMLInputElement).checked).toBe(true);
   });
