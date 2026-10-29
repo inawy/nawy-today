@@ -102,8 +102,9 @@ describe('the month on a phone (D-059)', () => {
     phone(true);
     await seed();
     const { container } = open();
-    await screen.findByRole('heading', { level: 1, name: 'October 2026' });
+    // A phone opens on the Today list; the month is one touch away.
     fireEvent.click(await screen.findByRole('button', { name: 'Month' }));
+    await screen.findByRole('heading', { level: 1, name: 'October 2026' });
     const grid = container.querySelector('.month') as HTMLElement;
     expect(grid.getAttribute('data-paging')).toBe('true');
     const swipe = (dy: number, dx = 0) => {
