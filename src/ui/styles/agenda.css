@@ -33,9 +33,9 @@
   padding: 8px 12px;
   border: 0;
   border-inline-start: 4px solid var(--bar);
-  border-radius: var(--radius);
+  border-radius: var(--nawy-radius);
   background: var(--bar-bg);
-  color: var(--text);
+  color: var(--nawy-color-text);
   text-align: start;
   cursor: pointer;
 }
@@ -54,7 +54,7 @@
 }
 
 .agenda-end {
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   font-size: 0.8125rem;
   font-variant-numeric: tabular-nums;
 }
@@ -82,7 +82,7 @@
 /* The one to get ready for: larger, with an accent ring. */
 .agenda-item[data-next='true'] {
   min-block-size: 76px;
-  box-shadow: 0 0 0 2px var(--accent-fill);
+  box-shadow: 0 0 0 2px var(--nawy-color-accent-fill);
 }
 
 .agenda-item[data-next='true'] .agenda-title {
@@ -96,7 +96,7 @@
 .agenda-item[data-status='past'] {
   min-block-size: 44px;
   padding-block: 4px;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   border-inline-start-color: color-mix(in srgb, var(--bar) 45%, transparent);
 }
 
@@ -106,7 +106,7 @@
 
 /* Happening now: a ring in the "now" colour and a bar that fills as the event goes by. */
 .agenda-item[data-status='now'] {
-  box-shadow: 0 0 0 2px var(--now);
+  box-shadow: 0 0 0 2px var(--nawy-color-now);
 }
 
 .agenda-item[data-status='now']::after {
@@ -116,14 +116,14 @@
   inset-block-end: 0;
   inline-size: calc(var(--progress, 0) * 100%);
   block-size: 4px;
-  background: var(--now);
+  background: var(--nawy-color-now);
 }
 
 .agenda-now {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--now);
+  color: var(--nawy-color-now);
   font-size: 0.75rem;
 }
 
@@ -132,7 +132,7 @@
   inline-size: 10px;
   block-size: 10px;
   border-radius: 50%;
-  background: var(--now);
+  background: var(--nawy-color-now);
   order: 1;
 }
 
@@ -141,7 +141,7 @@
   order: 2;
   flex: 1;
   block-size: 2px;
-  background: var(--now);
+  background: var(--nawy-color-now);
 }
 
 @media (max-width: 599px) {

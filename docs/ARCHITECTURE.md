@@ -39,3 +39,6 @@ docs/          PRODUCT_SPEC · BUILD_PLAN · DECISIONS · ARCHITECTURE
 - الأخطاء تُحتوى: كل حدث يُرسم داخل حدّ أخطاء، وفشل فتح القاعدة له شاشة استرداد.
 - تغيير المخطط = إصدار Dexie جديد + اختبار ترحيل.
 - لا `dangerouslySetInnerHTML` (قاعدة lint).
+
+## مرجع النظام المشترك (D-080)
+المرجع المشترك `inawy/design-system` يحكم الأيقونات (Material Symbols Outlined، أصول محلية في `src/assets/icons/`) وتسمية الـtokens (`--nawy-*`). الاستثناءات المقصودة عنه موثقة في D-080 (خط IBM Plex، بلا Tailwind/Zod).

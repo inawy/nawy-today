@@ -22,7 +22,7 @@
   gap: 8px;
   justify-items: start;
   padding-block: 12px;
-  border-block-start: 1px solid var(--border);
+  border-block-start: 1px solid var(--nawy-color-border);
 }
 
 .data-section:first-of-type {
@@ -73,8 +73,8 @@
   gap: 10px;
   min-block-size: 44px;
   padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--nawy-color-border);
+  border-radius: var(--nawy-radius);
 }
 
 .data-mode > span {
@@ -92,7 +92,7 @@
 .data-counts td {
   padding: 6px 8px;
   text-align: start;
-  border-block-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--nawy-color-border);
 }
 
 .data-actions {

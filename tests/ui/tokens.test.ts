@@ -64,9 +64,9 @@ describe.each(themes)('%s theme contrast (WCAG AA)', (name, t) => {
 });
 
 describe('brand', () => {
-  it('uses the exact brand accent as the dark-theme fill and exposes it as --brand', () => {
+  it('uses the exact brand accent as the dark-theme fill and exposes it as --nawy-color-brand', () => {
     expect(darkTokens(brand).accentFill).toBe(brand.accent);
-    expect(themeCss(brand)).toContain(`--brand: ${brand.accent};`);
+    expect(themeCss(brand)).toContain(`--nawy-color-brand: ${brand.accent};`);
   });
 
   it('is the Nawy blue from D-011', () => {
@@ -85,7 +85,7 @@ describe('themeCss', () => {
   });
 
   it('defines every token and calendar colour in both themes', () => {
-    for (const v of ['--bg', '--surface', '--text', '--accent-fill', '--on-accent-fill', '--now']) {
+    for (const v of ['--nawy-color-bg', '--nawy-color-surface', '--nawy-color-text', '--nawy-color-accent-fill', '--nawy-color-on-accent-fill', '--nawy-color-now']) {
       expect(css.split(`${v}:`).length - 1).toBe(3); // light, dark-by-media, dark-explicit
     }
     for (const id of CALENDAR_COLOR_IDS) {

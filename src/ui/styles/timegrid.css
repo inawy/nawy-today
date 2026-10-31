@@ -8,7 +8,7 @@
 
 .tg-row {
   display: flex;
-  border-block-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--nawy-color-border);
 }
 
 .tg-gutter {
@@ -30,7 +30,7 @@
   padding-block: 6px;
   min-block-size: 44px;
   border: 0;
-  border-inline-start: 1px solid var(--border);
+  border-inline-start: 1px solid var(--nawy-color-border);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -41,12 +41,12 @@ button.tg-headcell {
 }
 
 button.tg-headcell:hover {
-  background: var(--surface-2);
+  background: var(--nawy-color-surface-2);
 }
 
 .tg-weekday {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }
 
 .tg-daynum {
@@ -59,8 +59,8 @@ button.tg-headcell:hover {
 }
 
 .tg-headcell[data-today='true'] .tg-daynum {
-  background: var(--accent-fill);
-  color: var(--on-accent-fill);
+  background: var(--nawy-color-accent-fill);
+  color: var(--nawy-color-on-accent-fill);
   font-weight: 600;
 }
 
@@ -69,7 +69,7 @@ button.tg-headcell:hover {
   align-items: center;
   justify-items: center;
   font-size: 0.6875rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   padding-inline: 2px;
   text-align: center;
 }
@@ -87,7 +87,7 @@ button.tg-headcell:hover {
 
 .tg-allday-cell {
   grid-row: 1 / -1;
-  border-inline-start: 1px solid var(--border);
+  border-inline-start: 1px solid var(--nawy-color-border);
 }
 
 .tg-allday-cell[data-create='true'] {
@@ -115,19 +115,19 @@ button.tg-headcell:hover {
   inset-inline-end: 6px;
   transform: translateY(-50%);
   font-size: 0.6875rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   white-space: nowrap;
 }
 
 .tg-col {
   position: relative;
-  border-inline-start: 1px solid var(--border);
+  border-inline-start: 1px solid var(--nawy-color-border);
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
     transparent calc(var(--hour-h) - 1px),
-    var(--border) calc(var(--hour-h) - 1px),
-    var(--border) var(--hour-h)
+    var(--nawy-color-border) calc(var(--hour-h) - 1px),
+    var(--nawy-color-border) var(--hour-h)
   );
 }
 
@@ -141,12 +141,12 @@ button.tg-headcell:hover {
   border-inline-start: 3px solid var(--bar);
   border-radius: 6px;
   background: var(--bar-bg);
-  color: var(--text);
+  color: var(--nawy-color-text);
   font-size: 0.75rem;
   line-height: 1.25;
   overflow: hidden;
   /* A hairline of the surface colour separates neighbours that touch. */
-  box-shadow: 0 0 0 1px var(--surface);
+  box-shadow: 0 0 0 1px var(--nawy-color-surface);
 }
 
 .block[data-open-start='true'] {
@@ -184,15 +184,15 @@ button.tg-headcell:hover {
 }
 
 .block-time {
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .block-failed {
-  border-inline-start-color: var(--now);
-  color: var(--text-muted);
+  border-inline-start-color: var(--nawy-color-now);
+  color: var(--nawy-color-text-muted);
 }
 
 .now-line {
@@ -200,7 +200,7 @@ button.tg-headcell:hover {
   inset-inline: 0;
   z-index: 2;
   block-size: 2px;
-  background: var(--now);
+  background: var(--nawy-color-now);
   pointer-events: none;
 }
 
@@ -212,7 +212,7 @@ button.tg-headcell:hover {
   inline-size: 10px;
   block-size: 10px;
   border-radius: 50%;
-  background: var(--now);
+  background: var(--nawy-color-now);
 }
 
 /* Picking a block up to move it. */
@@ -249,7 +249,7 @@ button.tg-headcell:hover {
   border-radius: 2px;
   background: currentcolor;
   opacity: 0;
-  transition: opacity var(--dur) var(--ease);
+  transition: opacity var(--nawy-duration) var(--nawy-ease);
 }
 
 .block:hover .block-resize::after,

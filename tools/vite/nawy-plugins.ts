@@ -52,7 +52,7 @@ export function nawyPlugins(brandPath: string): Plugin[] {
       transformIndexHtml: {
         order: 'post',
         handler(html, ctx) {
-          // The status bar takes the top bar's colour (`--surface`) in each theme.
+          // The status bar takes the top bar's colour (`--nawy-color-surface`) in each theme.
           let out = html
             .replaceAll('%BRAND_ACCENT%', brand.accent)
             .replaceAll('%THEME_LIGHT%', LIGHT.surface)

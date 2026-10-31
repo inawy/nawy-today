@@ -18,10 +18,10 @@ button.block {
 .btn {
   min-block-size: 44px;
   padding-inline: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
+  border: 1px solid var(--nawy-color-border);
+  border-radius: var(--nawy-radius);
+  background: var(--nawy-color-surface);
+  color: var(--nawy-color-text);
   cursor: pointer;
 }
 
@@ -31,13 +31,13 @@ button.block {
 }
 
 .btn-primary {
-  background: var(--accent-fill);
-  border-color: var(--accent-fill);
-  color: var(--on-accent-fill);
+  background: var(--nawy-color-accent-fill);
+  border-color: var(--nawy-color-accent-fill);
+  color: var(--nawy-color-on-accent-fill);
 }
 
 .btn-danger {
-  border-color: var(--now);
+  border-color: var(--nawy-color-now);
 }
 
 /* `--vvh`/`--vvt` follow the visible area, so an on-screen keyboard does not cover the form. */
@@ -63,9 +63,9 @@ button.block {
   max-block-size: 100%;
   display: flex;
   flex-direction: column;
-  border-radius: calc(var(--radius) * 1.5);
-  background: var(--surface);
-  color: var(--text);
+  border-radius: calc(var(--nawy-radius) * 1.5);
+  background: var(--nawy-color-surface);
+  color: var(--nawy-color-text);
   box-shadow:
     0 2px 6px rgb(0 0 0 / 0.08),
     0 16px 40px rgb(0 0 0 / 0.22);
@@ -134,7 +134,7 @@ button.block {
   float: inline-start;
   inline-size: 5.5rem;
   padding: 0;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   font-size: 0.875rem;
 }
 
@@ -152,14 +152,14 @@ button.block {
 }
 
 .ed-field > span {
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   font-size: 0.875rem;
 }
 
 .ed-body .ed-title {
   padding-inline: 4px;
   border: 0;
-  border-block-end: 2px solid var(--border);
+  border-block-end: 2px solid var(--nawy-color-border);
   border-radius: 0;
   background: transparent;
   font-size: 1.35rem;
@@ -168,16 +168,16 @@ button.block {
 
 .ed-body .ed-title:focus-visible {
   outline: none;
-  border-block-end-color: var(--accent-fill);
+  border-block-end-color: var(--nawy-color-accent-fill);
 }
 
 .ed-body :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
   min-block-size: 44px;
   padding-inline: 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--text);
+  border: 1px solid var(--nawy-color-border);
+  border-radius: var(--nawy-radius);
+  background: var(--nawy-color-bg);
+  color: var(--nawy-color-text);
   font-size: 16px;
 }
 
@@ -213,7 +213,7 @@ button.block {
 .ed-check input {
   inline-size: 20px;
   block-size: 20px;
-  accent-color: var(--accent-fill);
+  accent-color: var(--nawy-color-accent-fill);
 }
 
 .ed-days {
@@ -226,23 +226,23 @@ button.block {
 .ed-day {
   min-inline-size: 44px;
   min-block-size: 44px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  border: 1px solid var(--nawy-color-border);
+  border-radius: var(--nawy-radius);
+  background: var(--nawy-color-surface);
   cursor: pointer;
 }
 
 .ed-day[aria-pressed='true'] {
-  background: var(--accent-fill);
-  border-color: var(--accent-fill);
-  color: var(--on-accent-fill);
+  background: var(--nawy-color-accent-fill);
+  border-color: var(--nawy-color-accent-fill);
+  color: var(--nawy-color-on-accent-fill);
 }
 
 .ed-error {
   padding: 8px 12px;
-  border-inline-start: 3px solid var(--now);
+  border-inline-start: 3px solid var(--nawy-color-now);
   border-radius: 4px;
-  background: var(--bg);
+  background: var(--nawy-color-bg);
 }
 
 .ed-foot {
@@ -250,7 +250,7 @@ button.block {
   align-items: center;
   gap: 8px;
   padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
-  border-block-start: 1px solid var(--border);
+  border-block-start: 1px solid var(--nawy-color-border);
 }
 
 .ed-spacer {
@@ -269,9 +269,9 @@ button.block {
   block-size: 56px;
   border: 0;
   border-radius: 50%;
-  background: var(--accent-fill);
-  color: var(--on-accent-fill);
-  box-shadow: var(--shadow-lift);
+  background: var(--nawy-color-accent-fill);
+  color: var(--nawy-color-on-accent-fill);
+  box-shadow: var(--nawy-shadow-lift);
   cursor: pointer;
 }
 
@@ -287,9 +287,9 @@ button.block {
   max-inline-size: calc(100% - 32px);
   padding-block: 8px;
   padding-inline: 16px 8px;
-  border-radius: var(--radius);
-  background: var(--text);
-  color: var(--bg);
+  border-radius: var(--nawy-radius);
+  background: var(--nawy-color-text);
+  color: var(--nawy-color-bg);
   box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
 }
 
@@ -307,7 +307,7 @@ button.block {
 .shortcut-group {
   margin-block: 8px 4px;
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }
 
 .shortcut-list {
@@ -321,7 +321,7 @@ button.block {
   justify-content: space-between;
   gap: 12px;
   min-block-size: 36px;
-  border-block-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--nawy-color-border);
 }
 
 .shortcut-row dt {
@@ -340,9 +340,9 @@ button.block {
 .shortcut-row kbd {
   min-inline-size: 28px;
   padding: 2px 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--nawy-color-border);
   border-radius: 6px;
-  background: var(--surface2);
+  background: var(--nawy-color-surface-2);
   font: inherit;
   font-size: 0.875rem;
   text-align: center;
@@ -355,7 +355,7 @@ button.block {
 .about-head {
   margin-block: 12px 4px;
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }
 
 .about-text {
@@ -413,8 +413,8 @@ label {
 button.bar,
 button.block {
   transition:
-    transform 90ms var(--ease),
-    background-color var(--dur) var(--ease);
+    transform 90ms var(--nawy-ease),
+    background-color var(--nawy-duration) var(--nawy-ease);
 }
 
 .btn:active,
@@ -435,11 +435,11 @@ button.block:active {
 
 /* Dialogs arrive instead of popping in. */
 .modal-backdrop {
-  animation: fade-in 160ms var(--ease) both;
+  animation: fade-in 160ms var(--nawy-ease) both;
 }
 
 .modal {
-  animation: modal-in 200ms var(--ease) both;
+  animation: modal-in 200ms var(--nawy-ease) both;
 }
 
 @keyframes fade-in {
@@ -477,7 +477,7 @@ button.block:active {
 }
 
 .toast {
-  animation: toast-rise 200ms var(--ease) both;
+  animation: toast-rise 200ms var(--nawy-ease) both;
 }
 
 /* Phone first: the editor is a sheet from the bottom edge, fields use the full width. */
@@ -492,7 +492,7 @@ button.block:active {
     max-block-size: 94%;
     border-end-start-radius: 0;
     border-end-end-radius: 0;
-    animation: sheet-in 260ms var(--ease) both;
+    animation: sheet-in 260ms var(--nawy-ease) both;
   }
 
   .modal.scope {
@@ -530,14 +530,14 @@ button.block:active {
 .swatch {
   inline-size: 44px;
   block-size: 44px;
-  border: 3px solid var(--surface);
+  border: 3px solid var(--nawy-color-surface);
   border-radius: 50%;
-  box-shadow: 0 0 0 1px var(--border);
+  box-shadow: 0 0 0 1px var(--nawy-color-border);
   cursor: pointer;
 }
 
 .swatch[aria-checked='true'] {
-  box-shadow: 0 0 0 3px var(--text);
+  box-shadow: 0 0 0 3px var(--nawy-color-text);
 }
 
 .calendar-edit {
@@ -558,7 +558,7 @@ button.block:active {
 }
 
 .swatch-custom[data-checked='true'] {
-  box-shadow: 0 0 0 3px var(--text);
+  box-shadow: 0 0 0 3px var(--nawy-color-text);
 }
 
 .swatch-custom input {
@@ -571,7 +571,7 @@ button.block:active {
 }
 
 .swatch-custom:focus-within {
-  outline: 2px solid var(--accent-fill);
+  outline: 2px solid var(--nawy-color-accent-fill);
   outline-offset: 2px;
 }
 
@@ -608,7 +608,7 @@ button.block:active {
 }
 
 .details-body dt {
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   font-size: 0.8125rem;
 }
 
@@ -625,10 +625,10 @@ button.block:active {
   display: inline-block;
   margin-inline-start: 8px;
   padding: 0 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--nawy-color-border);
   border-radius: 999px;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }
 
 /* A sheet on a phone shows a grip and can be swiped down from its header (D-063). The header
@@ -649,7 +649,7 @@ button.block:active {
     inline-size: 36px;
     block-size: 4px;
     border-radius: 2px;
-    background: var(--border);
+    background: var(--nawy-color-border);
   }
 }
 
@@ -666,15 +666,15 @@ button.block:active {
   min-block-size: 56px;
   padding-inline: 16px;
   border: 0;
-  border-block-end: 2px solid var(--border);
+  border-block-end: 2px solid var(--nawy-color-border);
   border-radius: 0;
   background: transparent;
-  color: var(--text);
+  color: var(--nawy-color-text);
   font-size: 1.25rem;
 }
 
 .quick-title:focus {
-  border-block-end-color: var(--accent-fill);
+  border-block-end-color: var(--nawy-color-accent-fill);
   outline: none;
 }
 
@@ -694,9 +694,9 @@ button.block:active {
   min-inline-size: 0;
   min-block-size: 44px;
   padding-inline: 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  border: 1px solid var(--nawy-color-border);
+  border-radius: var(--nawy-radius);
+  background: var(--nawy-color-surface);
 }
 
 .quick-dot {
@@ -726,7 +726,7 @@ button.block:active {
    It is also taken out of reach (not focusable, not tappable) while away. */
 .fab {
   transition:
-    transform 200ms var(--ease),
+    transform 200ms var(--nawy-ease),
     visibility 0s linear 0s;
 }
 
@@ -734,6 +734,6 @@ button.block:active {
   transform: translateY(calc(100% + 96px));
   visibility: hidden;
   transition:
-    transform 200ms var(--ease),
+    transform 200ms var(--nawy-ease),
     visibility 0s linear 200ms;
 }

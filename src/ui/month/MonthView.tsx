@@ -235,7 +235,7 @@ function Dots({ week, col }: { readonly week: WeekModel; readonly col: number })
     .filter((bar) => bar.startCol <= col && col <= bar.endCol)
     .map((bar) => calendarColorVars(bar.calendarColor).bar);
   const hidden = week.hidden[col] ?? 0;
-  const all = [...colors, ...Array.from({ length: hidden }, () => 'var(--text-muted)')];
+  const all = [...colors, ...Array.from({ length: hidden }, () => 'var(--nawy-color-text-muted)')];
   if (all.length === 0) return null;
   return (
     <span className="dots" aria-hidden="true">

@@ -10,9 +10,9 @@
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
   font-size: 0.8125rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   padding-block: 6px;
-  border-block-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--nawy-color-border);
 }
 
 /* One grid per week: row 1 = day numbers, rows 2… = lanes of event bars. */
@@ -22,12 +22,12 @@
   grid-template-rows: 28px repeat(var(--lanes), var(--bar-h));
   row-gap: 2px;
   align-content: start;
-  border-block-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--nawy-color-border);
 }
 
 .day {
   grid-row: 1 / -1;
-  border-inline-start: 1px solid var(--border);
+  border-inline-start: 1px solid var(--nawy-color-border);
   padding-block-start: 2px;
   text-align: center;
 }
@@ -46,12 +46,12 @@
 }
 
 .day[data-outside='true'] .day-number {
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }
 
 .day[data-today='true'] .day-number {
-  background: var(--accent-fill);
-  color: var(--on-accent-fill);
+  background: var(--nawy-color-accent-fill);
+  color: var(--nawy-color-on-accent-fill);
   font-weight: 600;
 }
 
@@ -66,7 +66,7 @@
   border-inline-start: 3px solid var(--bar);
   border-radius: 6px;
   background: var(--bar-bg);
-  color: var(--text);
+  color: var(--nawy-color-text);
   font-size: 0.75rem;
   line-height: var(--bar-h);
   overflow: hidden;
@@ -87,7 +87,7 @@
 }
 
 .bar-time {
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   flex: none;
 }
 
@@ -97,15 +97,15 @@
 }
 
 .bar-failed {
-  border-inline-start-color: var(--now);
-  color: var(--text-muted);
+  border-inline-start-color: var(--nawy-color-now);
+  color: var(--nawy-color-text-muted);
 }
 
 .more {
   z-index: 1;
   align-self: center;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
   text-align: center;
 }
 
@@ -122,7 +122,7 @@
 }
 
 .day-btn:hover {
-  background: var(--surface-2);
+  background: var(--nawy-color-surface-2);
 }
 
 button.more {
@@ -184,7 +184,7 @@ button.more {
   display: block;
   font-size: 0.6875rem;
   line-height: 1;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }
 
 /* An item picked up to move it to another day or week (D-049). */
@@ -221,7 +221,7 @@ button.more {
   inset-block-start: 0;
   z-index: 2;
   grid-template-rows: auto repeat(6, 52px);
-  background: var(--bg);
+  background: var(--nawy-color-bg);
 }
 
 /* Vertical touches on the grid page through months; sideways ones still reach the view's swipe. */
@@ -235,24 +235,24 @@ button.more {
 }
 
 .day[data-selected='true'] .day-number {
-  box-shadow: 0 0 0 2px var(--accent-fill);
+  box-shadow: 0 0 0 2px var(--nawy-color-accent-fill);
 }
 
 .day[data-selected='true'][data-today='true'] .day-number {
   box-shadow:
-    0 0 0 2px var(--bg),
-    0 0 0 4px var(--accent-fill);
+    0 0 0 2px var(--nawy-color-bg),
+    0 0 0 4px var(--nawy-color-accent-fill);
 }
 
 .month-day {
   flex: 1;
   min-block-size: 0;
-  border-block-start: 1px solid var(--border);
+  border-block-start: 1px solid var(--nawy-color-border);
 }
 
 .month-day-title {
   margin: 12px 16px 0;
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }

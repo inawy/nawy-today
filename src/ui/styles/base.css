@@ -25,11 +25,11 @@
 
 :root {
   --dir: 1;
-  --radius: 10px;
-  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.1), 0 6px 18px rgb(0 0 0 / 0.16);
+  --nawy-radius: 10px;
+  --nawy-shadow-lift: 0 1px 2px rgb(0 0 0 / 0.1), 0 6px 18px rgb(0 0 0 / 0.16);
   --bar-h: 22px;
-  --ease: cubic-bezier(0.2, 0, 0, 1);
-  --dur: 150ms;
+  --nawy-ease: cubic-bezier(0.2, 0, 0, 1);
+  --nawy-duration: 150ms;
   font-family:
     'Nawy Sans',
     system-ui,
@@ -49,8 +49,8 @@
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--nawy-color-bg);
+  color: var(--nawy-color-text);
 }
 
 h1,
@@ -72,22 +72,22 @@ input:not([type='checkbox']) {
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 2px solid var(--nawy-color-focus);
   outline-offset: 2px;
 }
 
 .muted {
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }
 
 .btn,
 .icon-btn {
   min-block-size: 44px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  border: 1px solid var(--nawy-color-border);
+  border-radius: var(--nawy-radius);
+  background: var(--nawy-color-surface);
   cursor: pointer;
-  transition: background-color var(--dur) var(--ease);
+  transition: background-color var(--nawy-duration) var(--nawy-ease);
 }
 
 .btn {
@@ -104,17 +104,17 @@ input:not([type='checkbox']) {
 
 .btn:hover,
 .icon-btn:hover {
-  background: var(--surface-2);
+  background: var(--nawy-color-surface-2);
 }
 
 .btn-primary {
-  background: var(--accent-fill);
-  border-color: var(--accent-fill);
-  color: var(--on-accent-fill);
+  background: var(--nawy-color-accent-fill);
+  border-color: var(--nawy-color-accent-fill);
+  color: var(--nawy-color-on-accent-fill);
 }
 
 .btn-primary:hover {
-  background: var(--accent-fill);
+  background: var(--nawy-color-accent-fill);
   filter: brightness(1.08);
 }
 
@@ -133,9 +133,9 @@ input:not([type='checkbox']) {
   inset-block-start: -100px;
   z-index: 100;
   padding: 8px 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--nawy-color-surface);
+  border: 1px solid var(--nawy-color-border);
+  border-radius: var(--nawy-radius);
 }
 
 .skip-link:focus {
@@ -154,8 +154,8 @@ input:not([type='checkbox']) {
 
 .banner {
   padding: 8px 16px;
-  background: var(--surface-2);
-  border-block-end: 1px solid var(--border);
+  background: var(--nawy-color-surface-2);
+  border-block-end: 1px solid var(--nawy-color-border);
 }
 
 .field {
@@ -170,9 +170,9 @@ input:not([type='checkbox']) {
   text-overflow: ellipsis;
   min-block-size: 44px;
   padding-inline: 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  border: 1px solid var(--nawy-color-border);
+  border-radius: var(--nawy-radius);
+  background: var(--nawy-color-surface);
 }
 
 @media (prefers-reduced-motion: reduce) {

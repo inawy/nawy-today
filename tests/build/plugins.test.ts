@@ -39,7 +39,7 @@ describe('plugins', () => {
   it('serves the theme stylesheet as a virtual module', () => {
     const id = theme.resolveId('virtual:theme.css');
     expect(id).toBeDefined();
-    expect(theme.load(id as string)).toContain('--brand: #3D7BFF;');
+    expect(theme.load(id as string)).toContain('--nawy-color-brand: #3D7BFF;');
     expect(theme.resolveId('other.css')).toBeUndefined();
   });
 

@@ -17,15 +17,15 @@
   padding-inline: 8px;
   margin-inline-start: -8px;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--nawy-radius);
   background: transparent;
-  color: var(--text);
+  color: var(--nawy-color-text);
   font-weight: 700;
   cursor: pointer;
 }
 
 .year-month-open:hover {
-  background: var(--surface-2);
+  background: var(--nawy-color-surface-2);
 }
 
 .year-heads,
@@ -38,7 +38,7 @@
   padding-block: 4px;
   text-align: center;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--nawy-color-text-muted);
 }
 
 .year-day {
@@ -48,9 +48,9 @@
   min-block-size: 34px;
   padding: 0;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--nawy-radius);
   background: transparent;
-  color: var(--text);
+  color: var(--nawy-color-text);
   font-size: 0.875rem;
   cursor: pointer;
 }
@@ -60,7 +60,7 @@
 }
 
 button.year-day:hover {
-  background: var(--surface-2);
+  background: var(--nawy-color-surface-2);
 }
 
 /* A dot means "has events"; a wider one means three or more. */
@@ -71,7 +71,7 @@ button.year-day:hover {
   inline-size: 5px;
   block-size: 5px;
   border-radius: 3px;
-  background: var(--accent);
+  background: var(--nawy-color-accent);
 }
 
 .year-day[data-busy='many']::after {
@@ -79,13 +79,13 @@ button.year-day:hover {
 }
 
 .year-day[data-today] {
-  background: var(--accent-fill);
-  color: var(--on-accent-fill);
+  background: var(--nawy-color-accent-fill);
+  color: var(--nawy-color-on-accent-fill);
   font-weight: 700;
 }
 
 .year-day[data-today]::after {
-  background: var(--on-accent-fill);
+  background: var(--nawy-color-on-accent-fill);
 }
 
 @media (max-width: 599px) {

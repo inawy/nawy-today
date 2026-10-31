@@ -12,7 +12,7 @@ export function calendarColorVars(color: string): { bar: string; bg: string } {
     return { bar: `var(--cal-${id}-bar)`, bg: `var(--cal-${id}-bg)` };
   }
   if (/^#[0-9a-fA-F]{6}$/.test(color)) {
-    return { bar: color, bg: `color-mix(in srgb, ${color} 16%, var(--surface))` };
+    return { bar: color, bg: `color-mix(in srgb, ${color} 16%, var(--nawy-color-surface))` };
   }
   return { bar: 'var(--cal-gray-bar)', bg: 'var(--cal-gray-bg)' };
 }

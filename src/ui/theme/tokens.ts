@@ -97,11 +97,12 @@ export function calendarColor(id: CalendarColorId, theme: ThemeName, brand: Bran
   return { bar, bg: mix(bar, surface, theme === 'light' ? 0.16 : 0.22) };
 }
 
-const kebab = (s: string): string => s.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+const kebab = (s: string): string =>
+  s.replace(/([a-z])(\d)/g, '$1-$2').replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
 function declarations(theme: ThemeName, brand: Brand): string {
   const tokens = theme === 'light' ? LIGHT : darkTokens(brand);
-  const lines = Object.entries(tokens).map(([k, v]) => `  --${kebab(k)}: ${v};`);
+  const lines = Object.entries(tokens).map(([k, v]) => `  --nawy-color-${kebab(k)}: ${v};`);
   for (const id of CALENDAR_COLOR_IDS) {
     const c = calendarColor(id, theme, brand);
     lines.push(`  --cal-${id}-bar: ${c.bar};`, `  --cal-${id}-bg: ${c.bg};`);
@@ -113,7 +114,7 @@ function declarations(theme: ThemeName, brand: Brand): string {
 /** The whole theme as a stylesheet: light by default, dark by OS preference or `data-theme`. */
 export function themeCss(brand: Brand): string {
   return [
-    `:root {\n  --brand: ${brand.accent};\n${declarations('light', brand)}\n}`,
+    `:root {\n  --nawy-color-brand: ${brand.accent};\n${declarations('light', brand)}\n}`,
     `@media (prefers-color-scheme: dark) {\n  :root:not([data-theme='light']) {\n${declarations(
       'dark',
       brand,

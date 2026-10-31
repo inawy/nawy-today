@@ -35,7 +35,7 @@ export function useSwipeClose(
   const gesture = useRef<Gesture | null>(null);
 
   const release = (panel: HTMLElement, animate: boolean): void => {
-    panel.style.transition = animate ? `transform ${SPRING_MS}ms var(--ease)` : '';
+    panel.style.transition = animate ? `transform ${SPRING_MS}ms var(--nawy-ease)` : '';
     panel.style.transform = '';
     if (animate) {
       window.setTimeout(() => {

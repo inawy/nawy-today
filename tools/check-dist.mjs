@@ -21,7 +21,7 @@ const css = readdirSync('dist/assets')
   .filter((f) => f.endsWith('.css'))
   .map((f) => readFileSync(`dist/assets/${f}`, 'utf8'))
   .join('\n');
-if (!new RegExp(`--brand:\\s*${brand.accent}`, 'i').test(css)) {
+if (!new RegExp(`--nawy-color-brand:\\s*${brand.accent}`, 'i').test(css)) {
   fail.push('built CSS does not contain the brand accent token');
 }
 if (!css.includes('data-theme')) fail.push('built CSS has no data-theme rules');
