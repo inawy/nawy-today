@@ -85,7 +85,14 @@ describe('themeCss', () => {
   });
 
   it('defines every token and calendar colour in both themes', () => {
-    for (const v of ['--nawy-color-bg', '--nawy-color-surface', '--nawy-color-text', '--nawy-color-accent-fill', '--nawy-color-on-accent-fill', '--nawy-color-now']) {
+    for (const v of [
+      '--nawy-color-bg',
+      '--nawy-color-surface',
+      '--nawy-color-text',
+      '--nawy-color-accent-fill',
+      '--nawy-color-on-accent-fill',
+      '--nawy-color-now',
+    ]) {
       expect(css.split(`${v}:`).length - 1).toBe(3); // light, dark-by-media, dark-explicit
     }
     for (const id of CALENDAR_COLOR_IDS) {
