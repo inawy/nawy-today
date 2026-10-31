@@ -289,20 +289,25 @@ button.tg-headcell:hover {
   transition: none;
 }
 
-/* A phone shows seven day columns about 47px wide (D-056): the title is what matters, so it
-   wraps instead of being cut to three letters, and the time (in the card on tap) is left out. */
+/* A phone shows seven day columns about 47px wide (D-056), or three about 75px: the title is what
+   matters, so it wraps instead of being cut to three letters, and the time (in the card on tap)
+   is left out. */
 @media (max-width: 599px) {
-  .tg[data-cols='7'] .block {
+  .tg[data-cols='7'] .block,
+  .tg[data-cols='3'] .block {
     padding-inline: 3px;
     font-size: 0.6875rem;
     line-height: 1.2;
   }
 
-  .tg[data-cols='7'] .block-time {
+  .tg[data-cols='7'] .block-time,
+  .tg[data-cols='3'] .block[data-lanes='2'] .block-time,
+  .tg[data-cols='3'] .block[data-lanes='3'] .block-time {
     display: none;
   }
 
-  .tg[data-cols='7'] .block-title {
+  .tg[data-cols='7'] .block-title,
+  .tg[data-cols='3'] .block-title {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 5;
@@ -311,12 +316,26 @@ button.tg-headcell:hover {
     text-overflow: clip;
   }
 
-  .tg[data-cols='7'] .block[data-short='true'] {
+  .tg[data-cols='7'] .block[data-short='true'],
+  .tg[data-cols='3'] .block[data-short='true'] {
     align-items: flex-start;
     padding-block: 1px;
   }
 
-  .tg[data-cols='7'] .block[data-short='true'] .block-title {
+  .tg[data-cols='7'] .block[data-short='true'] .block-title,
+  .tg[data-cols='3'] .block[data-short='true'] .block-title {
     -webkit-line-clamp: 1;
+  }
+
+  /* D-078: where overlapping events leave a lane under ~24px (week: two or more side by side;
+     three days: three or more) no text can fit. The block stays a slim coloured bar you can tap
+     (the title is still its accessible name and tooltip) instead of a column of cut letters. */
+  .tg[data-cols='7'] .block:not([data-lanes='1']) .block-title,
+  .tg[data-cols='3'] .block[data-lanes]:not([data-lanes='1']):not([data-lanes='2']) .block-title {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }

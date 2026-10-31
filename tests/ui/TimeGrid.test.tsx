@@ -271,6 +271,20 @@ describe('TimeGrid', () => {
     expect(b?.style.insetInlineStart).toBe('50%');
   });
 
+  it('tells each block how many lanes it shares, so a phone can slim the crowded ones', () => {
+    const events = [
+      makeEvent({ id: 'a', title: 'A', start: '2026-10-13T09:00', end: '2026-10-13T11:00' }),
+      makeEvent({ id: 'b', title: 'B', start: '2026-10-13T10:00', end: '2026-10-13T12:00' }),
+      makeEvent({ id: 'c', title: 'C', start: '2026-10-14T09:00', end: '2026-10-14T10:00' }),
+    ];
+    const { container } = view(model(events));
+    const lanes = (id: string) =>
+      container.querySelector<HTMLElement>(`[data-event-id="${id}"]`)?.dataset['lanes'];
+    expect(lanes('a')).toBe('2');
+    expect(lanes('b')).toBe('2');
+    expect(lanes('c')).toBe('1');
+  });
+
   it('draws all-day events as bars in their own row, with "+N" when crowded', () => {
     const events = ['a', 'b', 'c', 'd'].map((id) =>
       makeAllDayEvent({ id, title: id, start: '2026-10-14', end: '2026-10-15' }),

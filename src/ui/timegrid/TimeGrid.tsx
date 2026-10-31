@@ -329,6 +329,7 @@ function Block({
       className="block"
       style={style}
       data-short={block.height * 24 * HOUR_PX < SHORT_BLOCK_PX ? 'true' : undefined}
+      data-lanes={block.columnCount}
       data-dragging={drag.offset || resize.offset ? 'true' : undefined}
       data-open-start={block.startsBefore ? 'true' : undefined}
       data-open-end={block.endsAfter ? 'true' : undefined}
