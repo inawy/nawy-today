@@ -303,7 +303,9 @@ test.describe('Arabic, right to left', () => {
 test.describe('on a phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
-  test('the year view fits, its days are 44px targets, and the view menu lists six choices', async ({ page }) => {
+  test('the year view fits, its days are 44px targets, and the view menu lists six choices', async ({
+    page,
+  }) => {
     await page.goto('/');
     await chooseView(page, 'Year');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^\d{4}$/);
