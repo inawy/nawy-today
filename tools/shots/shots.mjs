@@ -88,6 +88,12 @@ async function session(name, contextOptions, steps) {
   await context.close();
 }
 
+// On a phone the views are in a menu (D-079).
+const chooseView = async (page, name) => {
+  await page.getByRole('button', { name: 'تغيير العرض' }).click();
+  await page.getByRole('button', { name, exact: true }).click();
+};
+
 const key = (page, code) => page.keyboard.press(code);
 
 await session('desktop-ar', { viewport: { width: 1280, height: 800 }, locale: 'ar-SA' }, async (page, shot) => {
@@ -117,13 +123,13 @@ await session('phone-ar', { viewport: { width: 390, height: 844 }, locale: 'ar-S
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'القائمة' }).click(); await shot('drawer');
   await page.getByRole('button', { name: 'إغلاق القائمة' }).click();
-  await page.getByRole('button', { name: 'شهر', exact: true }).click(); await shot('month');
+  await chooseView(page, 'شهر'); await shot('month');
   await page.getByRole('button', { name: 'إضافة حدث' }).click(); await shot('editor');
   await page.getByRole('button', { name: 'إلغاء', exact: true }).click();
-  await page.getByRole('button', { name: '3 أيام', exact: true }).click(); await shot('days3');
-  await page.getByRole('button', { name: 'أسبوع', exact: true }).click(); await shot('week');
-  await page.getByRole('button', { name: 'يوم', exact: true }).click(); await shot('day');
-  await page.getByRole('button', { name: 'سنة', exact: true }).click();
+  await chooseView(page, '3 أيام'); await shot('days3');
+  await chooseView(page, 'أسبوع'); await shot('week');
+  await chooseView(page, 'يوم'); await shot('day');
+  await chooseView(page, 'سنة');
   await page.locator('.year-month').nth(9).scrollIntoViewIfNeeded(); await shot('year');
 });
 

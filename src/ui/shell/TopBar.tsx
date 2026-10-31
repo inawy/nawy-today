@@ -1,9 +1,10 @@
+import { useEffect, useRef, useState } from 'react';
 import type { Ref } from 'react';
 import { useT } from '@/features/i18n';
 import type { MessageKey } from '@/features/i18n';
 import { splitTitle } from '@/features/view';
 import type { ViewKind } from '@/features/view';
-import { ChevronIcon, MenuIcon, SearchIcon } from './Icons';
+import { ChevronIcon, MenuIcon, SearchIcon, ViewsIcon } from './Icons';
 
 export interface TopBarProps {
   readonly title: string;
@@ -64,6 +65,17 @@ export function TopBar({
 }: TopBarProps) {
   const t = useT();
   const { lead, rest } = splitTitle(title);
+  // On a phone the six views live in a menu under the bar (D-079); elsewhere they sit in the bar.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const viewsRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
   return (
     <header className="topbar">
       <button
@@ -115,14 +127,39 @@ export function TopBar({
       >
         <SearchIcon />
       </button>
-      <div role="group" aria-label={t('views')} className="view-switch">
+      <button
+        ref={viewsRef}
+        type="button"
+        className="icon-btn tb-views"
+        aria-label={t('viewMenu')}
+        aria-haspopup="true"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((open) => !open)}
+      >
+        <ViewsIcon />
+      </button>
+      {menuOpen && (
+        <div className="view-scrim" aria-hidden="true" onClick={() => setMenuOpen(false)} />
+      )}
+      <div
+        role="group"
+        aria-label={t('views')}
+        className="view-switch"
+        data-open={menuOpen ? 'true' : 'false'}
+      >
         {VIEWS.map(([kind, key]) => (
           <button
             key={kind}
             type="button"
             className="btn view-btn"
             aria-pressed={view === kind}
-            onClick={() => onView(kind)}
+            onClick={() => {
+              if (menuOpen) {
+                setMenuOpen(false);
+                viewsRef.current?.focus();
+              }
+              onView(kind);
+            }}
           >
             {t(key)}
           </button>

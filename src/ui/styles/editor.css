@@ -376,15 +376,15 @@ button.block {
   }
 }
 
-/* On a phone the view switcher sits along the bottom edge; the floating things stay above it. */
+/* On a phone the floating things sit near the bottom edge (the view menu is in the top bar). */
 @media (max-width: 599px) {
   .fab {
-    inset-block-end: calc(72px + env(safe-area-inset-bottom));
+    inset-block-end: calc(20px + env(safe-area-inset-bottom));
   }
 
   /* A notice is a bar across the screen, not a narrow card that wraps and hides the content. */
   .toast {
-    inset-block-end: calc(76px + env(safe-area-inset-bottom));
+    inset-block-end: calc(16px + env(safe-area-inset-bottom));
     inset-inline: 8px;
     translate: none;
     animation-name: toast-rise-bar;

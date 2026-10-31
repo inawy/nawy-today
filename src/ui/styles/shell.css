@@ -216,6 +216,11 @@
   font-weight: 600;
 }
 
+.tb-views,
+.view-scrim {
+  display: none;
+}
+
 /* The day number replaces the word "Today" only on a phone (D-064). */
 .tb-today-day {
   display: none;
@@ -223,7 +228,8 @@
 
 @media (max-width: 599px) {
   .topbar {
-    padding: 4px 8px;
+    gap: 0;
+    padding: 4px;
     padding-block-start: calc(4px + env(safe-area-inset-top));
   }
 
@@ -231,8 +237,8 @@
     flex: 1 1 0;
     min-inline-size: 0;
     overflow: hidden;
-    margin-inline-start: 4px;
-    font-size: 1.05rem;
+    margin-inline: 4px;
+    font-size: 0.95rem;
     line-height: 1.25;
     white-space: normal;
     display: -webkit-box;
@@ -278,21 +284,44 @@
     text-align: center;
   }
 
-  /* The four views sit in a bar at the bottom, where the thumb is. */
-  .view-switch {
+  /* The six views live in a menu that drops from the top bar (D-079); the bar at the bottom
+     was six small labels. Closed, the group is not drawn (nor read out). */
+  .tb-views {
+    display: inline-flex;
+    order: 5;
+  }
+
+  .tb-today {
+    order: 6;
+  }
+
+  .view-scrim {
+    display: block;
     position: fixed;
-    inset-inline: 0;
-    inset-block-end: 0;
-    z-index: 15;
+    inset: 0;
+    z-index: 19;
+    background: rgb(0 0 0 / 0.2);
+  }
+
+  .view-switch {
+    display: none;
+    position: fixed;
+    inset-inline-end: 8px;
+    inset-block-start: calc(56px + env(safe-area-inset-top));
+    z-index: 20;
     margin: 0;
-    padding: 6px 8px;
-    padding-block-end: calc(6px + env(safe-area-inset-bottom));
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 4px;
+    padding: 6px;
+    min-inline-size: 180px;
+    flex-direction: column;
+    gap: 2px;
     background: var(--surface);
-    border-radius: 0;
-    border-block-start: 1px solid var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .view-switch[data-open='true'] {
+    display: flex;
   }
 
   .view-btn,
@@ -301,14 +330,15 @@
     margin: 0;
     border-radius: var(--radius);
     min-block-size: 44px;
-    padding-inline: 2px;
-    min-inline-size: 0;
-    font-size: 0.875rem;
+    padding-inline: 12px;
+    justify-content: flex-start;
+    text-align: start;
+    font-size: 1rem;
     white-space: nowrap;
   }
 
   .main {
-    padding-block-end: calc(56px + env(safe-area-inset-bottom));
+    padding-block-end: env(safe-area-inset-bottom);
   }
 }
 

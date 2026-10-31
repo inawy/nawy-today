@@ -1,6 +1,22 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
+/** On a phone the views are in a menu: open it, then choose (D-079). */
+async function chooseView(page: Page, name: string): Promise<void> {
+  await page.getByRole('button', { name: 'Change view' }).click();
+  await page.getByRole('button', { name, exact: true }).click();
+}
+
+async function expectViewIs(page: Page, name: string): Promise<void> {
+  await page.getByRole('button', { name: 'Change view' }).click();
+  await expect(page.getByRole('button', { name, exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('group', { name: 'View', exact: true })).toBeHidden();
+}
+
 async function addEvent(page: Page, title: string): Promise<void> {
   await page.getByRole('button', { name: 'Add event' }).click();
   const dialog = page.getByRole('dialog', { name: 'New event' });
@@ -287,9 +303,9 @@ test.describe('Arabic, right to left', () => {
 test.describe('on a phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
-  test('the year view fits six view buttons and every day is a 44px target', async ({ page }) => {
+  test('the year view fits, its days are 44px targets, and the view menu lists six choices', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Year', exact: true }).click();
+    await chooseView(page, 'Year');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^\d{4}$/);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -302,19 +318,23 @@ test.describe('on a phone', () => {
           .filter((r) => r.height < 43.5 || r.width < 40).length,
     );
     expect(small, 'year targets smaller than 44px').toBe(0);
-    const bar = await page
+    // Closed, the menu is not drawn; open, it is six rows, each a 44px target, inside the screen.
+    await expect(page.locator('.view-btn').first()).toBeHidden();
+    await page.getByRole('button', { name: 'Change view' }).click();
+    const rows = await page
       .locator('.view-btn')
-      .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().width)));
-    expect(bar).toHaveLength(6);
-    expect(Math.min(...bar)).toBeGreaterThanOrEqual(44);
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
+    expect(rows).toHaveLength(6);
+    expect(Math.min(...rows.map((r) => r.height))).toBeGreaterThanOrEqual(44);
+    expect(Math.min(...rows.map((r) => r.left))).toBeGreaterThanOrEqual(0);
+    expect(Math.max(...rows.map((r) => r.right))).toBeLessThanOrEqual(390);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.view-btn').first()).toBeHidden();
   });
 
   test('opens on the Today list, fits the screen, and Back closes the editor', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('button', { name: 'Agenda' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expectViewIs(page, 'Agenda');
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
@@ -348,7 +368,7 @@ test.describe('on a phone', () => {
     await expect(dialog).toBeVisible();
     await page.goBack();
     await expect(dialog).toBeHidden();
-    await expect(page.getByRole('button', { name: 'Agenda' })).toBeVisible(); // still in the app
+    await expect(page.getByRole('button', { name: 'Change view' })).toBeVisible(); // still in the app
   });
 
   test('the menu lines its buttons and lists up inside the drawer (D-056)', async ({ page }) => {
@@ -386,7 +406,7 @@ test.describe('on a phone', () => {
   test('the month keeps its grid and lists the chosen day under it (D-059)', async ({ page }) => {
     await page.goto('/');
     await addEvent(page, 'Listed under the month');
-    await page.getByRole('button', { name: 'Month', exact: true }).click();
+    await chooseView(page, 'Month');
     const title = page.locator('.month-day-title');
     await expect(title).toBeVisible();
     await expect(
@@ -395,10 +415,7 @@ test.describe('on a phone', () => {
     const before = await title.textContent();
     await page.locator('.day-btn[aria-pressed="false"]').nth(10).click();
     await expect(title).not.toHaveText(before ?? '');
-    await expect(page.getByRole('button', { name: 'Month', exact: true })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expectViewIs(page, 'Month');
     // The grid is still on screen after the list scrolled or changed.
     await expect(page.locator('.month-split .month')).toBeInViewport();
   });
@@ -407,7 +424,7 @@ test.describe('on a phone', () => {
     page,
   }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Day', exact: true }).click();
+    await chooseView(page, 'Day');
     const col = page.locator('.tg-col').first();
     await expect(col).toBeVisible();
     const scroll = await page.locator('.tg-scroll').boundingBox();
