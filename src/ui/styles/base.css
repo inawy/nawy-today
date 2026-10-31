@@ -5,14 +5,14 @@
   box-sizing: border-box;
 }
 
-/* IBM Plex Sans Arabic (SIL OFL, see public/fonts), shipped with the app: no network, works offline.
+/* Cairo (SIL OFL, see public/fonts; the Nawy design system's font, D-081), shipped with the app: no network, works offline.
    `swap` shows the system font at once and switches when the file is ready. */
 @font-face {
   font-family: 'Nawy Sans';
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  src: url('/fonts/plex-arabic-Regular.woff2') format('woff2');
+  src: url('/fonts/cairo-Regular.woff2') format('woff2');
 }
 
 @font-face {
@@ -20,7 +20,7 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  src: url('/fonts/plex-arabic-Bold.woff2') format('woff2');
+  src: url('/fonts/cairo-Bold.woff2') format('woff2');
 }
 
 :root {
@@ -35,7 +35,7 @@
     system-ui,
     -apple-system,
     'Segoe UI',
-    'IBM Plex Sans Arabic',
+    Cairo,
     'Noto Sans Arabic',
     Tahoma,
     sans-serif;

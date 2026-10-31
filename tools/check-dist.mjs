@@ -40,9 +40,9 @@ if (!/<link rel="manifest" href="\.\/manifest\.webmanifest"/.test(html)) {
   fail.push('index.html does not link the manifest');
 }
 const FONT_FILES = [
-  'plex-arabic-Regular.woff2',
-  'plex-arabic-Bold.woff2',
-  'OFL-IBM-Plex-Sans-Arabic.txt',
+  'cairo-Regular.woff2',
+  'cairo-Bold.woff2',
+  'OFL-Cairo.txt',
 ];
 for (const f of FONT_FILES) {
   if (!existsSync(`dist/fonts/${f}`)) fail.push(`font file missing from dist: ${f}`);

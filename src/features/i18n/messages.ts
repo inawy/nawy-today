@@ -192,7 +192,7 @@ const ar = {
     'النسخة 1.0. جرّبها صاحب المشروع على هاتف حقيقي في الاستخدام اليومي وفي النسخ الاحتياطي والاسترجاع. لم تُجرَّب بعد على أجهزة ومتصفحات وقارئات شاشة كثيرة. إن تعطّل شيء فاحتفظ برقم النسخة أدناه.',
   aboutLicH: 'تراخيص',
   aboutLic:
-    'الخط: IBM Plex Sans Arabic بترخيص OFL 1.1، وهو مضمَّن في التطبيق ولا يُحمَّل من الإنترنت.',
+    'الخط: Cairo بترخيص OFL 1.1، وهو مضمَّن في التطبيق ولا يُحمَّل من الإنترنت.',
   aboutBuild: 'النسخة',
   shortcutsOpen: 'اختصارات لوحة المفاتيح',
   shortcutsTitle: 'اختصارات لوحة المفاتيح',
@@ -494,7 +494,7 @@ const en: Record<MessageKey, string> = {
     'Version 1.0. The project owner has used it on a real phone for daily use and for backup and restore. It has not yet been tried on many devices, browsers or screen readers. If something breaks, keep the build number below.',
   aboutLicH: 'Licences',
   aboutLic:
-    'Font: IBM Plex Sans Arabic, licensed under OFL 1.1. It is bundled with the app and not loaded from the internet.',
+    'Font: Cairo, licensed under OFL 1.1. It is bundled with the app and not loaded from the internet.',
   aboutBuild: 'Build',
   shortcutsOpen: 'Keyboard shortcuts',
   shortcutsTitle: 'Keyboard shortcuts',

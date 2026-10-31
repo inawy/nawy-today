@@ -15,7 +15,7 @@ describe('bundled Arabic font', () => {
 
   it('ships every declared file, and its licence, in public/', () => {
     for (const f of files) expect(existsSync(`public/${f}`), f).toBe(true);
-    expect(existsSync('public/fonts/OFL-IBM-Plex-Sans-Arabic.txt')).toBe(true);
+    expect(existsSync('public/fonts/OFL-Cairo.txt')).toBe(true);
   });
 
   it('uses real woff2 files, each under 70 KB', () => {
