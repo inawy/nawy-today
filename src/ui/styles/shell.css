@@ -238,7 +238,7 @@
     min-inline-size: 0;
     overflow: hidden;
     margin-inline: 4px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     line-height: 1.25;
     white-space: normal;
     display: -webkit-box;
@@ -293,6 +293,8 @@
 
   .tb-today {
     order: 6;
+    inline-size: 46px;
+    padding: 0;
   }
 
   .view-scrim {
